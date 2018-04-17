@@ -8,7 +8,8 @@
 		<meta name="viewport" content="width=device-width, initial-scale=1">
 		 <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
 
-		<title>Magnews HTML Template</title>
+		<title>Journal</title>
+        <link rel="icon" type="image/png" href="{% static 'journal/img/favicon.png' %}">
 
 		<!-- Google font -->
 		<link href="https://fonts.googleapis.com/css?family=Open+Sans:400,700%7CLato:300,400" rel="stylesheet"> 
@@ -79,7 +80,7 @@
 			<div id="center-header">
 				<div class="container">
 					<div class="header-logo">
-						<a href="#" class="logo"><img src="{% static 'journal/img/logo.png'%}" alt=""></a>
+						<a href="#" class="logo"><img src="{% static 'journal/img/logo-header.gif'%}" alt=""></a>
 					</div>
 					<div class="header-ads">
 						<img class="center-block" src="{% static 'journal/img/ad-2.jpg'%}" alt="">
@@ -93,31 +94,50 @@
 				<div class="container">
 					<nav id="main-nav">
 						<ul class="main-nav nav navbar-nav">
-							<li class="active"><a href="#">Home</a></li>
-							<li><a href="#">News</a></li>
-							<li><a href="#">Sport</a></li>
-							<li><a href="#">Lifestyle</a></li>
-							<li><a href="#">Fashion</a></li>
-							<li><a href="#">Music</a></li>
-							<li><a href="#">Business</a></li>
+							<li class="active"><a href="{% url 'index' %}">actualités</a></li>
+							<li><a href="#">Sports</a></li>
+                            <li><a href="#">Politique</a></li>
+							<li><a href="#">Style de vie</a></li>
+							<li><a href="#">Mode</a></li>
+							<li><a href="#">Musique</a></li>
+							<li><a href="#">Economie</a></li>
+                            <li><a href="#">Météo</a></li>
 						</ul>
 					</nav>
 					<div class="button-nav">
 						<button class="search-collapse-btn"><i class="fa fa-search"></i></button>
 						<button class="nav-collapse-btn"><i class="fa fa-bars"></i></button>
 						<div class="search-form">
-							<form>
+							<form action="{% url 'index' %}" method="get">
 								<input class="input" type="text" name="search" placeholder="Search">
+                                <input type="hidden" name="method" value="search">
 							</form>
 						</div>
 					</div>
 				</div>
 			</div>
 			<!-- /Nav Header -->
+
+            <!-- Trending Now -->
+            <div class="trendingNow">
+                <div class="container">
+                    <div class="title">
+                        Trending Now
+                    </div>
+                    <div class="news">
+                        <span>
+                            Amazon’s Apple Watch killer will be free and sell you everything
+                        </span>
+                    </div>
+                </div>
+            </div>
+            <!-- /Trending Now -->
+
 		</header>
 		<!-- /Header -->
 		
 		<!-- Owl Carousel 1 -->
+        <div class="container">
 		<div id="owl-carousel-1" class="owl-carousel owl-theme center-owl-nav">
 			<!-- ARTICLE -->
 			<article class="article thumb-article">
@@ -176,6 +196,7 @@
 			</article>
 			<!-- /ARTICLE -->
 		</div>
+            </div>
 		<!-- /Owl Carousel 1 -->
 		
 		<!-- SECTION -->

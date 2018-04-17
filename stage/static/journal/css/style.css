@@ -120,7 +120,8 @@ textarea.input {
 	Top Header
 \*----------------------------*/
 #header #top-header {
-	border-bottom: 1px solid #DDD;
+    background: #212121;
+    font-family: open sans,arial,sans-serif;
 }
 
 .header-links {
@@ -129,37 +130,25 @@ textarea.input {
 
 .header-links ul li {
 	display: inline-block;
-	border-left: 1px solid #DDD;
 }
 
-.header-links  ul li:last-child {
-	border-right:1px solid #DDD;
-}
-
-.header-links ul li a {
+.header-links ul li a, .header-links ul li span#currentDate {
 	display: block;
-	padding: 0px 10px;
-	height: 30px;
-	line-height: 30px;
-	color: #222;
-	font-size: 12.5px;
-	text-align: center;
-	text-transform: uppercase;
-}
-
-.header-links ul li a:hover  {
-	color:#EF233C;
+    padding: 1px 12px 0 12px;
+    height: 28px;
+    line-height: 28px;
+    color: #FFF;
+    font-size: 11px;
+    text-align: center;
+    text-transform: uppercase;
 }
 
 .header-links ul li span#currentDate {
-	display: block;
-	padding: 0px 30px;
-	height: 30px;
-	line-height: 30px;
-	font-size: 12.5px;
-	text-align: center;
-	text-transform: uppercase;
-	color: #455A64;
+    padding: 1px 35px 0 35px;
+}
+
+.header-links ul li a:hover {
+	color:#EF233C;
 }
 
 .header-social {
@@ -168,11 +157,6 @@ textarea.input {
 
 .header-social ul li {
 	display: inline-block;
-	border-left: 1px solid #DDD;
-}
-
-.header-social ul li:last-child {
-	border-right:1px solid #DDD;
 }
 
 .header-social ul li a {
@@ -180,7 +164,7 @@ textarea.input {
 	width: 30px;
 	height: 30px;
 	line-height: 30px;
-	color: #222;
+	color: #fff;
 	text-align: center;
 }
 
@@ -204,6 +188,27 @@ textarea.input {
 	color:#ff0000;
 }
 
+.trendingNow .container div {
+    display: inline;
+}
+
+.trendingNow {
+    padding-bottom: 25px;
+}
+
+.trendingNow .container .title {
+    color: #FFF;
+    background: #212121;
+    padding: 5px 10px;
+    font-size: 13px;
+    text-transform: uppercase;
+    margin-left: 30px;
+}
+
+.trendingNow .container .news {
+    padding-left: 20px;
+}
+
 /*----------------------------*\
 	Center Header
 \*----------------------------*/
@@ -223,7 +228,6 @@ textarea.input {
 .header-logo .logo > img {
 	width: 100%;
 	max-height: 90px;
-	padding: 10px;
 }
 
 .header-ads {
@@ -234,21 +238,12 @@ textarea.input {
 	Nav Header
 \*----------------------------*/
 #header #nav-header {
-	background: #07090c;
-}
-
-#nav-header .nav-logo {
-	display:none;
-	float:left;
-}
-
-#nav-header .nav-logo .logo {
-	display:inline-block;
-}
-
-#nav-header .nav-logo .logo > img {
-	width: 100%;
-	max-height: 90px;
+	background: #FFF;
+    height: 47px;
+    margin-bottom: 24px;
+    -webkit-box-shadow: 0 4px 4px #E0E0E0;
+    -moz-box-shadow: 0 4px 4px #E0E0E0;
+    box-shadow: 0 4px 4px #E0E0E0;
 }
 
 #nav-header.fixed {
@@ -260,25 +255,30 @@ textarea.input {
 }
 
 .main-nav li {
-	border-left:1px solid #222;
+	height: 47px;
 }
 
-.main-nav li:last-child {
-	border-right:1px solid #222;
-}
+
 
 .main-nav li a {
-	padding: 25px 15px;
-	color: #FFF;
-	text-transform: uppercase;
+	color: #000;
+    text-transform: uppercase;
+    font-weight: bold;
+    height: 47px;
+    font-size: 13px;
+    padding: 13px 21px;
+    transition: all .2s ease-in;
 }
 
 .main-nav li.active a {
-	background-color:#EF233C !important;
+	border-bottom: 3px solid #EF233C;
+    background-color: #FFF;
+    cursor: default;
 }
 
 .main-nav li a:hover, .main-nav li a:focus {
-	background-color:#222;
+	border-bottom: 3px solid #EF233C;
+    background-color: #FFF;
 }
 
 .button-nav {
@@ -287,11 +287,15 @@ textarea.input {
 }
 
 .button-nav > button {
-	padding: 25px 25px;
+	padding: 13px 25px;
 	border: none;
 	line-height: 20px;
 	background: transparent;
 	color: #FFF;
+}
+
+.button-nav > button i{
+    color: #000;
 }
 
 .button-nav .search-collapse-btn.active {
@@ -348,6 +352,7 @@ textarea.input {
 @media only screen and (max-width: 767px) {
 	#header #top-header {
 		text-align:center;
+        margin-bottom: 40px;
 	}
 	
 	.header-links, .header-social {
@@ -356,9 +361,12 @@ textarea.input {
 	
 	.header-links ul li {
 		margin-right:-4px;
-		border-bottom:1px solid #DDD;
 	}
-	
+
+    .header-links ul li span#currentDate {
+        display: none;
+    }
+
 	.header-social {
 		margin-top:-1px;
 	}
@@ -397,7 +405,7 @@ textarea.input {
 		padding-top:30px;
 		overflow-x: hidden;
 		overflow-y: auto;
-		background: #07090c;
+		background: #E0E0E0;
 		-webkit-box-shadow: 5px 0px 6px -5px rgba(0, 0, 0, 0.4);
 		        box-shadow: 5px 0px 6px -5px rgba(0, 0, 0, 0.4);
 		-webkit-transform: translateX(-100%);
