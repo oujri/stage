@@ -1,8 +1,13 @@
 from django.shortcuts import render
 
+from .models import Categorie
+
 
 def index(request):
-    return render(request, 'journal/index.html')
+    context = {
+        'categories': Categorie.objects.exclude(name='News').all()
+    }
+    return render(request, 'journal/index.html', context)
 
 
 def about(request):

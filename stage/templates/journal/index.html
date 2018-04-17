@@ -95,12 +95,9 @@
 					<nav id="main-nav">
 						<ul class="main-nav nav navbar-nav">
 							<li class="active"><a href="{% url 'index' %}">actualités</a></li>
-							<li><a href="#">Sports</a></li>
-                            <li><a href="#">Politique</a></li>
-							<li><a href="#">Style de vie</a></li>
-							<li><a href="#">Mode</a></li>
-							<li><a href="#">Musique</a></li>
-							<li><a href="#">Economie</a></li>
+                            {% for cat in categories %}
+							<li><a href="#">{{ cat.name }}</a></li>
+                            {% endfor %}
                             <li><a href="#">Météo</a></li>
 						</ul>
 					</nav>
