@@ -2,10 +2,26 @@ from django.shortcuts import render
 
 from .models import Categorie
 
+import requests
+
 
 def index(request):
+
+    # Meteo
+    url = 'http://api.openweathermap.org/data/2.5/weather?q=Rabat&units=metric&appid=91d3852842a30e80531df63b131af6d4'
+    r = requests.get(url).json()
+    weather = {
+        'city': 'Rabat',
+        'temperature': r['main']['temp'],
+        'description': r['weather'][0]['description'],
+        'icon': r['weather'][0]['icon'],
+    }
+
+    print(weather)
+
     context = {
-        'categories': Categorie.objects.exclude(name='News').all()
+        'categories': Categorie.objects.exclude(name='News').all(),
+        'weather': weather
     }
     return render(request, 'journal/index.html', context)
 

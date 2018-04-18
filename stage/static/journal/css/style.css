@@ -132,6 +132,20 @@ textarea.input {
 	display: inline-block;
 }
 
+#header #top-header .header-links .weather {
+	padding: 1px 12px 0 12px;
+	height: 28px;
+	line-height: 28px;
+	color: #FFF;
+	font-size: 11px;
+	text-align: center;
+	text-transform: uppercase;
+}
+
+#header #top-header .header-links .weather img {
+	max-height: 31px;
+}
+
 .header-links ul li a, .header-links ul li span#currentDate {
 	display: block;
     padding: 1px 12px 0 12px;
@@ -144,7 +158,7 @@ textarea.input {
 }
 
 .header-links ul li span#currentDate {
-    padding: 1px 35px 0 35px;
+    padding: 1px 45px 0 12px;
 }
 
 .header-links ul li a:hover {
