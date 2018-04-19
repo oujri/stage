@@ -103,7 +103,6 @@
                             {% for cat in categories %}
 							<li><a href="#">{{ cat.name }}</a></li>
                             {% endfor %}
-                            <li><a href="#">Météo</a></li>
 						</ul>
 					</nav>
 					<div class="button-nav">
@@ -141,64 +140,28 @@
 		<!-- Owl Carousel 1 -->
         <div class="container">
 		<div id="owl-carousel-1" class="owl-carousel owl-theme center-owl-nav">
+            {% for n in newscar %}
 			<!-- ARTICLE -->
 			<article class="article thumb-article">
 				<div class="article-img">
-					<img src="{% static 'journal/img/img-lg-1.jpg'%}" alt="">
+					<img src="{{ n.imagePrincipale.image.url }}" alt="{{ n.imagePrincipale.description }}">
 				</div>
 				<div class="article-body">
 					<ul class="article-info">
-						<li class="article-category"><a href="#">News</a></li>
-						<li class="article-type"><i class="fa fa-camera"></i></li>
+						<li class="article-category"><a href="#">{{ n.categorie.name }}</a></li>
+						<li class="article-type"><i class="fa {{ n.categorie.icon }}"></i></li>
 					</ul>
-					<h2 class="article-title"><a href="#">Duis urbanitas eam in, tempor consequat.</a></h2>
+					<h2 class="article-title"><a href="#">{{ n.titre }}</a></h2>
 					<ul class="article-meta">
-						<li><i class="fa fa-clock-o"></i> January 31, 2017</li>
+						<li><i class="fa fa-clock-o"></i> {{ n.datePublication }}</li>
 						<li><i class="fa fa-comments"></i> 33</li>
 					</ul>
 				</div>
 			</article>
 			<!-- /ARTICLE -->
-			
-			<!-- ARTICLE -->
-			<article class="article thumb-article">
-				<div class="article-img">
-					<img src="{% static 'journal/img/img-lg-2.jpg'%}" alt="">
-				</div>
-				<div class="article-body">
-					<ul class="article-info">
-						<li class="article-category"><a href="#">News</a></li>
-						<li class="article-type"><i class="fa fa-file-text"></i></li>
-					</ul>
-					<h2 class="article-title"><a href="#">Duis urbanitas eam in, tempor consequat.</a></h2>
-					<ul class="article-meta">
-						<li><i class="fa fa-clock-o"></i> January 31, 2017</li>
-						<li><i class="fa fa-comments"></i> 33</li>
-					</ul>
-				</div>
-			</article>
-			<!-- /ARTICLE -->
-			
-			<!-- ARTICLE -->
-			<article class="article thumb-article">
-				<div class="article-img">
-					<img src="{% static 'journal/img/img-lg-3.jpg'%}" alt="">
-				</div>
-				<div class="article-body">
-					<ul class="article-info">
-						<li class="article-category"><a href="#">News</a></li>
-						<li class="article-type"><i class="fa fa-camera"></i></li>
-					</ul>
-					<h2 class="article-title"><a href="#">Duis urbanitas eam in, tempor consequat.</a></h2>
-					<ul class="article-meta">
-						<li><i class="fa fa-clock-o"></i> January 31, 2017</li>
-						<li><i class="fa fa-comments"></i> 33</li>
-					</ul>
-				</div>
-			</article>
-			<!-- /ARTICLE -->
-		</div>
+            {% endfor %}
             </div>
+        </div>
 		<!-- /Owl Carousel 1 -->
 		
 		<!-- SECTION -->
@@ -215,11 +178,9 @@
 							<!-- tab nav -->
 							<ul class="tab-nav pull-right">
 								<li class="active"><a data-toggle="tab" href="#tab1">All</a></li>
-								<li><a data-toggle="tab" href="#tab1">News</a></li>
-								<li><a data-toggle="tab" href="#tab1">Sport</a></li>
-								<li><a data-toggle="tab" href="#tab1">Music</a></li>
-								<li><a data-toggle="tab" href="#tab1">Business</a></li>
-								<li><a data-toggle="tab" href="#tab1">Lifestyle</a></li>
+                                {% for cat in categories %}
+							        <li><a data-toggle="tab" href="#tab1">{{ cat.name }}</a></li>
+                                {% endfor %}
 							</ul>
 							<!-- /tab nav -->
 						</div>
