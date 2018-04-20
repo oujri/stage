@@ -258,6 +258,7 @@ textarea.input {
     -webkit-box-shadow: 0 4px 4px #E0E0E0;
     -moz-box-shadow: 0 4px 4px #E0E0E0;
     box-shadow: 0 4px 4px #E0E0E0;
+	opacity: .8;
 }
 
 #nav-header.fixed {
@@ -595,6 +596,14 @@ textarea.input {
 	transition:0.5s transform, 0.5s -webkit-transform;
 }
 
+#owl-carousel-1 .article .article-img img{
+    height: 380px;
+}
+
+.tendance .article .article-img img{
+    max-height: 175px;
+}
+
 .article:hover .article-img img {
 	-webkit-transform:scale(1.1);
 	    -ms-transform:scale(1.1);
@@ -677,6 +686,7 @@ textarea.input {
 
 .article.thumb-article .article-img {
 	margin-bottom:0px;
+    max-height: 380px;
 }
 
 .article.thumb-article .article-img:after {

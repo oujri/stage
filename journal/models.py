@@ -7,11 +7,11 @@ class Publisher(models.Model):
     email = models.EmailField()
     tel = models.CharField(max_length=30)
     description = models.TextField(blank=True)
-    link = models.URLField()
-    facebook = models.URLField()
-    twitter = models.URLField()
-    youtube = models.URLField()
-    instagram = models.URLField()
+    link = models.URLField(blank=True)
+    facebook = models.URLField(blank=True)
+    twitter = models.URLField(blank=True)
+    youtube = models.URLField(blank=True)
+    instagram = models.URLField(blank=True)
 
     def __str__(self):
         return self.nom + ' ' + self.prenom
@@ -20,8 +20,18 @@ class Publisher(models.Model):
 class Categorie(models.Model):
     name = models.CharField(max_length=100)
     description = models.TextField(blank=True, null=True)
-    color = models.CharField(max_length=30)
+    color = models.CharField(max_length=30, default='#37474F')
     icon = models.CharField(max_length=30, null=True, blank=True)
+    tabHome = models.CharField(max_length=50, default='tab1')
+
+    def __str__(self):
+        return self.name
+
+
+class Tag(models.Model):
+    name = models.CharField(max_length=20)
+    description = models.TextField(blank=True, null=True)
+    color = models.TextField(max_length=30, default='#37474F')
 
     def __str__(self):
         return self.name
@@ -41,8 +51,13 @@ class News(models.Model):
     titre = models.CharField(max_length=255)
     contenu = models.TextField()
     datePublication = models.DateTimeField(auto_now_add=True)
+    publisher = models.ForeignKey(Publisher, on_delete=models.CASCADE)
     categorie = models.ForeignKey(Categorie, blank=True, null=True, on_delete=models.CASCADE)
     imagePrincipale = models.ForeignKey(Image, on_delete=models.CASCADE)
+    tag = models.ManyToManyField(Tag)
 
     def __str__(self):
         return self.titre
+
+    class Meta:
+        verbose_name_plural = 'News'
