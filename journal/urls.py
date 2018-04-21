@@ -9,4 +9,5 @@ urlpatterns = [
     path('privacy', views.privacy, name='privacy'),
     path('upload', views.upload, name='upload'),
     path('post', views.post, name='post'),
+    path('subscribe', views.subscribe, name='subscribe')
 ]
