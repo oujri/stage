@@ -74,6 +74,18 @@ class News(models.Model):
         verbose_name_plural = 'News'
 
 
+class ImageVideo(Image):
+    image_thumbnail = ImageSpecField(
+        source='image',
+        processors=[ResizeToFill(600, 600)],
+        format='JPEG',
+        options={'quality': 100})
+
+
+class Video(News):
+    videoUrl = models.URLField()
+
+
 class Commentaire(models.Model):
     nomComplet = models.CharField(max_length=50)
     datePublication = models.DateTimeField(auto_now_add=True)

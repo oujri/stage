@@ -1,4 +1,6 @@
 from datetime import date, timedelta, datetime
+
+from django.http import JsonResponse
 from django.shortcuts import render, redirect
 from django.views.decorators.http import require_POST
 
@@ -123,8 +125,20 @@ def upload(request):
 
 @require_POST
 def subscribe(request):
-    form = NewslatterForm(request.POST)
-    if form.is_valid():
-        registration = Newslatter(email=request.POST['email'])
+    email = request.GET.get('email', None)
+    data = {
+        'is_taken': Newslatter.objects.filter(email=email).exists()
+    }
+    if data['is_taken']:
+        data['message'] = 'Vous êtes déjà inscrit'
+    else:
+        registration = Newslatter(email=email)
         registration.save()
-    return redirect('index')
+        data['message'] = 'Inscription effectué'
+    return JsonResponse(data)
+
+    #form = NewslatterForm(request.POST)
+    #if form.is_valid():
+    #   registration = Newslatter(email=request.POST['email'])
+    #    registration.save()
+    #return redirect('index')

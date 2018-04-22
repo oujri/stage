@@ -828,7 +828,7 @@ textarea.input {
 .widget .widget-title .title {
 	font-size:15px;
 	text-transform: uppercase;
-	color:#DDD;
+	color:#757575;
 	margin-top:0px;
 }
 
@@ -891,7 +891,7 @@ textarea.input {
 	Subscribe Widget
 \*------------------------------------*/
 .widget.subscribe-widget {
-	padding:30px;
+	padding:30px 30px 10px;
 	background-color:#222;
 }
 
@@ -913,6 +913,11 @@ textarea.input {
 	color:#DDD;
 }
 
+.subscribe-widget #messageNewslatter1 {
+	color: #FFF;
+	text-align: center;
+	padding-top: 15px;
+}
 /*------------------------------------*\
 	Galery Widget
 \*------------------------------------*/
@@ -1429,3 +1434,4 @@ textarea.input {
 	    -ms-transform:translateY(0px);
 	        transform:translateY(0px);
 }
+

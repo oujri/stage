@@ -529,11 +529,13 @@
 							<div class="widget-title">
 								<h2 class="title">Subscribe to Newslatter</h2>
 							</div>
-							<form action="{% url 'subscribe' %}" method="POST" role="form">
+							<form action="{% url 'subscribe' %}" method="POST" role="form" class="formSubscribe"
+                                data-validate-username-url="{% url 'subscribe' %}">
                                 {% csrf_token %}
 								{{ newslatterForm.email }}
 								<button class="input-btn">Subscribe</button>
 							</form>
+                            <p id="messageNewslatter1"></p>
 						</div>
 						<!-- /subscribe widget -->
 						
@@ -603,6 +605,7 @@
 			</div>
 			<!-- /CONTAINER -->
 		</div>
+        </div>
 		<!-- /SECTION LAST ADD -->
 		
 		<!-- AD SECTION -->
@@ -935,4 +938,26 @@
 		</div>
 		<!-- /SECTION -->
 
+{% endblock %}
+
+{% block script %}
+    <script>
+        function hideMessage(){
+            $("#messageNewslatter1").text("");
+            $("#id_email").text("");
+        }
+        $( ".formSubscribe" ).submit(function( event ) {
+            event.preventDefault();
+            var form = $(this);
+            $.ajax({
+                url: form.attr("data-validate-username-url"),
+                data: form.serialize(),
+                dataType: 'json',
+                success: function (data) {
+                    $("#messageNewslatter1").text(data.message);
+                    //setTimeout(hideMessage, 5000);
+                }
+            });
+        });
+    </script>
 {% endblock %}
