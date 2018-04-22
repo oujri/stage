@@ -504,7 +504,7 @@
 					<div class="col-md-4">
 						<!-- Ad widget -->
 						<div class="widget center-block hidden-xs">
-							<img class="center-block" src="./img/ad-1.jpg" alt=""> 
+							<img class="center-block" src="{% static 'journal/img/ad-1.jpg' %}" alt="">
 						</div>
 						<!-- /Ad widget -->
 						
@@ -533,16 +533,16 @@
                                 data-validate-username-url="{% url 'subscribe' %}">
                                 {% csrf_token %}
 								{{ newslatterForm.email }}
-								<button class="input-btn">Subscribe</button>
+								<button class="input-btn" type="submit">Subscribe</button>
 							</form>
-                            <p id="messageNewslatter1"></p>
+                            <p class="messageNewslatter"></p>
 						</div>
 						<!-- /subscribe widget -->
 						
 						<!-- article widget -->
 						<div class="widget">
 							<div class="widget-title">
-								<h2 class="title">Most Read</h2>
+								<h2 class="title">Les plus lus</h2>
 							</div>
 							
 							<!-- owl carousel 3 -->
@@ -610,12 +610,12 @@
 		
 		<!-- AD SECTION -->
 		<div class="visible-lg visible-md">
-			<img class="center-block" src="./img/ad-3.jpg" alt="">
+			<img class="center-block" src="{% static 'journal/img/ad-3.jpg' %}" alt="">
 		</div>
 		<!-- /AD SECTION -->
 		
-		<!-- SECTION -->
-		<div class="section">
+		<!-- SECTION Videos Populaires -->
+		<div class="section videoP">
 			<!-- CONTAINER -->
 			<div class="container">
 				<!-- ROW -->
@@ -624,88 +624,33 @@
 					<div class="col-md-12">
 						<!-- section title -->
 						<div class="section-title">
-							<h2 class="title">Popular Video</h2>
+							<h2 class="title">Videos Populaires</h2>
 							<div id="nav-carousel-2" class="custom-owl-nav pull-right"></div>
 						</div>
 						<!-- /section title -->
 						
 						<!-- owl carousel 2 -->
 						<div id="owl-carousel-2" class="owl-carousel owl-theme">
-							<!-- ARTICLE -->
-							<article class="article thumb-article">
-								<div class="article-img">
-									<img src="{% static 'journal/img/img-thumb-1.jpg'%}" alt="">
-								</div>
-								<div class="article-body">
-									<ul class="article-info">
-										<li class="article-category"><a href="#">News</a></li>
-										<li class="article-type"><i class="fa fa-video-camera"></i></li>
-									</ul>
-									<h3 class="article-title"><a href="#">Duis urbanitas eam in, tempor consequat.</a></h3>
-									<ul class="article-meta">
-										<li><i class="fa fa-clock-o"></i> January 31, 2017</li>
-										<li><i class="fa fa-comments"></i> 33</li>
-									</ul>
-								</div>
-							</article>
-							<!-- /ARTICLE -->
-							
-							<!-- ARTICLE -->
-							<article class="article thumb-article">
-								<div class="article-img">
-									<img src="{% static 'journal/img/img-thumb-2.jpg'%}" alt="">
-								</div>
-								<div class="article-body">
-									<ul class="article-info">
-										<li class="article-category"><a href="#">News</a></li>
-										<li class="article-type"><i class="fa fa-video-camera"></i></li>
-									</ul>
-									<h3 class="article-title"><a href="#">Duis urbanitas eam in, tempor consequat.</a></h3>
-									<ul class="article-meta">
-										<li><i class="fa fa-clock-o"></i> January 31, 2017</li>
-										<li><i class="fa fa-comments"></i> 33</li>
-									</ul>
-								</div>
-							</article>
-							<!-- /ARTICLE -->
-							
-							<!-- ARTICLE -->
-							<article class="article thumb-article">
-								<div class="article-img">
-									<img src="{% static 'journal/img/img-thumb-3.jpg'%}" alt="">
-								</div>
-								<div class="article-body">
-									<ul class="article-info">
-										<li class="article-category"><a href="#">News</a></li>
-										<li class="article-type"><i class="fa fa-video-camera"></i></li>
-									</ul>
-									<h3 class="article-title"><a href="#">Duis urbanitas eam in, tempor consequat.</a></h3>
-									<ul class="article-meta">
-										<li><i class="fa fa-clock-o"></i> January 31, 2017</li>
-										<li><i class="fa fa-comments"></i> 33</li>
-									</ul>
-								</div>
-							</article>
-							<!-- /ARTICLE -->
-							
-							<!-- ARTICLE -->
-							<article class="article thumb-article">
-								<div class="article-img">
-									<img src="{% static 'journal/img/img-thumb-4.jpg'%}" alt="">
-								</div>
-								<div class="article-body">
-									<ul class="article-info">
-										<li class="article-category"><a href="#">News</a></li>
-										<li class="article-type"><i class="fa fa-video-camera"></i></li>
-									</ul>
-									<h3 class="article-title"><a href="#">Duis urbanitas eam in, tempor consequat.</a></h3>
-									<ul class="article-meta">
-										<li><i class="fa fa-clock-o"></i> January 31, 2017</li>
-										<li><i class="fa fa-comments"></i> 33</li>
-									</ul>
-								</div>
-							</article>
-							<!-- /ARTICLE -->
+                            {% for v in topVideo %}
+                                <!-- ARTICLE -->
+                                <article class="article thumb-article">
+                                    <div class="article-img">
+                                        <img src="{{ v.imagePrincipale.image_video.url }}" alt="{{ v.imagePrincipale.description }}">
+                                    </div>
+                                    <div class="article-body">
+                                        <ul class="article-info">
+                                            <li class="article-category"><a href="#">{{ v.categorie }}</a></li>
+                                            <li class="article-type"><i class="fa fa-video-camera"></i></li>
+                                        </ul>
+                                        <h3 class="article-title"><a href="#">{{ v.smallTitre }}</a></h3>
+                                        <ul class="article-meta">
+                                            <li><i class="fa fa-clock-o"></i> {{ v.datePublication }}</li>
+                                            <li><i class="fa fa-comments"></i> 33</li>
+                                        </ul>
+                                    </div>
+                                </article>
+                                <!-- /ARTICLE -->
+                            {% endfor %}
 						</div>
 						<!-- /owl carousel 2 -->
 					</div>
@@ -715,9 +660,9 @@
 			</div>
 			<!-- /CONTAINER -->
 		</div>
-		<!-- /SECTION -->
+		<!-- /SECTION Videos Populaires -->
 		
-		<!-- SECTION -->
+		<!-- SECTION RECENT ADD -->
 		<div class="section">
 			<!-- CONTAINER -->
 			<div class="container">
@@ -727,97 +672,34 @@
 					<div class="col-md-8">
 						<!-- section title -->
 						<div class="section-title">
-							<h2 class="title">Popular Posts</h2>
+							<h2 class="title">Ajoutés récemment</h2>
 						</div>
 						<!-- /section title -->
-						
-						<!-- ARTICLE -->
-						<article class="article row-article">
-							<div class="article-img">
-								<a href="#">
-									<img src="{% static 'journal/img/img-md-1.jpg'%}" alt="">
-								</a>
-							</div>
-							<div class="article-body">
-								<ul class="article-info">
-									<li class="article-category"><a href="#">News</a></li>
-									<li class="article-type"><i class="fa fa-file-text"></i></li>
-								</ul>
-								<h3 class="article-title"><a href="#">Duis urbanitas eam in, tempor consequat.</a></h3>
-								<ul class="article-meta">
-									<li><i class="fa fa-clock-o"></i> January 31, 2017</li>
-									<li><i class="fa fa-comments"></i> 33</li>
-								</ul>
-								<p>Populo tritani laboramus ex mei, no eum iuvaret ceteros euripidis, ne alia sadipscing mei. Te inciderint cotidieque pro, ei iisque docendi qui.</p>
-							</div>
-						</article>
-						<!-- /ARTICLE -->
-						
-						<!-- ARTICLE -->
-						<article class="article row-article">
-							<div class="article-img">
-								<a href="#">
-									<img src="{% static 'journal/img/img-md-2.jpg'%}" alt="">
-								</a>
-							</div>
-							<div class="article-body">
-								<ul class="article-info">
-									<li class="article-category"><a href="#">News</a></li>
-									<li class="article-type"><i class="fa fa-file-text"></i></li>
-								</ul>
-								<h3 class="article-title"><a href="#">Duis urbanitas eam in, tempor consequat.</a></h3>
-								<ul class="article-meta">
-									<li><i class="fa fa-clock-o"></i> January 31, 2017</li>
-									<li><i class="fa fa-comments"></i> 33</li>
-								</ul>
-								<p>Populo tritani laboramus ex mei, no eum iuvaret ceteros euripidis, ne alia sadipscing mei. Te inciderint cotidieque pro, ei iisque docendi qui.</p>
-							</div>
-						</article>
-						<!-- /ARTICLE -->
-						
-						<!-- ARTICLE -->
-						<article class="article row-article">
-							<div class="article-img">
-								<a href="#">
-									<img src="{% static 'journal/img/img-md-3.jpg'%}" alt="">
-								</a>
-							</div>
-							<div class="article-body">
-								<ul class="article-info">
-									<li class="article-category"><a href="#">News</a></li>
-									<li class="article-type"><i class="fa fa-file-text"></i></li>
-								</ul>
-								<h3 class="article-title"><a href="#">Duis urbanitas eam in, tempor consequat.</a></h3>
-								<ul class="article-meta">
-									<li><i class="fa fa-clock-o"></i> January 31, 2017</li>
-									<li><i class="fa fa-comments"></i> 33</li>
-								</ul>
-								<p>Populo tritani laboramus ex mei, no eum iuvaret ceteros euripidis, ne alia sadipscing mei. Te inciderint cotidieque pro, ei iisque docendi qui.</p>
-							</div>
-						</article>
-						<!-- /ARTICLE -->
-						
-						<!-- ARTICLE -->
-						<article class="article row-article">
-							<div class="article-img">
-								<a href="#">
-									<img src="{% static 'journal/img/img-md-4.jpg'%}" alt="">
-								</a>
-							</div>
-							<div class="article-body">
-								<ul class="article-info">
-									<li class="article-category"><a href="#">News</a></li>
-									<li class="article-type"><i class="fa fa-file-text"></i></li>
-								</ul>
-								<h3 class="article-title"><a href="#">Duis urbanitas eam in, tempor consequat.</a></h3>
-								<ul class="article-meta">
-									<li><i class="fa fa-clock-o"></i> January 31, 2017</li>
-									<li><i class="fa fa-comments"></i> 33</li>
-								</ul>
-								<p>Populo tritani laboramus ex mei, no eum iuvaret ceteros euripidis, ne alia sadipscing mei. Te inciderint cotidieque pro, ei iisque docendi qui.</p>
-							</div>
-						</article>
-						<!-- /ARTICLE -->
+                        <!-- section Article -->
+                        {% for n in lastAdd %}
+                            <!-- ARTICLE -->
+                            <article class="article row-article last-add-article">
+                                <div class="article-img">
+                                    <a href="#">
+                                        <img src="{{ n.imagePrincipale.image.url }}" alt="{{ n.imagePrincipale.description }}">
+                                    </a>
+                                </div>
+                                <div class="article-body">
+                                    <ul class="article-info">
+                                        <li class="article-category"><a href="#">{{ n.categorie }}</a></li>
+                                        <li class="article-type"><i class="fa {{ n.categorie.icon }}"></i></li>
+                                    </ul>
+                                    <h3 class="article-title"><a href="#">{{ n.smallTitre }}</a></h3>
+                                    <ul class="article-meta">
+                                        <li><i class="fa fa-clock-o"></i> {{ n.datePublication }}</li>
+                                        <li><i class="fa fa-comments"></i> 33</li>
+                                    </ul>
+                                    <p>{{ n.resume }}</p>
+                                </div>
+                            </article>
+                            <!-- /ARTICLE -->
+                        {% endfor %}
+                        <!-- /section Article -->
 						
 						<!-- pagination -->
 						<div class="article-pagination">
@@ -825,7 +707,7 @@
 								<li class="active"><a href="#" class="active">1</a></li>
 								<li><a href="#">2</a></li>
 								<li><a href="#">3</a></li>
-								<li><a href="#"><i class="fa fa-angle-right"></i></a></li>
+								<li><a href="#">...</a></li>
 							</ul>
 						</div>
 						<!-- /pagination -->
@@ -834,101 +716,72 @@
 					
 					<!-- Aside Column -->
 					<div class="col-md-4">
-						<!-- article widget -->
+						<!-- widget dernières vidéos -->
 						<div class="widget">
 							<div class="widget-title">
-								<h2 class="title">Featured Posts</h2>
+								<h2 class="title">dernières vidéos</h2>
 							</div>
 							
 							<!-- owl carousel 4 -->
 							<div id="owl-carousel-4" class="owl-carousel owl-theme">
-								<!-- ARTICLE -->
-								<article class="article thumb-article">
-									<div class="article-img">
-										<img src="{% static 'journal/img/img-thumb-1.jpg'%}" alt="">
-									</div>
-									<div class="article-body">
-										<ul class="article-info">
-											<li class="article-category"><a href="#">News</a></li>
-											<li class="article-type"><i class="fa fa-video-camera"></i></li>
-										</ul>
-										<h3 class="article-title"><a href="#">Duis urbanitas eam in, tempor consequat.</a></h3>
-										<ul class="article-meta">
-											<li><i class="fa fa-clock-o"></i> January 31, 2017</li>
-											<li><i class="fa fa-comments"></i> 33</li>
-										</ul>
-									</div>
-								</article>
-								<!-- /ARTICLE -->
-							
-								<!-- ARTICLE -->
-								<article class="article thumb-article">
-									<div class="article-img">
-										<img src="{% static 'journal/img/img-thumb-2.jpg'%}" alt="">
-									</div>
-									<div class="article-body">
-										<ul class="article-info">
-											<li class="article-category"><a href="#">News</a></li>
-											<li class="article-type"><i class="fa fa-video-camera"></i></li>
-										</ul>
-										<h3 class="article-title"><a href="#">Duis urbanitas eam in, tempor consequat.</a></h3>
-										<ul class="article-meta">
-											<li><i class="fa fa-clock-o"></i> January 31, 2017</li>
-											<li><i class="fa fa-comments"></i> 33</li>
-										</ul>
-									</div>
-								</article>
-								<!-- /ARTICLE -->
+                                {% for v in lastAddVideo %}
+                                    <!-- ARTICLE -->
+                                    <article class="article thumb-article">
+                                        <div class="article-img">
+                                            <img src="{{ v.imagePrincipale.image_video.url }}" alt="{{ v.imagePrincipale.description }}">
+                                        </div>
+                                        <div class="article-body">
+                                            <ul class="article-info">
+                                                <li class="article-category"><a href="#">{{ v.categorie }}</a></li>
+                                                <li class="article-type"><i class="fa fa-video-camera"></i></li>
+                                            </ul>
+                                            <h3 class="article-title"><a href="#">{{ v.smallTitre }}</a></h3>
+                                            <ul class="article-meta">
+                                                <li><i class="fa fa-clock-o"></i> {{ v.datePublication }}</li>
+                                                <li><i class="fa fa-comments"></i> 33</li>
+                                            </ul>
+                                        </div>
+                                    </article>
+                                    <!-- /ARTICLE -->
+                                {% endfor %}
 							</div>
 							<!-- /owl carousel 4 -->
 						</div>
-						<!-- /article widget -->
+						<!-- /widget dernières vidéos -->
 						
-						<!-- galery widget -->
+						<!-- widget dernières photos -->
 						<div class="widget galery-widget">
 							<div class="widget-title">
-								<h2 class="title">Flickr Photos</h2>
+								<h2 class="title">dernières photos</h2>
 							</div>
 							<ul>
-								<li><a href="#"><img src="{% static 'journal/img/img-widget-3.jpg'%}" alt=""></a></li>
-								<li><a href="#"><img src="{% static 'journal/img/img-widget-4.jpg'%}" alt=""></a></li>
-								<li><a href="#"><img src="{% static 'journal/img/img-widget-5.jpg'%}" alt=""></a></li>
-								<li><a href="#"><img src="{% static 'journal/img/img-widget-6.jpg'%}" alt=""></a></li>
-								<li><a href="#"><img src="{% static 'journal/img/img-widget-7.jpg'%}" alt=""></a></li>
-								<li><a href="#"><img src="{% static 'journal/img/img-widget-8.jpg'%}" alt=""></a></li>
-								<li><a href="#"><img src="{% static 'journal/img/img-widget-9.jpg'%}" alt=""></a></li>
-								<li><a href="#"><img src="{% static 'journal/img/img-widget-10.jpg'%}" alt=""></a></li>
+                                {% for i in lastAddImage %}
+                                    <li><a href="#"><img src="{{ i.image_thumbnail.url }}" alt="{{ i.description }}"></a></li>
+                                {% endfor %}
 							</ul>
 						</div>
-						<!-- /galery widget -->
+						<!-- /widget dernières photos -->
 						
-						<!-- tweets widget -->
+						<!-- comments widget -->
 						<div class="widget tweets-widget">
 							<div class="widget-title">
-								<h2 class="title">Recent Tweets</h2>
+								<h2 class="title">dernièrs commentaires</h2>
 							</div>
 							<ul>
-								<li class="tweet">
-									<i class="fa fa-twitter"></i>
-									<div class="tweet-body">
-										<p><a href="#">@magnews</a> Populo tritani laboramus ex mei, no eum iuvaret ceteros euripidis <a href="#">https://t.co/DwsTbsmxTP</a></p>
-									</div>
-								</li>
-								<li class="tweet">
-									<i class="fa fa-twitter"></i>
-									<div class="tweet-body">
-										<p><a href="#">@magnews</a> Populo tritani laboramus ex mei, no eum iuvaret ceteros euripidis <a href="#">https://t.co/DwsTbsmxTP</a></p>
-									</div>
-								</li>
-								<li class="tweet">
-									<i class="fa fa-twitter"></i>
-									<div class="tweet-body">
-										<p><a href="#">@magnews</a> Populo tritani laboramus ex mei, no eum iuvaret ceteros euripidis <a href="#">https://t.co/DwsTbsmxTP</a></p>
-									</div>
-								</li>
+                                {% for c in lastAddComment %}
+                                    <li class="tweet">
+                                        <i class="fa fa-comments"></i>
+                                        <div class="tweet-body">
+                                            <p>
+                                                <span>{{ c.nomComplet }}</span>
+                                                {{ c.message|truncatewords:10 }}
+                                                <a href="#">{{ c.news.smallTitre }}</a></p>
+                                        </div>
+                                    </li>
+                                {% endfor %}
 							</ul>
 						</div>
-						<!-- /tweets widget -->
+						<!-- /comments widget -->
 					</div>
 					<!-- /Aside Column -->
 				</div>
@@ -942,22 +795,6 @@
 
 {% block script %}
     <script>
-        function hideMessage(){
-            $("#messageNewslatter1").text("");
-            $("#id_email").text("");
-        }
-        $( ".formSubscribe" ).submit(function( event ) {
-            event.preventDefault();
-            var form = $(this);
-            $.ajax({
-                url: form.attr("data-validate-username-url"),
-                data: form.serialize(),
-                dataType: 'json',
-                success: function (data) {
-                    $("#messageNewslatter1").text(data.message);
-                    //setTimeout(hideMessage, 5000);
-                }
-            });
-        });
+
     </script>
 {% endblock %}

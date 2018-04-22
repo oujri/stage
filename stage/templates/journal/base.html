@@ -191,115 +191,75 @@
 								<div class="widget-title">
 									<h2 class="title">Subscribe to Newslatter</h2>
 								</div>
-								<form>
-									<input class="input" type="email" placeholder="Enter Your Email">
-									<button class="input-btn">Subscribe</button>
-								</form>
+                                <form action="{% url 'subscribe' %}" method="POST" role="form" class="formSubscribe"
+                                data-validate-username-url="{% url 'subscribe' %}">
+                                    {% csrf_token %}
+                                    {{ newslatterForm.email }}
+                                    <button class="input-btn" type="submit">Subscribe</button>
+                                    <p class="messageNewslatter"></p>
+                                </form>
+
 							</div>
 							<!-- /footer subscribe -->
 						</div>
 						<!-- /Column 1 -->
 
-						<!-- Column 2 -->
+						<!-- Column 2 Les plus lus -->
 						<div class="col-md-4">
-							<!-- footer article -->
-							<div class="footer-widget">
-								<div class="widget-title">
-									<h2 class="title">Featured Posts</h2>
-								</div>
+							<!-- widget dernières vidéos -->
+                            <div class="widget">
+                                <div class="widget-title">
+                                    <h2 class="title">Les plus lus</h2>
+                                </div>
 
-								<!-- ARTICLE -->
-								<article class="article widget-article">
-									<div class="article-img">
-										<a href="#">
-											<img src="{% static 'journal/img/img-widget-1.jpg'%}" alt="">
-										</a>
-									</div>
-									<div class="article-body">
-										<h4 class="article-title"><a href="#">Duis urbanitas eam in, tempor consequat.</a></h4>
-										<ul class="article-meta">
-											<li><i class="fa fa-clock-o"></i> January 31, 2017</li>
-											<li><i class="fa fa-comments"></i> 33</li>
-										</ul>
-									</div>
-								</article>
-								<!-- /ARTICLE -->
-
-								<!-- ARTICLE -->
-								<article class="article widget-article">
-									<div class="article-img">
-										<a href="#">
-											<img src="{% static 'journal/img/img-widget-2.jpg'%}" alt="">
-										</a>
-									</div>
-									<div class="article-body">
-										<h4 class="article-title"><a href="#">Duis urbanitas eam in, tempor consequat.</a></h4>
-										<ul class="article-meta">
-											<li><i class="fa fa-clock-o"></i> January 31, 2017</li>
-											<li><i class="fa fa-comments"></i> 33</li>
-										</ul>
-									</div>
-								</article>
-								<!-- /ARTICLE -->
-
-								<!-- ARTICLE -->
-								<article class="article widget-article">
-									<div class="article-img">
-										<a href="#">
-											<img src="{% static 'journal/img/img-widget-3.jpg'%}" alt="">
-										</a>
-									</div>
-									<div class="article-body">
-										<h4 class="article-title"><a href="#">Duis urbanitas eam in, tempor consequat.</a></h4>
-										<ul class="article-meta">
-											<li><i class="fa fa-clock-o"></i> January 31, 2017</li>
-											<li><i class="fa fa-comments"></i> 33</li>
-										</ul>
-									</div>
-								</article>
-								<!-- /ARTICLE -->
-							</div>
-							<!-- /footer article -->
+                                {% for n in topRead %}
+                                {% if forloop.counter < 5 %}
+                                    <!-- ARTICLE -->
+                                    <article class="article widget-article">
+                                        <div class="article-img">
+                                            <a href="#">
+                                                <img src="{{ n.imagePrincipale.image_thumbnail.url }}"
+                                                     alt="{{ n.imagePrincipale.description }}">
+                                            </a>
+                                        </div>
+                                        <div class="article-body">
+                                            <h4 class="article-title"><a href="#">{{ n.smallTitre }}</a></h4>
+                                            <ul class="article-meta">
+                                                <li><i class="fa fa-clock-o"></i> {{ n.datePublication|date }}</li>
+                                                <li><i class="fa fa-comments"></i> 33</li>
+                                            </ul>
+                                        </div>
+                                    </article>
+                                    <!-- /ARTICLE -->
+                                {% endif %}
+                            {% endfor %}
+                            </div>
+                            <!-- /widget dernières vidéos -->
 						</div>
-						<!-- /Column 2 -->
+						<!-- /Column 2 Les plus lus -->
 
-						<!-- Column 3 -->
-						<div class="col-md-4">
-							<!-- footer galery -->
-							<div class="footer-widget galery-widget">
-								<div class="widget-title">
-									<h2 class="title">Flickr Photos</h2>
-								</div>
-								<ul>
-									<li><a href="#"><img src="{% static 'journal/img/img-widget-3.jpg'%}" alt=""></a></li>
-									<li><a href="#"><img src="{% static 'journal/img/img-widget-4.jpg'%}" alt=""></a></li>
-									<li><a href="#"><img src="{% static 'journal/img/img-widget-5.jpg'%}" alt=""></a></li>
-									<li><a href="#"><img src="{% static 'journal/img/img-widget-6.jpg'%}" alt=""></a></li>
-									<li><a href="#"><img src="{% static 'journal/img/img-widget-7.jpg'%}" alt=""></a></li>
-									<li><a href="#"><img src="{% static 'journal/img/img-widget-8.jpg'%}" alt=""></a></li>
-									<li><a href="#"><img src="{% static 'journal/img/img-widget-9.jpg'%}" alt=""></a></li>
-									<li><a href="#"><img src="{% static 'journal/img/img-widget-10.jpg'%}" alt=""></a></li>
-								</ul>
-							</div>
-							<!-- /footer galery -->
-
-							<!-- footer tweets -->
-							<div class="footer-widget tweets-widget">
-								<div class="widget-title">
-									<h2 class="title">Recent Tweets</h2>
-								</div>
-								<ul>
-									<li class="tweet">
-										<i class="fa fa-twitter"></i>
-										<div class="tweet-body">
-											<p><a href="#">@magnews</a> Populo tritani laboramus ex mei, no eum iuvaret ceteros euripidis <a href="#">https://t.co/DwsTbsmxTP</a></p>
-										</div>
-									</li>
-								</ul>
-							</div>
-							<!-- /footer tweets -->
-						</div>
-						<!-- /Column 3 -->
+						<!-- Column 3 Meilleurs Commentaires -->
+                        <div class="col-md-4">
+							<div class="widget tweets-widget">
+                                <div class="widget-title">
+                                    <h2 class="title">Meilleurs Commentaires</h2>
+                                </div>
+                                <ul>
+                                    {% for c in lastAddComment %}
+                                        <li class="tweet">
+                                            <i class="fa fa-comments"></i>
+                                            <div class="tweet-body">
+                                                <p>
+                                                    <span>{{ c.nomComplet }}</span>
+                                                    {{ c.message|truncatewords:10 }}
+                                                    <a href="#">{{ c.news.smallTitre }}</a></p>
+                                            </div>
+                                        </li>
+                                    {% endfor %}
+                                </ul>
+						    </div>
+                        </div>
+						<!-- /Column 3 Meilleurs Commentaires -->
 					</div>
 					<!-- /ROW -->
 				</div>

@@ -319,9 +319,9 @@ textarea.input {
 
 .search-form {
 	position: absolute;
-	width: 250px;
+	width: 350px;
 	background: #07090c;
-	padding: 20px;
+	padding: 10px 20px;
 	right: 0;
 	border-top: 2px solid #EF233C;
 	-webkit-box-shadow: 0px 5px 6px -5px rgba(0, 0, 0, 0.4);
@@ -598,6 +598,11 @@ textarea.input {
 	transition:0.5s -webkit-transform;
 	transition:0.5s transform;
 	transition:0.5s transform, 0.5s -webkit-transform;
+}
+
+.last-add-article .article-img img {
+	height: 250px;
+	width: 375px;
 }
 
 #owl-carousel-1 .article .article-img img{
@@ -913,7 +918,7 @@ textarea.input {
 	color:#DDD;
 }
 
-.subscribe-widget #messageNewslatter1 {
+.subscribe-widget .messageNewslatter {
 	color: #FFF;
 	text-align: center;
 	padding-top: 15px;
@@ -923,7 +928,7 @@ textarea.input {
 \*------------------------------------*/
 .galery-widget ul li {
 	display:inline-block;
-	width: 25%;
+	width: 50%;
 	padding: 3px;
 	margin-right: -4px;
 	margin-top: -4px;
@@ -1010,8 +1015,14 @@ textarea.input {
 	border-radius: 50%;
 }
 
-.tweets-widget .tweet .tweet-body a {
+.tweets-widget .tweet .tweet-body a, .tweets-widget .tweet .tweet-body span {
 	text-decoration:underline;
+	font-weight: 400;
+	color: #000;
+}
+
+.tweets-widget .tweet .tweet-body span{
+	font-style: italic;
 }
 
 /*------------------------------------*\
@@ -1212,7 +1223,6 @@ textarea.input {
 	Top Footer
 \*------------------------------------*/
 .footer-widget  {
-	margin-top:30px;
 	margin-bottom:30px;
 }
 
@@ -1235,6 +1245,39 @@ textarea.input {
 .footer-widget .footer-logo .logo  > img {
 	width: 100%;
 	max-height: 90px;
+}
+
+footer .fa {
+	padding: 0 5px;
+}
+
+footer .widget .widget-title .title{
+	margin-top: 25px;
+	text-align: left;
+	font-size: 25px;
+	color: #FFF;
+	margin-bottom: 40px;
+}
+
+footer .widget .article{
+	margin-bottom: 20px;
+}
+
+footer .article .article-meta li{
+	color: #FFF;
+}
+
+footer .tweets-widget .tweet i{
+	background: #212121;
+}
+
+footer .tweets-widget .tweet .tweet-body span {
+	color: #FFF;
+}
+
+footer .messageNewslatter {
+	display: inline;
+	padding-left: 45px;
 }
 
 /*------------------------------------*\

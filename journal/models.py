@@ -50,6 +50,11 @@ class Image(models.Model):
         processors=[ResizeToFill(262, 175)],
         format='JPEG',
         options={'quality': 100})
+    image_video = ImageSpecField(
+        source='image',
+        processors=[ResizeToFill(600, 600)],
+        format='JPEG',
+        options={'quality': 100})
 
     def __str__(self):
         return self.image.name
@@ -74,14 +79,6 @@ class News(models.Model):
         verbose_name_plural = 'News'
 
 
-class ImageVideo(Image):
-    image_thumbnail = ImageSpecField(
-        source='image',
-        processors=[ResizeToFill(600, 600)],
-        format='JPEG',
-        options={'quality': 100})
-
-
 class Video(News):
     videoUrl = models.URLField()
 
@@ -94,7 +91,7 @@ class Commentaire(models.Model):
     news = models.ForeignKey(News, on_delete=models.CASCADE)
 
     def __str__(self):
-        return self.nomComplet + ' ' + self.datePublication
+        return self.nomComplet + ' ' + str(self.datePublication)
 
 
 class Newslatter(models.Model):

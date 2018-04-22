@@ -86,4 +86,33 @@
 		autoplay : true,
 	});
 
+	$('#owl-carousel-5').owlCarousel({
+		items:1,
+		loop:true,
+		margin:0,
+		dots : true,
+		nav: false,
+		autoplay : true,
+	});
+
 })(jQuery);
+
+// Ajax for Subscribe
+function hideMessage(){
+	$(".messageNewslatter").text("");
+	$("[name='email']").val('');
+}
+
+$( ".formSubscribe" ).submit(function( event ) {
+	event.preventDefault();
+	var form = $(this);
+    $.ajax({
+		url: form.attr("data-validate-username-url"),
+        data: form.serialize(),
+        dataType: 'json',
+        success: function (data) {
+			$(".messageNewslatter").text(data.message);
+            setTimeout(hideMessage, 5000);
+            }
+    });
+});
