@@ -19,17 +19,17 @@
 		<link href="https://fonts.googleapis.com/css?family=Open+Sans:400,700%7CLato:300,400" rel="stylesheet">
 
 		<!-- Bootstrap -->
-		<link type="text/css" rel="stylesheet" href="{% static 'journal/css/bootstrap.min.css'%}"/>
+		<link type="text/css" rel="stylesheet" href="{% static 'journal/css/bootstrap.min.css' %}"/>
 
 		<!-- Owl Carousel -->
-		<link type="text/css" rel="stylesheet" href="{% static 'journal/css/owl.carousel.css'%}" />
-		<link type="text/css" rel="stylesheet" href="{% static 'journal/css/owl.theme.default.css'%}" />
+		<link type="text/css" rel="stylesheet" href="{% static 'journal/css/owl.carousel.css' %}" />
+		<link type="text/css" rel="stylesheet" href="{% static 'journal/css/owl.theme.default.css' %}" />
 
 		<!-- Font Awesome Icon -->
-		<link rel="stylesheet" href="{% static 'journal/css/font-awesome.min.css'%}">
+		<link rel="stylesheet" href="{% static 'journal/css/font-awesome.min.css' %}">
 
 		<!-- Custom stlylesheet -->
-		<link type="text/css" rel="stylesheet" href="{% static 'journal/css/style.css'%}"/>
+		<link type="text/css" rel="stylesheet" href="{% static 'journal/css/style.css' %}"/>
 
 		<!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
 		<!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
@@ -89,10 +89,10 @@
 			<div id="center-header">
 				<div class="container">
 					<div class="header-logo">
-						<a href="#" class="logo"><img src="{% static 'journal/img/logo-header.gif'%}" alt=""></a>
+						<a href="{% url 'index' %}" class="logo"><img src="{% static 'journal/img/logo-header.gif' %}" alt=""></a>
 					</div>
 					<div class="header-ads">
-						<img class="center-block" src="{% static 'journal/img/ad-2.jpg'%}" alt="">
+						<img class="center-block" src="{% static 'journal/img/ad-2.jpg' %}" alt="">
 					</div>
 				</div>
 			</div>
@@ -164,7 +164,7 @@
 							<!-- footer about -->
 							<div class="footer-widget about-widget">
 								<div class="footer-logo">
-									<a href="#" class="logo"><img src="{% static 'journal/img/logo-alt.png'%}" alt=""></a>
+									<a href="#" class="logo"><img src="{% static 'journal/img/logo-alt.png' %}" alt=""></a>
 									<p>Populo tritani laboramus ex mei, no eum iuvaret ceteros euripidis, ne alia sadipscing mei. Te inciderint cotidieque pro, ei iisque docendi qui.</p>
 								</div>
 							</div>
@@ -217,16 +217,17 @@
                                     <!-- ARTICLE -->
                                     <article class="article widget-article">
                                         <div class="article-img">
-                                            <a href="#">
+                                            <a href="{% url 'post' n.categorie.name n.id %}">
                                                 <img src="{{ n.imagePrincipale.image_thumbnail.url }}"
                                                      alt="{{ n.imagePrincipale.description }}">
                                             </a>
                                         </div>
                                         <div class="article-body">
-                                            <h4 class="article-title"><a href="#">{{ n.smallTitre }}</a></h4>
+                                            <h4 class="article-title"><a href="{% url 'post' n.categorie.name n.id %}">
+                                                {{ n.smallTitre }}</a></h4>
                                             <ul class="article-meta">
                                                 <li><i class="fa fa-clock-o"></i> {{ n.datePublication|date }}</li>
-                                                <li><i class="fa fa-comments"></i> 33</li>
+                                                <li><i class="fa fa-comments"></i> {{ n.nombreComment }}</li>
                                             </ul>
                                         </div>
                                     </article>
@@ -245,14 +246,14 @@
                                     <h2 class="title">Meilleurs Commentaires</h2>
                                 </div>
                                 <ul>
-                                    {% for c in lastAddComment %}
+                                    {% for c in topComment %}
                                         <li class="tweet">
                                             <i class="fa fa-comments"></i>
                                             <div class="tweet-body">
                                                 <p>
                                                     <span>{{ c.nomComplet }}</span>
                                                     {{ c.message|truncatewords:10 }}
-                                                    <a href="#">{{ c.news.smallTitre }}</a></p>
+                                                    <a href="{% url 'post' c.news.categorie.name c.news.id %}">{{ c.news.smallTitre }}</a></p>
                                             </div>
                                         </li>
                                     {% endfor %}
@@ -276,10 +277,9 @@
 						<!-- footer links -->
 						<div class="col-md-6 col-md-push-6">
 							<ul class="footer-links">
-								<li><a href="#">About us</a></li>
-								<li><a href="#">Contact</a></li>
-								<li><a href="#">Advertisement</a></li>
-								<li><a href="#">Privacy</a></li>
+								<li><a href="{% url 'about' %}">à propos</a></li>
+							    <li><a href="{% url 'contact' %}">Contact</a></li>
+							    <li><a href="{% url 'privacy' %}">Privacy</a></li>
 							</ul>
 						</div>
 						<!-- /footer links -->
@@ -288,14 +288,12 @@
 						<div class="col-md-6 col-md-pull-6">
 							<div class="footer-copyright">
 								<span>
-                                    <!-- Link back to Colorlib can't be removed. Template is licensed under CC BY 3.0. -->
                                     Copyright &copy;
                                     <script>
                                         document.write(new Date().getFullYear());
                                     </script>
-                                    All rights reserved | This template is made with
-                                    <i class="fa fa-heart-o" aria-hidden="true"></i> by
-                                    <a href="https://colorlib.com" target="_blank">Colorlib</a>
+                                    All rights reserved | Made by
+                                    <a href="https://www.linkedin.com/in/anass-oujri/" target="_blank">OUJRI Anass</a>
                                 </span>
 							</div>
 						</div>
@@ -317,10 +315,10 @@
         <script src="{% static 'journal/js/setDate.js' %}"></script>
 
 		<!-- jQuery Plugins -->
-		<script src="{% static 'journal/js/jquery.min.js'%}"></script>
-		<script src="{% static 'journal/js/bootstrap.min.js'%}"></script>
-		<script src="{% static 'journal/js/owl.carousel.min.js'%}"></script>
-		<script src="{% static 'journal/js/main.js'%}"></script>
+		<script src="{% static 'journal/js/jquery.min.js' %}"></script>
+		<script src="{% static 'journal/js/bootstrap.min.js' %}"></script>
+		<script src="{% static 'journal/js/owl.carousel.min.js' %}"></script>
+		<script src="{% static 'journal/js/main.js' %}"></script>
 
         {% block script %}
         {% endblock %}

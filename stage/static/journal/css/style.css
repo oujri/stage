@@ -1036,14 +1036,15 @@ textarea.input {
 .widget-tags ul li a {
 	display: block;
 	padding: 6px 15px;
-	color: #DDD;
-	border: 1px solid #DDD;
+	color: #FFF;
+	border: 1px solid #FFF;
 	font-size: 12.5px;
 }
 
 .widget-tags ul li a:hover {
-	color:#EF233C;
-	border-color:#EF233C;
+	color:#000;
+	border-color:#000;
+	background: #FFF;
 }
 
 /*=========================================================
@@ -1055,6 +1056,7 @@ textarea.input {
 
 .article-post .article-main-img img {
 	width:100%;
+	max-height: 500px;
 }
 
 /*------------------------------------*\
@@ -1068,7 +1070,7 @@ textarea.input {
 	display:inline-block;
 	font-size:12.5px;
 	text-transform:uppercase;
-	color: #DDD;
+	color: #616161;
 }
 
 .article-breadcrumb > li + li:before {

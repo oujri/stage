@@ -66,6 +66,7 @@ class News(models.Model):
     contenu = models.TextField()
     datePublication = models.DateTimeField(auto_now_add=True)
     nombreVue = models.IntegerField(default=0)
+    nombreComment = models.IntegerField(default=0)
     resume = models.TextField(blank=True, null=True)
     publisher = models.ForeignKey(Publisher, on_delete=models.CASCADE)
     categorie = models.ForeignKey(Categorie, blank=True, null=True, on_delete=models.CASCADE)

@@ -1,9 +1,9 @@
-{% extends 'journal/base.html' %}
+{% extends 'base.html' %}
 
 {% load static %}
 
 {% block content %}
-		
+
 		<!-- Owl Carousel 1 -->
         <div class="container">
 		<div id="owl-carousel-1" class="owl-carousel owl-theme center-owl-nav">
@@ -15,10 +15,10 @@
 				</div>
 				<div class="article-body">
 					<ul class="article-info">
-						<li class="article-category"><a href="#">{{ n.categorie.name }}</a></li>
+						<li class="article-category"><a href="{% url 'category' n.categorie.name %}">{{ n.categorie.name }}</a></li>
 						<li class="article-type"><i class="fa {{ n.categorie.icon }}"></i></li>
 					</ul>
-					<h2 class="article-title"><a href="#">{{ n.smallTitre }}</a></h2>
+					<h2 class="article-title"><a href="{% url 'post' n.categorie n.id %}">{{ n.smallTitre }}</a></h2>
 					<ul class="article-meta">
 						<li><i class="fa fa-clock-o"></i> {{ n.datePublication }}</li>
 						<li><i class="fa fa-comments"></i> 33</li>
@@ -30,7 +30,7 @@
             </div>
         </div>
 		<!-- /Owl Carousel 1 -->
-		
+
 		<!-- SECTION TRENDING -->
 		<div class="section tendance">
 			<!-- CONTAINER -->
@@ -52,7 +52,7 @@
 							<!-- /tab nav -->
 						</div>
 						<!-- /section title -->
-						
+
 						<!-- Tab content -->
 						<div class="tab-content">
 							<!-- tabAll -->
@@ -67,7 +67,7 @@
                                             <!-- ARTICLE -->
                                             <article class="article">
                                                 <div class="article-img">
-                                                    <a href="#">
+                                                    <a href="{% url 'post' t.categorie.name t.id %}">
                                                         <img src="{{ t.imagePrincipale.image_thumbnail.url }}" alt="{{ t.imagePrincipale.description }}">
                                                     </a>
                                                     <ul class="article-info">
@@ -75,10 +75,12 @@
                                                     </ul>
                                                 </div>
                                                 <div class="article-body">
-                                                    <h4 class="article-title"><a href="#">{{ t.smallTitre }}.</a></h4>
+                                                    <h4 class="article-title"><a href="{% url 'post' t.categorie.name t.id %}">
+                                                        {{ t.smallTitre }}.
+                                                    </a></h4>
                                                     <ul class="article-meta">
                                                         <li><i class="fa fa-clock-o"></i> {{ t.datePublication }}</li>
-                                                        <li><i class="fa fa-comments"></i> 33</li>
+                                                        <li><i class="fa fa-comments"></i> {{ t.nombreComment }}</li>
                                                     </ul>
                                                 </div>
                                             </article>
@@ -93,16 +95,17 @@
                                         <!-- ARTICLE -->
                                             <article class="article widget-article">
                                                 <div class="article-img">
-                                                    <a href="#">
+                                                    <a href="{% url 'post' t.categorie.name t.id %}">
                                                         <img src="{{ t.imagePrincipale.image_thumbnail.url }}"
                                                              alt="{{ t.imagePrincipale.description }}">
                                                     </a>
                                                 </div>
                                                 <div class="article-body">
-                                                    <h4 class="article-title"><a href="#">{{ t.smallTitre }}</a></h4>
+                                                    <h4 class="article-title"><a href="{% url 'post' t.categorie.name t.id %}">
+                                                        {{ t.smallTitre }}</a></h4>
                                                     <ul class="article-meta">
                                                         <li><i class="fa fa-clock-o"></i> {{ t.datePublication }}</li>
-                                                        <li><i class="fa fa-comments"></i> 33</li>
+                                                        <li><i class="fa fa-comments"></i> {{ t.nombreComment }}</li>
                                                     </ul>
                                                 </div>
                                             </article>
@@ -129,7 +132,7 @@
                                         <!-- ARTICLE -->
                                         <article class="article">
                                             <div class="article-img">
-                                                <a href="#">
+                                                <a href="{% url 'post' t.categorie.name t.id %}">
                                                     <img src="{{ t.imagePrincipale.image_thumbnail.url }}" alt="{{ t.imagePrincipale.description }}">
                                                 </a>
                                                 <ul class="article-info">
@@ -137,10 +140,11 @@
                                                 </ul>
                                             </div>
                                             <div class="article-body">
-                                                <h4 class="article-title"><a href="#">{{ t.smallTitre }}</a></h4>
+                                                <h4 class="article-title"><a href="{% url 'post' t.categorie.name t.id %}">{
+                                                    { t.smallTitre }}</a></h4>
                                                 <ul class="article-meta">
                                                     <li><i class="fa fa-clock-o"></i> {{ t.datePublication }}</li>
-                                                    <li><i class="fa fa-comments"></i> 33</li>
+                                                    <li><i class="fa fa-comments"></i> {{ t.nombreComment }}</li>
                                                 </ul>
                                             </div>
                                         </article>
@@ -164,7 +168,7 @@
                                         <!-- ARTICLE -->
                                         <article class="article">
                                             <div class="article-img">
-                                                <a href="#">
+                                                <a href="{% url 'post' t.categorie.name t.id %}">
                                                     <img src="{{ t.imagePrincipale.image_thumbnail.url }}" alt="{{ t.imagePrincipale.description }}">
                                                 </a>
                                                 <ul class="article-info">
@@ -172,10 +176,11 @@
                                                 </ul>
                                             </div>
                                             <div class="article-body">
-                                                <h4 class="article-title"><a href="#">{{ t.smallTitre }}</a></h4>
+                                                <h4 class="article-title"><a href="{% url 'post' t.categorie.name t.id %}">{
+                                                    { t.smallTitre }}</a></h4>
                                                 <ul class="article-meta">
                                                     <li><i class="fa fa-clock-o"></i> {{ t.datePublication }}</li>
-                                                    <li><i class="fa fa-comments"></i> 33</li>
+                                                    <li><i class="fa fa-comments"></i> {{ t.nombreComment }}</li>
                                                 </ul>
                                             </div>
                                         </article>
@@ -199,7 +204,7 @@
                                         <!-- ARTICLE -->
                                         <article class="article">
                                             <div class="article-img">
-                                                <a href="#">
+                                                <a href="{% url 'post' t.categorie.name t.id %}">
                                                     <img src="{{ t.imagePrincipale.image_thumbnail.url }}" alt="{{ t.imagePrincipale.description }}">
                                                 </a>
                                                 <ul class="article-info">
@@ -207,10 +212,10 @@
                                                 </ul>
                                             </div>
                                             <div class="article-body">
-                                                <h4 class="article-title"><a href="#">{{ t.smallTitre }}</a></h4>
+                                                <h4 class="article-title"><a href="{% url 'post' t.categorie.name t.id %}">{{ t.smallTitre }}</a></h4>
                                                 <ul class="article-meta">
                                                     <li><i class="fa fa-clock-o"></i> {{ t.datePublication }}</li>
-                                                    <li><i class="fa fa-comments"></i> 33</li>
+                                                    <li><i class="fa fa-comments"></i> {{ t.nombreComment }}</li>
                                                 </ul>
                                             </div>
                                         </article>
@@ -234,7 +239,7 @@
                                         <!-- ARTICLE -->
                                         <article class="article">
                                             <div class="article-img">
-                                                <a href="#">
+                                                <a href="{% url 'post' t.categorie.name t.id %}">
                                                     <img src="{{ t.imagePrincipale.image_thumbnail.url }}" alt="{{ t.imagePrincipale.description }}">
                                                 </a>
                                                 <ul class="article-info">
@@ -245,7 +250,7 @@
                                                 <h4 class="article-title"><a href="#">{{ t.smallTitre }}</a></h4>
                                                 <ul class="article-meta">
                                                     <li><i class="fa fa-clock-o"></i> {{ t.datePublication }}</li>
-                                                    <li><i class="fa fa-comments"></i> 33</li>
+                                                    <li><i class="fa fa-comments"></i> {{ t.nombreComment }}</li>
                                                 </ul>
                                             </div>
                                         </article>
@@ -269,7 +274,7 @@
                                         <!-- ARTICLE -->
                                         <article class="article">
                                             <div class="article-img">
-                                                <a href="#">
+                                                <a href="{% url 'post' t.categorie.name t.id %}">
                                                     <img src="{{ t.imagePrincipale.image_thumbnail.url }}" alt="{{ t.imagePrincipale.description }}">
                                                 </a>
                                                 <ul class="article-info">
@@ -277,10 +282,11 @@
                                                 </ul>
                                             </div>
                                             <div class="article-body">
-                                                <h4 class="article-title"><a href="#">{{ t.smallTitre }}</a></h4>
+                                                <h4 class="article-title"><a href="{% url 'post' t.categorie.name t.id %}">
+                                                    {{ t.smallTitre }}</a></h4>
                                                 <ul class="article-meta">
                                                     <li><i class="fa fa-clock-o"></i> {{ t.datePublication }}</li>
-                                                    <li><i class="fa fa-comments"></i> 33</li>
+                                                    <li><i class="fa fa-comments"></i> {{ t.nombreComment }}</li>
                                                 </ul>
                                             </div>
                                         </article>
@@ -303,7 +309,7 @@
 			<!-- /CONTAINER -->
 		</div>
 		<!-- /SECTION TRENDING -->
-		
+
 		<!-- SECTION LAST ADD -->
 		<div class="section">
 			<!-- CONTAINER -->
@@ -321,14 +327,14 @@
 									<h2 class="title">Internationnal</h2>
 								</div>
 								<!-- /section title -->
-								
+
 								<!-- ARTICLES -->
                                 {% for n in lastInter %}
                                     {% if forloop.first %}
                                         <!-- ARTICLE -->
                                         <article class="article">
                                             <div class="article-img">
-                                                <a href="#">
+                                                <a href="{% url 'post' n.categorie.name n.id %}">
                                                     <img src="{{ n.imagePrincipale.image_thumbnail.url }}"
                                                          alt="{{ n.imagePrincipale.description }}">
                                                 </a>
@@ -337,10 +343,11 @@
                                                 </ul>
                                             </div>
                                             <div class="article-body">
-                                                <h3 class="article-title"><a href="#">{{ n.smallTitre }}</a></h3>
+                                                <h3 class="article-title"><a href="{% url 'post' n.categorie.name n.id %}">
+                                                    {{ n.smallTitre }}</a></h3>
                                                 <ul class="article-meta">
                                                     <li><i class="fa fa-clock-o"></i> {{ n.datePublication }}</li>
-                                                    <li><i class="fa fa-comments"></i> 33</li>
+                                                    <li><i class="fa fa-comments"></i> {{ n.nombreComment }}</li>
                                                 </ul>
                                                 <p>{{ n.resume }}</p>
                                             </div>
@@ -350,16 +357,17 @@
                                         <!-- ARTICLE -->
                                             <article class="article widget-article">
                                                 <div class="article-img">
-                                                    <a href="#">
+                                                    <a href="{% url 'post' n.categorie.name n.id %}">
                                                         <img src="{{ n.imagePrincipale.image_thumbnail.url }}"
                                                              alt="{{ n.imagePrincipale.description }}">
                                                     </a>
                                                 </div>
                                                 <div class="article-body">
-                                                    <h4 class="article-title"><a href="#">{{ n.smallTitre }}</a></h4>
+                                                    <h4 class="article-title"><a href="{% url 'post' n.categorie.name n.id %}">
+                                                        {{ n.smallTitre }}</a></h4>
                                                     <ul class="article-meta">
                                                         <li><i class="fa fa-clock-o"></i> {{ n.datePublication }}</li>
-                                                        <li><i class="fa fa-comments"></i> 33</li>
+                                                        <li><i class="fa fa-comments"></i> {{ n.nombreComment }}</li>
                                                     </ul>
                                                 </div>
                                             </article>
@@ -376,14 +384,14 @@
 									<h2 class="title">Economie</h2>
 								</div>
 								<!-- /section title -->
-								
+
 								<!-- ARTICLES -->
                                 {% for n in lastEco %}
                                     {% if forloop.first %}
                                         <!-- ARTICLE -->
                                         <article class="article">
                                             <div class="article-img">
-                                                <a href="#">
+                                                <a href="{% url 'post' n.categorie.name n.id %}">
                                                     <img src="{{ n.imagePrincipale.image_thumbnail.url }}"
                                                          alt="{{ n.imagePrincipale.description }}">
                                                 </a>
@@ -392,10 +400,10 @@
                                                 </ul>
                                             </div>
                                             <div class="article-body">
-                                                <h3 class="article-title"><a href="#">{{ n.smallTitre }}</a></h3>
+                                                <h3 class="article-title"><a href="{% url 'post' n.categorie.name n.id %}">{{ n.smallTitre }}</a></h3>
                                                 <ul class="article-meta">
                                                     <li><i class="fa fa-clock-o"></i> {{ n.datePublication }}</li>
-                                                    <li><i class="fa fa-comments"></i> 33</li>
+                                                    <li><i class="fa fa-comments"></i> {{ n.nombreComment }}</li>
                                                 </ul>
                                                 <p>{{ n.resume }}</p>
                                             </div>
@@ -405,16 +413,16 @@
                                         <!-- ARTICLE -->
                                             <article class="article widget-article">
                                                 <div class="article-img">
-                                                    <a href="#">
+                                                    <a href="{% url 'post' n.categorie.name n.id %}">
                                                         <img src="{{ n.imagePrincipale.image_thumbnail.url }}"
                                                              alt="{{ n.imagePrincipale.description }}">
                                                     </a>
                                                 </div>
                                                 <div class="article-body">
-                                                    <h4 class="article-title"><a href="#">{{ n.smallTitre }}</a></h4>
+                                                    <h4 class="article-title"><a href="{% url 'post' n.categorie.name n.id %}">{{ n.smallTitre }}</a></h4>
                                                     <ul class="article-meta">
                                                         <li><i class="fa fa-clock-o"></i> {{ n.datePublication }}</li>
-                                                        <li><i class="fa fa-comments"></i> 33</li>
+                                                        <li><i class="fa fa-comments"></i> {{ n.nombreComment }}</li>
                                                     </ul>
                                                 </div>
                                             </article>
@@ -446,7 +454,7 @@
 								<!-- ARTICLE -->
 								<article class="article">
 									<div class="article-img">
-										<a href="#">
+										<a href="{% url 'post' n.categorie.name n.id %}">
 											<img src="{{ n.imagePrincipale.image.url }}" alt="{{ n.imagePrincipale.description }}">
 										</a>
 										<ul class="article-info">
@@ -454,10 +462,10 @@
 										</ul>
 									</div>
 									<div class="article-body">
-										<h3 class="article-title"><a href="#">{{ n.smallTitre }}</a></h3>
+										<h3 class="article-title"><a href="{% url 'post' n.categorie.name n.id %}">{{ n.smallTitre }}</a></h3>
 										<ul class="article-meta">
 											<li><i class="fa fa-clock-o"></i> {{ n.datePublication }}</li>
-											<li><i class="fa fa-comments"></i> 33</li>
+											<li><i class="fa fa-comments"></i> {{ n.nombreComment }}</li>
 										</ul>
 										<p>{{ n.resume }}</p>
 									</div>
@@ -471,7 +479,7 @@
                                     <!-- ARTICLE -->
                                     <article class="article">
                                         <div class="article-img">
-                                            <a href="#">
+                                            <a href="{% url 'post' n.categorie.name n.id %}">
                                                 <img src="{{ n.imagePrincipale.image_thumbnail.url }}" alt="{{ n.imagePrincipale.description }}">
                                             </a>
                                             <ul class="article-info">
@@ -479,10 +487,11 @@
                                             </ul>
                                         </div>
                                         <div class="article-body">
-                                            <h4 class="article-title"><a href="#">{{ n.smallTitre }}</a></h4>
+                                            <h4 class="article-title"><a href="{% url 'post' n.categorie.name n.id %}">
+                                                {{ n.smallTitre }}</a></h4>
                                             <ul class="article-meta">
                                                 <li><i class="fa fa-clock-o"></i> {{ n.datePublication }}</li>
-                                                <li><i class="fa fa-comments"></i> 33</li>
+                                                <li><i class="fa fa-comments"></i> {{ n.nombreComment }}</li>
                                             </ul>
                                         </div>
                                     </article>
@@ -499,105 +508,10 @@
 					</div>
                         <!-- /Section News -->
 					<!-- /Main Column -->
-					
+
 					<!-- Aside Column -->
 					<div class="col-md-4">
-						<!-- Ad widget -->
-						<div class="widget center-block hidden-xs">
-							<img class="center-block" src="{% static 'journal/img/ad-1.jpg' %}" alt="">
-						</div>
-						<!-- /Ad widget -->
-						
-						<!-- social widget -->
-						<div class="widget social-widget">
-							<div class="widget-title">
-								<h2 class="title">Stay Connected</h2>
-							</div>
-							<ul>
-								<li><a href="http://facebook.com/" class="facebook"><i class="fa fa-facebook fa-2x"></i></a></li>
-								<li><a href="http://twitter.com/" class="twitter"><i class="fa fa-twitter fa-2x"></i></a></li>
-								<li><a href="https://plus.google.com/" class="google"><i class="fa fa-google fa-2x"></i></a></li>
-								<li><a href="https://www.instagram.com/" class="instagram"><i class="fa fa-instagram fa-2x"></i></a></li>
-								<li><a href="https://www.youtube.com/" class="youtube"><i class="fa fa-youtube fa-2x"></i></a></li>
-								<li><a href="http://www.rssboard.org/" class="rss"><i class="fa fa-rss fa-2x"></i><br></a></li>
-							</ul>
-						</div>
-						<!-- /social widget -->
-						
-						<!-- subscribe widget -->
-						<div class="widget subscribe-widget">
-							<div class="widget-title">
-								<h2 class="title">Subscribe to Newslatter</h2>
-							</div>
-							<form action="{% url 'subscribe' %}" method="POST" role="form" class="formSubscribe"
-                                data-validate-username-url="{% url 'subscribe' %}">
-                                {% csrf_token %}
-								{{ newslatterForm.email }}
-								<button class="input-btn" type="submit">Subscribe</button>
-							</form>
-                            <p class="messageNewslatter"></p>
-						</div>
-						<!-- /subscribe widget -->
-						
-						<!-- article widget -->
-						<div class="widget">
-							<div class="widget-title">
-								<h2 class="title">Les plus lus</h2>
-							</div>
-							
-							<!-- owl carousel 3 -->
-							<div id="owl-carousel-3" class="owl-carousel owl-theme center-owl-nav">
-                                {% for n in topRead %}
-                                    {% if forloop.counter < 4 %}
-                                        <!-- ARTICLE -->
-                                        <article class="article">
-                                            <div class="article-img">
-                                                <a href="#">
-                                                    <img src="{{ n.imagePrincipale.image.url }}"
-                                                         alt="{{ n.imagePrincipale.description }}">
-                                                </a>
-                                                <ul class="article-info">
-                                                    <li class="article-type"><i class="fa {{ n.categorie.icon }}"></i></li>
-                                                </ul>
-                                            </div>
-                                            <div class="article-body">
-                                                <h4 class="article-title"><a href="#">{{ n.smallTitre }}</a></h4>
-                                                <ul class="article-meta">
-                                                    <li><i class="fa fa-clock-o"></i> {{ n.datePublication|date }}</li>
-                                                    <li><i class="fa fa-comments"></i> 33</li>
-                                                </ul>
-                                            </div>
-                                        </article>
-                                        <!-- /ARTICLE -->
-                                    {% endif %}
-                                {% endfor %}
-							</div>
-							<!-- /owl carousel 3 -->
-
-                            {% for n in topRead %}
-                                {% if forloop.counter > 3 %}
-                                    <!-- ARTICLE -->
-                                    <article class="article widget-article">
-                                        <div class="article-img">
-                                            <a href="#">
-                                                <img src="{{ n.imagePrincipale.image_thumbnail.url }}"
-                                                     alt="{{ n.imagePrincipale.description }}">
-                                            </a>
-                                        </div>
-                                        <div class="article-body">
-                                            <h4 class="article-title"><a href="#">{{ n.smallTitre }}</a></h4>
-                                            <ul class="article-meta">
-                                                <li><i class="fa fa-clock-o"></i> {{ n.datePublication|date }}</li>
-                                                <li><i class="fa fa-comments"></i> 33</li>
-                                            </ul>
-                                        </div>
-                                    </article>
-                                    <!-- /ARTICLE -->
-                                {% endif %}
-                            {% endfor %}
-
-						</div>
-						<!-- /article widget -->
+						{% include 'journal/aside.html' %}
 					</div>
 					<!-- /Aside Column -->
 				</div>
@@ -607,13 +521,13 @@
 		</div>
         </div>
 		<!-- /SECTION LAST ADD -->
-		
+
 		<!-- AD SECTION -->
 		<div class="visible-lg visible-md">
 			<img class="center-block" src="{% static 'journal/img/ad-3.jpg' %}" alt="">
 		</div>
 		<!-- /AD SECTION -->
-		
+
 		<!-- SECTION Videos Populaires -->
 		<div class="section videoP">
 			<!-- CONTAINER -->
@@ -628,7 +542,7 @@
 							<div id="nav-carousel-2" class="custom-owl-nav pull-right"></div>
 						</div>
 						<!-- /section title -->
-						
+
 						<!-- owl carousel 2 -->
 						<div id="owl-carousel-2" class="owl-carousel owl-theme">
                             {% for v in topVideo %}
@@ -639,13 +553,15 @@
                                     </div>
                                     <div class="article-body">
                                         <ul class="article-info">
-                                            <li class="article-category"><a href="#">{{ v.categorie }}</a></li>
+                                            <li class="article-category"><a href="{% url 'category' v.categorie.name %}">
+                                                {{ v.categorie }}</a></li>
                                             <li class="article-type"><i class="fa fa-video-camera"></i></li>
                                         </ul>
-                                        <h3 class="article-title"><a href="#">{{ v.smallTitre }}</a></h3>
+                                        <h3 class="article-title"><a href="{% url 'post' v.categorie.name v.id %}">
+                                            {{ v.smallTitre }}</a></h3>
                                         <ul class="article-meta">
                                             <li><i class="fa fa-clock-o"></i> {{ v.datePublication }}</li>
-                                            <li><i class="fa fa-comments"></i> 33</li>
+                                            <li><i class="fa fa-comments"></i> {{ v.nombreComment }}</li>
                                         </ul>
                                     </div>
                                 </article>
@@ -661,7 +577,7 @@
 			<!-- /CONTAINER -->
 		</div>
 		<!-- /SECTION Videos Populaires -->
-		
+
 		<!-- SECTION RECENT ADD -->
 		<div class="section">
 			<!-- CONTAINER -->
@@ -680,19 +596,21 @@
                             <!-- ARTICLE -->
                             <article class="article row-article last-add-article">
                                 <div class="article-img">
-                                    <a href="#">
+                                    <a href="{% url 'post' n.categorie.name n.id %}">
                                         <img src="{{ n.imagePrincipale.image.url }}" alt="{{ n.imagePrincipale.description }}">
                                     </a>
                                 </div>
                                 <div class="article-body">
                                     <ul class="article-info">
-                                        <li class="article-category"><a href="#">{{ n.categorie }}</a></li>
+                                        <li class="article-category"><a href="{% url 'category' n.categorie.name %}">
+                                            {{ n.categorie }}</a></li>
                                         <li class="article-type"><i class="fa {{ n.categorie.icon }}"></i></li>
                                     </ul>
-                                    <h3 class="article-title"><a href="#">{{ n.smallTitre }}</a></h3>
+                                    <h3 class="article-title"><a href="{% url 'post' n.categorie.name n.id %}">
+                                        {{ n.smallTitre }}</a></h3>
                                     <ul class="article-meta">
                                         <li><i class="fa fa-clock-o"></i> {{ n.datePublication }}</li>
-                                        <li><i class="fa fa-comments"></i> 33</li>
+                                        <li><i class="fa fa-comments"></i> {{ n.nombreComment }}</li>
                                     </ul>
                                     <p>{{ n.resume }}</p>
                                 </div>
@@ -700,10 +618,10 @@
                             <!-- /ARTICLE -->
                         {% endfor %}
                         <!-- /section Article -->
-						
+
 						<!-- pagination -->
 						<div class="article-pagination">
-							<ul> 
+							<ul>
 								<li class="active"><a href="#" class="active">1</a></li>
 								<li><a href="#">2</a></li>
 								<li><a href="#">3</a></li>
@@ -713,7 +631,7 @@
 						<!-- /pagination -->
 					</div>
 					<!-- /Main Column -->
-					
+
 					<!-- Aside Column -->
 					<div class="col-md-4">
 						<!-- widget dernières vidéos -->
@@ -721,7 +639,7 @@
 							<div class="widget-title">
 								<h2 class="title">dernières vidéos</h2>
 							</div>
-							
+
 							<!-- owl carousel 4 -->
 							<div id="owl-carousel-4" class="owl-carousel owl-theme">
                                 {% for v in lastAddVideo %}
@@ -732,13 +650,15 @@
                                         </div>
                                         <div class="article-body">
                                             <ul class="article-info">
-                                                <li class="article-category"><a href="#">{{ v.categorie }}</a></li>
+                                                <li class="article-category"><a href="{% url 'category' v.categorie.name %}">
+                                                    {{ v.categorie }}</a></li>
                                                 <li class="article-type"><i class="fa fa-video-camera"></i></li>
                                             </ul>
-                                            <h3 class="article-title"><a href="#">{{ v.smallTitre }}</a></h3>
+                                            <h3 class="article-title"><a href="{% url 'post' v.categorie.name v.id %}">
+                                                {{ v.smallTitre }}</a></h3>
                                             <ul class="article-meta">
                                                 <li><i class="fa fa-clock-o"></i> {{ v.datePublication }}</li>
-                                                <li><i class="fa fa-comments"></i> 33</li>
+                                                <li><i class="fa fa-comments"></i> {{ v.nombreComment }}</li>
                                             </ul>
                                         </div>
                                     </article>
@@ -748,7 +668,7 @@
 							<!-- /owl carousel 4 -->
 						</div>
 						<!-- /widget dernières vidéos -->
-						
+
 						<!-- widget dernières photos -->
 						<div class="widget galery-widget">
 							<div class="widget-title">
@@ -761,7 +681,7 @@
 							</ul>
 						</div>
 						<!-- /widget dernières photos -->
-						
+
 						<!-- comments widget -->
 						<div class="widget tweets-widget">
 							<div class="widget-title">
@@ -775,7 +695,7 @@
                                             <p>
                                                 <span>{{ c.nomComplet }}</span>
                                                 {{ c.message|truncatewords:10 }}
-                                                <a href="#">{{ c.news.smallTitre }}</a></p>
+                                                <a href="{% url 'post' c.news.categorie.name c.news.id %}">{{ c.news.smallTitre }}</a></p>
                                         </div>
                                     </li>
                                 {% endfor %}
