@@ -9,6 +9,9 @@ urlpatterns = [
     path('privacy/', views.privacy, name='privacy'),
     path('upload/', views.upload, name='upload'),
     path('subscribe/', views.subscribe, name='subscribe'),
+    path('comment/<int:post>/', views.comment, name='comment'),
+    path('like/<int:comment>/', views.like, name='like'),
+    path('signal/<int:comment>/', views.signal, name='signal'),
     path('<slug:categorie>/<int:post>/', views.show, name='post'),
     path('<slug:categorie>/', views.category, name='category'),
 ]

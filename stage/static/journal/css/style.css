@@ -1127,7 +1127,6 @@ textarea.input {
 	margin-bottom:30px;
 }
 
-
 .article-comments .media {
 	position:relative;
 }
@@ -1143,22 +1142,26 @@ textarea.input {
 }
 
 .article-comments > .media {
-	margin-top:30px;
-	margin-bottom:30px;
+	margin-top: 30px;
 }
 
 .article-comments > .media .media {
-	margin-top:30px;
-	margin-left:45px;
+	margin-top: 30px;
+	margin-left: 55px;
 }
 
 .article-comments .media .media-left {
 	padding-right:30px;
 }
 
-.article-comments .media .media-left img {
-	border-radius:50%;
-	width:45px;
+.article-comments .media .media-left span {
+	border: 1px solid;
+	padding: 17px 11px;
+	border-radius: 50%;
+	width: 60px;
+	text-align: center;
+	display: block;
+	height: 60px;
 }
 
 .article-comments .media .media-body .media-heading h5 {
@@ -1166,16 +1169,87 @@ textarea.input {
 }
 
 .article-comments .media .media-body .reply-time {
-    color: #DDD;
+    color: #757575;
     font-size: 12.5px;
     font-weight: 400;
     margin-left: 10px;
 }
 
-.article-comments .media .media-body .reply-btn {
-	font-size:12.5px;
-	text-transform:uppercase;
+.article-comments .media .media-body form .reply-btn {
+	font-size: 12.5px;
+	text-transform: uppercase;
+	background: #FFF;
+	border: 1px solid;
+	padding: 8px 18px;
+	transition: .5s all;
 }
+
+.article-comments .media .media-body .reply-btn:hover {
+	color: #FFFFFF;
+	background: #000;
+}
+
+.article-comments .media .media-body form {
+	display: inline;
+}
+
+.article-comments .media .media-body form button {
+	background: #FFF;
+	border: 1px solid;
+	height: 35px;
+	transition: .5s all;
+}
+
+.article-comments .media .media-body .btnLike:hover {
+	background: green;
+	color: #FFF;
+}
+
+.article-comments .media .media-body .btnDislike:hover {
+	background: red;
+	color: #FFF;
+}
+
+.article-comments .media .media-body .hideC{
+	display: inline;
+}
+
+.article-comments .media .media-body .formSignal{
+    display: block;
+    margin-top: 15px;
+	display: none;
+}
+
+.article-comments .media .media-body .formSignal #id_email {
+    width: calc(33% - 10px);
+}
+
+.article-comments .media .media-body .formSignal #id_motif {
+    width: calc(50% - 10px);
+}
+
+.article-comments .media .media-body .formSignal button {
+    width: calc(17% - 10px);
+    height: 39px;
+    color: #FFF;
+    background: #000;
+    border-width: 0px;
+    min-width: 94px;
+}
+
+.article-comments .media .media-body .formSignal button:hover {
+    border-width: 1px;
+    color: #000;
+    background: #FFF;
+}
+
+.article-comments .media .media-body .label-signal {
+	text-align: left;
+	padding: 10px;
+	margin-top: 5px;
+	display: none;
+}
+
 
 /*------------------------------------*\
 	Reply Form
@@ -1186,7 +1260,7 @@ textarea.input {
 }
 
 .article-reply-form form input.input {
-	width:calc(33.33% - 10px);
+	width: calc(50% - 10px);
 }
 
 .article-reply-form form input.input +  input.input {
@@ -1200,6 +1274,13 @@ textarea.input {
 
 .article-reply-form form button.input-btn {
 	margin-top:15px;
+}
+
+#messageComment {
+	font-size: 16px;
+	margin-top: 10px;
+	display: none;
+	padding: 15px;
 }
 
 /*=========================================================

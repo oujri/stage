@@ -76,6 +76,10 @@ class News(models.Model):
     def __str__(self):
         return self.titre
 
+    def addVue(self):
+        self.nombreVue += 1
+        self.save()
+
     class Meta:
         verbose_name_plural = 'News'
 
@@ -84,15 +88,57 @@ class Video(News):
     videoUrl = models.URLField()
 
 
-class Commentaire(models.Model):
+class Comment(models.Model):
     nomComplet = models.CharField(max_length=50)
     datePublication = models.DateTimeField(auto_now_add=True)
+    email = models.EmailField()
     message = models.TextField()
     nombreLike = models.IntegerField(default=0)
     news = models.ForeignKey(News, on_delete=models.CASCADE)
 
+    def like(self):
+        self.nombreLike += 1
+        self.save()
+
+    def dislike(self):
+        self.nombreLike -= 1
+        self.save()
+
     def __str__(self):
-        return self.nomComplet + ' ' + str(self.datePublication)
+        return self.nomComplet + ' ' + str(self.datePublication.date())
+
+    class Meta:
+        abstract = True
+
+
+class Commentaire(Comment):
+    def newsAddCount(self):
+        self.news.nombreComment += 1
+        self.news.save()
+
+
+class Reponse(Comment):
+    commentaire = models.ForeignKey(Commentaire, on_delete=models.CASCADE)
+
+
+class Signal(models.Model):
+    email = models.EmailField()
+    motif = models.TextField()
+    dateEnvoi = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return self.email + '' + str(self.dateEnvoi.date())
+
+    class Meta:
+        abstract = True
+
+
+class SignalComment(Signal):
+    commentaire = models.ForeignKey(Commentaire, on_delete=models.CASCADE)
+
+
+class SignalReponse(Signal):
+    reponse = models.ForeignKey(Reponse, on_delete=models.CASCADE)
 
 
 class Newslatter(models.Model):

@@ -4,8 +4,8 @@ from django.http import JsonResponse, HttpResponse
 from django.shortcuts import render, redirect
 
 from journal.models import Newslatter
-from .models import Categorie, Image, News, Video, Commentaire, Tag
-from .forms import ImageUploadForm, NewslatterForm
+from .models import Categorie, Image, News, Video, Commentaire, Tag, Reponse, SignalReponse, SignalComment
+from .forms import ImageUploadForm, NewslatterForm, ReplyForm, SignalForm
 
 import requests
 
@@ -128,22 +128,6 @@ def upload(request):
     })
 
 
-def subscribe(request):
-    email = request.GET.get('email', None)
-    if email is None:
-        return redirect('index')
-    data = {
-        'is_taken': Newslatter.objects.filter(email=email).exists()
-    }
-    if data['is_taken']:
-        data['message'] = 'Vous êtes déjà inscrit'
-    else:
-        registration = Newslatter(email=email)
-        registration.save()
-        data['message'] = 'Inscription effectué'
-    return JsonResponse(data)
-
-
 def show(request, categorie, post):
     # Meteo
     url = 'http://api.openweathermap.org/data/2.5/weather?q=Rabat&units=metric&appid=91d3852842a30e80531df63b131af6d4'
@@ -164,10 +148,16 @@ def show(request, categorie, post):
 
     # GET INFORMATION
     article = News.objects.get(id=post)
+    article.addVue()
     categorie = Categorie.objects.get(name=categorie)
 
     # ARTICLE TAGS
     tags = Tag.objects.filter(news=article)
+
+    # ARTICLE COMMENT
+    comments = Commentaire.objects.filter(news=article).order_by('-nombreLike')
+    reponses = Reponse.objects.filter(news=article).order_by('-datePublication')
+
 
     context = {
         'categories': Categorie.objects.exclude(name='news').all(),
@@ -175,9 +165,13 @@ def show(request, categorie, post):
         'article': article,
         'categorie': categorie,
         'newslatterForm': NewslatterForm(),
+        'signalForm': SignalForm(),
         'topRead': topRead,
         'topComment': topComment,
-        'tags': tags
+        'tags': tags,
+        'replyForm': ReplyForm,
+        'comments': comments,
+        'reponses': reponses
     }
     return render(request, 'journal/post.html', context)
 
@@ -185,3 +179,76 @@ def show(request, categorie, post):
 def category(request, categorie):
     id = Categorie.objects.get(name=categorie)
     return HttpResponse(str(id))
+
+
+def subscribe(request):
+    email = request.GET.get('email', None)
+    if email is None:
+        return redirect('index')
+    data = {
+        'is_taken': Newslatter.objects.filter(email=email).exists()
+    }
+    if data['is_taken']:
+        data['message'] = 'Vous êtes déjà inscrit'
+    else:
+        registration = Newslatter(email=email)
+        registration.save()
+        data['message'] = 'Inscription effectué'
+    return JsonResponse(data)
+
+
+def comment(request, post):
+    name = request.GET.get('name', None)
+    email = request.GET.get('email', None)
+    message = request.GET.get('message', None)
+    article = News.objects.get(id=post)
+    if email is None:
+        return redirect('index')
+    c = Commentaire(nomComplet=name, email=email, message=message, news=article)
+    c.newsAddCount()
+    c.save()
+    data = {
+        'message': 'Commentaire ajouté'
+    }
+    return JsonResponse(data)
+
+
+def like(request, comment):
+    type = request.GET.get('type', None)
+    method = request.GET.get('method', None)
+    c = Commentaire()
+    if type == 'reponse':
+        c = Reponse.objects.get(id=comment)
+    elif type == 'comment':
+        c = Commentaire.objects.get(id=comment)
+    if method == 'like':
+        c.like()
+    elif method == 'dislike':
+        c.dislike()
+    data = {
+        'nombre': str(c.nombreLike),
+        'id': '#numberLike'+str(c.id),
+        'div': '#divComment'+str(c.id)
+    }
+    return JsonResponse(data)
+
+
+def signal(request, comment):
+    type = request.GET.get('type', None)
+    email = request.GET.get('email', None)
+    motif = request.GET.get('motif', None)
+    if type == 'reponse':
+        c = Reponse.objects.get(id=comment)
+        s = SignalReponse(email=email, motif=motif, reponse=c)
+        s.save()
+    elif type == 'comment':
+        c = Commentaire.objects.get(id=comment)
+        s = SignalComment(email=email, motif=motif, commentaire=c)
+        s.save()
+    data = {
+        'message': 'Merci pour votre avertissement, nous allons consulter votre signal le plus tot possible',
+        'formButton': '#formButtonSignaler'+str(comment),
+        'formSignaler': '#signalForm'+str(comment),
+        'paragraphe': '#messageSignal'+str(comment)
+    }
+    return JsonResponse(data)
