@@ -156,7 +156,7 @@ def show(request, categorie, post):
 
     # ARTICLE COMMENT
     comments = Commentaire.objects.filter(news=article).order_by('-nombreLike')
-    reponses = Reponse.objects.filter(news=article).order_by('-datePublication')
+    reponses = Reponse.objects.filter(news=article).order_by('datePublication')
 
 
     context = {
@@ -208,7 +208,10 @@ def comment(request, post):
     c.newsAddCount()
     c.save()
     data = {
-        'message': 'Commentaire ajouté'
+        'message': 'Commentaire ajouté',
+        'name': name,
+        'comment': message,
+        'date': c.datePublication
     }
     return JsonResponse(data)
 
@@ -250,5 +253,20 @@ def signal(request, comment):
         'formButton': '#formButtonSignaler'+str(comment),
         'formSignaler': '#signalForm'+str(comment),
         'paragraphe': '#messageSignal'+str(comment)
+    }
+    return JsonResponse(data)
+
+
+def repondre(request, article, comment):
+    email = request.GET.get('email', None)
+    name = request.GET.get('name', None)
+    message = request.GET.get('message', None)
+    a = News.objects.get(id=article)
+    c = Commentaire.objects.get(id=comment)
+    r = Reponse(email=email, nomComplet=name, message=message, commentaire=c, news=a)
+    r.save()
+    data = {
+        'formRepondre': '#repondreForm' + str(comment),
+        'formButtonRepondre': '#formButtonRepondre' + str(comment)
     }
     return JsonResponse(data)

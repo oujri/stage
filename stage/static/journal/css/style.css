@@ -1214,27 +1214,28 @@ textarea.input {
 	display: inline;
 }
 
-.article-comments .media .media-body .formSignal{
+.article-comments .media .media-body .formSignal, .article-comments .media .media-body .formRepondre{
     display: block;
     margin-top: 15px;
 	display: none;
 }
 
 .article-comments .media .media-body .formSignal #id_email {
-    width: calc(33% - 10px);
+    width: calc(33%);
 }
 
 .article-comments .media .media-body .formSignal #id_motif {
-    width: calc(50% - 10px);
+    width: calc(50%);
 }
 
-.article-comments .media .media-body .formSignal button {
+.article-comments .media .media-body .formSignal button, .article-comments .media .media-body .formRepondre button {
     width: calc(17% - 10px);
     height: 39px;
     color: #FFF;
     background: #000;
     border-width: 0px;
     min-width: 94px;
+    margin-bottom: 10px;
 }
 
 .article-comments .media .media-body .formSignal button:hover {
@@ -1250,6 +1251,20 @@ textarea.input {
 	display: none;
 }
 
+.article-comments .media .media-body .formRepondre #id_name, .article-comments .media .media-body .formRepondre #id_email {
+    width: calc(41.5%);
+    margin-bottom: 10px;
+}
+
+.article-comments .media .media-body .formRepondre #id_message {
+    max-width: 656px;
+    height: 80px;
+}
+
+.article-comments #addNewComment {
+	margin-top: 30px;
+	display: none;
+}
 
 /*------------------------------------*\
 	Reply Form

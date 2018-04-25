@@ -77,8 +77,20 @@
                                             <h5>{{ comment.nomComplet }} <span class="reply-time">{{ comment.datePublication }}</span></h5>
                                         </div>
                                         <p>{{ comment.message }}</p>
-                                        <form action="">
-                                            <button class="reply-btn">Répondre</button>
+                                        <form id="formButtonRepondre{{ comment.id }}">
+                                            <button class="reply-btn" type="button" onclick="
+                                                    check = $('#repondreForm{{ comment.id }}').css('display');
+                                                    if (check == 'none') {
+                                                        $( this ).css('background-color', '#000');
+                                                        $( this ).css('color', '#FFF');
+                                                        $('#repondreForm{{ comment.id }}').css('display', 'block');
+                                                    } else {
+                                                        $( this ).css('background-color', '#FFF');
+                                                        $( this ).css('color', '#000');
+                                                        $('#repondreForm{{ comment.id }}').css('display', 'none');
+                                                    }">
+                                                Répondre
+                                            </button>
                                         </form>
                                         <form id="formButtonSignaler{{ comment.id }}">
                                             <button class="reply-btn" type="button" onclick="
@@ -121,6 +133,15 @@
                                             <button class="reply-btn">Envoyer</button>
                                         </form>
                                         <p id="messageSignal{{ comment.id }}" class="label label-info label-signal"></p>
+                                        <form action="{% url 'repondre' article.id comment.id %}" method="POST" role="form" class="formRepondre"
+                                                data-validate-username-url="{% url 'repondre' article.id comment.id %}"
+                                                id="repondreForm{{ comment.id }}">
+                                            {% csrf_token %}
+                                            {{ replyForm.name }}
+                                            {{ replyForm.email }}
+                                            <button class="reply-btn">Publier</button>
+                                            {{ replyForm.message }}
+                                        </form>
                                     </div>
                                 {% for reponse in reponses %}
 
@@ -181,6 +202,23 @@
                                 {% endfor %}
                                 </div>
                             {% endfor %}
+
+                            <div id="addNewComment">
+                                <div class="media">
+                                    <div class="media-left">
+                                        <span class="numberLike">0</span>
+                                    </div>
+                                    <div class="media-body">
+                                        <div class="media-heading">
+                                            <h5 id="addNewCommentH5">
+                                                <span class="reply-time" id="addNewCommentSpan"></span>
+                                            </h5>
+                                        </div>
+                                        <p id="addNewCommentP"></p>
+                                    </div>
+                                </div>
+                            </div>
+
                         </div>
 						<!-- /article comments -->
 						
@@ -197,7 +235,7 @@
                                 {{ replyForm.name }}
                                 {{ replyForm.email }}
                                 {{ replyForm.message }}
-								<button class="input-btn">Send Message</button>
+								<button class="input-btn">Envoyer</button>
 							</form>
 						</div>
 						<!-- /reply form -->
@@ -234,7 +272,7 @@
 					<div class="col-md-12">
 						<!-- section title -->
 						<div class="section-title">
-							<h2 class="title">Related Post</h2>
+							<h2 class="title">Article similaire</h2>
 						</div>
 						<!-- /section title -->
 						

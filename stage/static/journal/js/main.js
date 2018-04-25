@@ -148,6 +148,21 @@ $( ".formComment" ).submit(function( event ) {
     });
 });
 
+$( ".formRepondre" ).submit(function( event ) {
+	event.preventDefault();
+	var form = $(this);
+    $.ajax({
+		url: form.attr("data-validate-username-url"),
+        data: form.serialize(),
+        dataType: 'json',
+        success: function (data) {
+			$(data.formRepondre).css('display', 'none');
+			$(data.formButtonRepondre).css('display', 'none');
+			location.reload(forceGet=false);
+		}
+    });
+});
+
 $( "#commentForm" ).submit(function( event ) {
 	event.preventDefault();
 	var form = $(this);
@@ -157,8 +172,13 @@ $( "#commentForm" ).submit(function( event ) {
         dataType: 'json',
         success: function (data) {
 			$("#messageComment").text(data.message);
+			$("#addNewCommentH5").text(data.name);
+			$("#addNewCommentSpan").text(data.date);
+			$("#addNewCommentP").text(data.comment);
+			$("#addNewComment").css('display', 'block');
 			$("#messageComment").css('display', 'block');
 			$("#article-reply-form").css('display', 'none');
+			//location.reload(forceGet=false);
 			setTimeout(function(){
 				$("#messageComment").css('display', 'none');
 			}, 5000);
