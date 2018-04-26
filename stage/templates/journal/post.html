@@ -42,7 +42,7 @@
 								<h1 class="article-title">{{ article.titre }}</h1>
 								<ul class="article-meta">
 									<li><i class="fa fa-clock-o"></i> {{ article.datePublication|date }}</li>
-									<li><i class="fa fa-comments"></i> {{ article.nombreComment }}</li>
+									<li><i class="fa fa-comments"></i> {{ article.commentaire_set.count }}</li>
 								</ul>
                                 {% autoescape off %}
                                 {{ article.contenu }}
@@ -133,8 +133,8 @@
                                             <button class="reply-btn">Envoyer</button>
                                         </form>
                                         <p id="messageSignal{{ comment.id }}" class="label label-info label-signal"></p>
-                                        <form action="{% url 'repondre' article.id comment.id %}" method="POST" role="form" class="formRepondre"
-                                                data-validate-username-url="{% url 'repondre' article.id comment.id %}"
+                                        <form action="{% url 'repondre' comment.id %}" method="POST" role="form" class="formRepondre"
+                                                data-validate-username-url="{% url 'repondre' comment.id %}"
                                                 id="repondreForm{{ comment.id }}">
                                             {% csrf_token %}
                                             {{ replyForm.name }}
@@ -143,9 +143,8 @@
                                             {{ replyForm.message }}
                                         </form>
                                     </div>
-                                {% for reponse in reponses %}
+                                {% for reponse in comment.reponse_set.all %}
 
-                                    {% if reponse.commentaire == comment %}
                                         <div class="media">
                                             <div class="media-left">
                                                 <span class="numberLike" id="numberLike{{ reponse.id }}">{{ reponse.nombreLike }}</span>
@@ -198,7 +197,6 @@
                                                 <p id="messageSignal{{ reponse.id }}" class="label label-info label-signal"></p>
                                             </div>
                                         </div>
-                                    {% endif %}
                                 {% endfor %}
                                 </div>
                             {% endfor %}

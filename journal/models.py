@@ -66,7 +66,6 @@ class News(models.Model):
     contenu = models.TextField()
     datePublication = models.DateTimeField(auto_now_add=True)
     nombreVue = models.IntegerField(default=0)
-    nombreComment = models.IntegerField(default=0)
     resume = models.TextField(blank=True, null=True)
     publisher = models.ForeignKey(Publisher, on_delete=models.CASCADE)
     categorie = models.ForeignKey(Categorie, blank=True, null=True, on_delete=models.CASCADE)
@@ -94,7 +93,6 @@ class Comment(models.Model):
     email = models.EmailField()
     message = models.TextField()
     nombreLike = models.IntegerField(default=0)
-    news = models.ForeignKey(News, on_delete=models.CASCADE)
 
     def like(self):
         self.nombreLike += 1
@@ -112,9 +110,7 @@ class Comment(models.Model):
 
 
 class Commentaire(Comment):
-    def newsAddCount(self):
-        self.news.nombreComment += 1
-        self.news.save()
+    news = models.ForeignKey(News, on_delete=models.CASCADE)
 
 
 class Reponse(Comment):

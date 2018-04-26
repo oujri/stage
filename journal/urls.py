@@ -12,7 +12,7 @@ urlpatterns = [
     path('comment/<int:post>/', views.comment, name='comment'),
     path('like/<int:comment>/', views.like, name='like'),
     path('signal/<int:comment>/', views.signal, name='signal'),
-    path('repondre/<int:article>/<int:comment>/', views.repondre, name='repondre'),
+    path('repondre/<int:comment>/', views.repondre, name='repondre'),
     path('<slug:categorie>/<int:post>/', views.show, name='post'),
     path('<slug:categorie>/', views.category, name='category'),
 ]

@@ -9,7 +9,7 @@
 						<!-- social widget -->
 						<div class="widget social-widget">
 							<div class="widget-title">
-								<h2 class="title">Stay Connected</h2>
+								<h2 class="title">Rester connecté</h2>
 							</div>
 							<ul>
 								<li><a href="http://facebook.com/" class="facebook"><i class="fa fa-facebook fa-2x"></i></a></li>
@@ -25,13 +25,13 @@
 						<!-- subscribe widget -->
 						<div class="widget subscribe-widget">
 							<div class="widget-title">
-								<h2 class="title">Subscribe to Newslatter</h2>
+								<h2 class="title">S'abonner à la Newsletter</h2>
 							</div>
 							<form action="{% url 'subscribe' %}" method="POST" role="form" class="formSubscribe"
                                 data-validate-username-url="{% url 'subscribe' %}">
                                 {% csrf_token %}
 								{{ newslatterForm.email }}
-								<button class="input-btn" type="submit">Subscribe</button>
+								<button class="input-btn" type="submit">S'inscrire</button>
 							</form>
                             <p class="messageNewslatter"></p>
 						</div>
@@ -61,7 +61,7 @@
                                                 <h4 class="article-title"><a href="#">{{ n.smallTitre }}</a></h4>
                                                 <ul class="article-meta">
                                                     <li><i class="fa fa-clock-o"></i> {{ n.datePublication|date }}</li>
-                                                    <li><i class="fa fa-comments"></i> {{ n.nombreComment }}</li>
+                                                    <li><i class="fa fa-comments"></i> {{ n.commentaire_set.count }}</li>
                                                 </ul>
                                             </div>
                                         </article>
@@ -86,7 +86,7 @@
                                                 {{ n.smallTitre }}</a></h4>
                                             <ul class="article-meta">
                                                 <li><i class="fa fa-clock-o"></i> {{ n.datePublication|date }}</li>
-                                                <li><i class="fa fa-comments"></i> {{ n.nombreComment }}</li>
+                                                <li><i class="fa fa-comments"></i> {{ n.commentaire_set.count }}</li>
                                             </ul>
                                         </div>
                                     </article>

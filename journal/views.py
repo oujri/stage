@@ -33,19 +33,19 @@ def index(request):
     tendance = News.objects.filter(datePublication__gte=one_week_ago).exclude(id__in=videoId).order_by('-nombreVue', '-id')[:10]
     #   T Style de vie
     categorie = Categorie.objects.get(name='styleDeVie')
-    tstyledevie = News.objects.filter(categorie=categorie, datePublication__gte=one_week_ago).exclude(id__in=videoId).order_by('-id')[:8]
+    tstyledevie = News.objects.filter(categorie=categorie, datePublication__gte=one_week_ago).exclude(id__in=videoId).order_by('-nombreVue')[:8]
     #   T Sport
     categorie = Categorie.objects.get(name='sports')
-    tsports = News.objects.filter(categorie=categorie, datePublication__gte=one_week_ago).exclude(id__in=videoId).order_by('-id')[:8]
+    tsports = News.objects.filter(categorie=categorie, datePublication__gte=one_week_ago).exclude(id__in=videoId).order_by('-nombreVue')[:8]
     #   T Sport
     categorie = Categorie.objects.get(name='technologie')
-    ttec = News.objects.filter(categorie=categorie, datePublication__gte=one_week_ago).exclude(id__in=videoId).order_by('-id')[:8]
+    ttec = News.objects.filter(categorie=categorie, datePublication__gte=one_week_ago).exclude(id__in=videoId).order_by('-nombreVue')[:8]
     #   T Economie
     categorie = Categorie.objects.get(name='economie')
-    teco = News.objects.filter(categorie=categorie, datePublication__gte=one_week_ago).exclude(id__in=videoId).order_by('-id')[:8]
+    teco = News.objects.filter(categorie=categorie, datePublication__gte=one_week_ago).exclude(id__in=videoId).order_by('-nombreVue')[:8]
     #   T Internationnal
     categorie = Categorie.objects.get(name='internationnal')
-    tinter = News.objects.filter(categorie=categorie, datePublication__gte=one_week_ago).exclude(id__in=videoId).order_by('-id')[:8]
+    tinter = News.objects.filter(categorie=categorie, datePublication__gte=one_week_ago).exclude(id__in=videoId).order_by('-nombreVue')[:8]
 
     # LAST ADD
     #   Internationnal
@@ -55,7 +55,7 @@ def index(request):
     categorie = Categorie.objects.get(name='economie')
     lastEco = News.objects.filter(categorie=categorie).exclude(id__in=videoId).order_by('-id')[:3]
     #   News
-    categorie = Categorie.objects.get(name='news')
+    categorie = Categorie.objects.get(name='actualites')
     lastNews = News.objects.filter(categorie=categorie).exclude(id__in=videoId).order_by('-id')[:5]
 
     # TOP_READ
@@ -78,7 +78,7 @@ def index(request):
     lastAddImage = Image.objects.all().order_by('-datePublication')[:6]
 
     context = {
-        'categories': Categorie.objects.exclude(name='news').all(),
+        'categories': Categorie.objects.all().exclude(name='actualites'),
         'weather': weather,
         'newscar': newsCar,
         'tendance': tendance,
@@ -156,11 +156,12 @@ def show(request, categorie, post):
 
     # ARTICLE COMMENT
     comments = Commentaire.objects.filter(news=article).order_by('-nombreLike')
-    reponses = Reponse.objects.filter(news=article).order_by('datePublication')
+
+    # RELATED POST
 
 
     context = {
-        'categories': Categorie.objects.exclude(name='news').all(),
+        'categories': Categorie.objects.all(),
         'weather': weather,
         'article': article,
         'categorie': categorie,
@@ -170,8 +171,7 @@ def show(request, categorie, post):
         'topComment': topComment,
         'tags': tags,
         'replyForm': ReplyForm,
-        'comments': comments,
-        'reponses': reponses
+        'comments': comments
     }
     return render(request, 'journal/post.html', context)
 
@@ -201,12 +201,9 @@ def comment(request, post):
     name = request.GET.get('name', None)
     email = request.GET.get('email', None)
     message = request.GET.get('message', None)
-    article = News.objects.get(id=post)
     if email is None:
         return redirect('index')
-    c = Commentaire(nomComplet=name, email=email, message=message, news=article)
-    c.newsAddCount()
-    c.save()
+    c = News.objects.get(id=post).commentaire_set.create(nomComplet=name, email=email, message=message)
     data = {
         'message': 'Commentaire ajouté',
         'name': name,
@@ -241,13 +238,9 @@ def signal(request, comment):
     email = request.GET.get('email', None)
     motif = request.GET.get('motif', None)
     if type == 'reponse':
-        c = Reponse.objects.get(id=comment)
-        s = SignalReponse(email=email, motif=motif, reponse=c)
-        s.save()
+        Reponse.objects.get(id=comment).signalreponse_set.create(email=email, motif=motif)
     elif type == 'comment':
-        c = Commentaire.objects.get(id=comment)
-        s = SignalComment(email=email, motif=motif, commentaire=c)
-        s.save()
+        Commentaire.objects.get(id=comment).signalcomment_set.create(email=email, motif=motif)
     data = {
         'message': 'Merci pour votre avertissement, nous allons consulter votre signal le plus tot possible',
         'formButton': '#formButtonSignaler'+str(comment),
@@ -257,14 +250,11 @@ def signal(request, comment):
     return JsonResponse(data)
 
 
-def repondre(request, article, comment):
+def repondre(request, comment):
     email = request.GET.get('email', None)
     name = request.GET.get('name', None)
     message = request.GET.get('message', None)
-    a = News.objects.get(id=article)
-    c = Commentaire.objects.get(id=comment)
-    r = Reponse(email=email, nomComplet=name, message=message, commentaire=c, news=a)
-    r.save()
+    Commentaire.objects.get(id=comment).reponse_set.create(email=email, nomComplet=name, message=message)
     data = {
         'formRepondre': '#repondreForm' + str(comment),
         'formButtonRepondre': '#formButtonRepondre' + str(comment)
