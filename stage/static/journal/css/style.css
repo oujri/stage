@@ -600,6 +600,10 @@ textarea.input {
 	transition:0.5s transform, 0.5s -webkit-transform;
 }
 
+.moreArticle .article .article-img img {
+	height: 175px;
+}
+
 .last-add-article .article-img img {
 	height: 250px;
 	width: 375px;

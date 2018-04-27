@@ -1,10 +1,10 @@
-from datetime import timedelta, datetime
-
 from django.http import JsonResponse, HttpResponse
 from django.shortcuts import render, redirect
 
-from journal.models import Newslatter
-from .models import Categorie, Image, News, Video, Commentaire, Tag, Reponse, SignalReponse, SignalComment
+from datetime import timedelta, datetime
+from itertools import chain
+
+from .models import Categorie, Image, News, Video, Commentaire, Tag, Reponse, Newslatter
 from .forms import ImageUploadForm, NewslatterForm, ReplyForm, SignalForm
 
 import requests
@@ -157,8 +157,15 @@ def show(request, categorie, post):
     # ARTICLE COMMENT
     comments = Commentaire.objects.filter(news=article).order_by('-nombreLike')
 
-    # RELATED POST
+    # MORE FROM AUTHOR
+    moreArticle = News.objects.filter(publisher=article.publisher, categorie=article.categorie).exclude(id=article.id).order_by('-datePublication')[:4]
+    if moreArticle.count() < 4:
+        articleId = moreArticle.values_list('id', flat=True)
+        number = 4 - moreArticle.count()
+        addedArticle = News.objects.filter(publisher=article.publisher).exclude(id__in=articleId).order_by('-datePublication')[:number]
+        moreArticle = list(chain(moreArticle, addedArticle))
 
+    print('anass' + str(moreArticle.count()))
 
     context = {
         'categories': Categorie.objects.all(),
@@ -171,7 +178,8 @@ def show(request, categorie, post):
         'topComment': topComment,
         'tags': tags,
         'replyForm': ReplyForm,
-        'comments': comments
+        'comments': comments,
+        'moreArticle': moreArticle
     }
     return render(request, 'journal/post.html', context)
 

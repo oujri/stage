@@ -41,6 +41,7 @@
 								</ul>
 								<h1 class="article-title">{{ article.titre }}</h1>
 								<ul class="article-meta">
+                                    <li><a href="#"><b>{{ article.publisher }}</b></a></li>
 									<li><i class="fa fa-clock-o"></i> {{ article.datePublication|date }}</li>
 									<li><i class="fa fa-comments"></i> {{ article.commentaire_set.count }}</li>
 								</ul>
@@ -260,8 +261,8 @@
 		</div>
 		<!-- /AD SECTION -->
 		
-		<!-- SECTION -->
-		<div class="section">
+		<!-- SECTION MORE ARTICLE -->
+		<div class="section moreArticle">
 			<!-- CONTAINER -->
 			<div class="container">
 				<!-- ROW -->
@@ -270,104 +271,40 @@
 					<div class="col-md-12">
 						<!-- section title -->
 						<div class="section-title">
-							<h2 class="title">Article similaire</h2>
+							<h2 class="title">PLUS DE L'AUTEUR</h2>
 						</div>
 						<!-- /section title -->
 						
 						<!-- row -->
 						<div class="row">
-							<!-- Column 1 -->
-							<div class="col-md-3 col-sm-6">
-								<!-- ARTICLE -->
-								<article class="article">
-									<div class="article-img">
-										<a href="#">
-											<img src="{% static 'journal/img/img-md-1.jpg' %}" alt="">
-										</a>
-										<ul class="article-info">
-											<li class="article-type"><i class="fa fa-camera"></i></li>
-										</ul>
-									</div>
-									<div class="article-body">
-										<h4 class="article-title"><a href="#">Duis urbanitas eam in, tempor consequat.</a></h4>
-										<ul class="article-meta">
-											<li><i class="fa fa-clock-o"></i> January 31, 2017</li>
-											<li><i class="fa fa-comments"></i> 33</li>
-										</ul>
-									</div>
-								</article>
-								<!-- /ARTICLE -->
-							</div>
-							<!-- /Column 1 -->
-							
-							<!-- Column 2 -->
-							<div class="col-md-3 col-sm-6">
-								<!-- ARTICLE -->
-								<article class="article">
-									<div class="article-img">
-										<a href="#">
-											<img src="{% static 'journal/img/img-md-2.jpg' %}" alt="">
-										</a>
-									</div>
-									<div class="article-body">
-										<h4 class="article-title"><a href="#">Duis urbanitas eam in, tempor consequat.</a></h4>
-										<ul class="article-meta">
-											<li><i class="fa fa-clock-o"></i> January 31, 2017</li>
-											<li><i class="fa fa-comments"></i> 33</li>
-										</ul>
-									</div>
-								</article>
-								<!-- /ARTICLE -->
-							</div>
-							<!-- /Column 2 -->
-							
-							<!-- Column 3 -->
-							<div class="col-md-3 col-sm-6">
-								<!-- ARTICLE -->
-								<article class="article">
-									<div class="article-img">
-										<a href="#">
-											<img src="{% static 'journal/img/img-md-3.jpg' %}" alt="">
-										</a>
-										<ul class="article-info">
-											<li class="article-type"><i class="fa fa-file-text"></i></li>
-										</ul>
-									</div>
-									<div class="article-body">
-										<h4 class="article-title"><a href="#">Duis urbanitas eam in, tempor consequat.</a></h4>
-										<ul class="article-meta">
-											<li><i class="fa fa-clock-o"></i> January 31, 2017</li>
-											<li><i class="fa fa-comments"></i> 33</li>
-										</ul>
-									</div>
-								</article>
-								<!-- /ARTICLE -->
-							</div>
-							<!-- /Column 3 -->
-							
-							<!-- Column 4 -->
-							<div class="col-md-3 col-sm-6">
-								<!-- ARTICLE -->
-								<article class="article">
-									<div class="article-img">
-										<a href="#">
-											<img src="{% static 'journal/img/img-md-4.jpg' %}" alt="">
-										</a>
-										<ul class="article-info">
-											<li class="article-type"><i class="fa fa-file-text"></i></li>
-										</ul>
-									</div>
-									<div class="article-body">
-										<h4 class="article-title"><a href="#">Duis urbanitas eam in, tempor consequat.</a></h4>
-										<ul class="article-meta">
-											<li><i class="fa fa-clock-o"></i> January 31, 2017</li>
-											<li><i class="fa fa-comments"></i> 33</li>
-										</ul>
-									</div>
-								</article>
-								<!-- /ARTICLE -->
-							</div>
-							<!-- Column 4 -->
+                            {% for n in moreArticle %}
+                                {% if forloop.counter < 5 %}
+                                    <!-- Column -->
+                                    <div class="col-md-3 col-sm-6">
+                                        <!-- ARTICLE -->
+                                        <article class="article">
+                                            <div class="article-img">
+                                                <a href="{% url 'post' n.categorie.name n.id %}">
+                                                    <img src="{{ n.imagePrincipale.image.url }}" alt="{{ n.imagePrincipale.description }}">
+                                                </a>
+                                                <ul class="article-info">
+                                                    <li class="article-type"><i class="fa {{ n.categorie.icon }}"></i></li>
+                                                </ul>
+                                            </div>
+                                            <div class="article-body">
+                                                <h4 class="article-title"><a href="{% url 'post' n.categorie.name n.id %}">
+                                                    {{ n.smallTitre }}</a></h4>
+                                                <ul class="article-meta">
+                                                    <li><i class="fa fa-clock-o"></i> {{ n.datePublication }}</li>
+                                                    <li><i class="fa fa-comments"></i> {{ n.commentaire_set.count }}</li>
+                                                </ul>
+                                            </div>
+                                        </article>
+                                        <!-- /ARTICLE -->
+                                    </div>
+                                    <!-- /Column -->
+                                {% endif %}
+                            {% endfor %}
 						</div>
 						<!-- /row -->
 					</div>

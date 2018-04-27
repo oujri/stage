@@ -71,6 +71,7 @@ class News(models.Model):
     categorie = models.ForeignKey(Categorie, blank=True, null=True, on_delete=models.CASCADE)
     imagePrincipale = models.ForeignKey(Image, on_delete=models.CASCADE)
     tag = models.ManyToManyField(Tag)
+    active = models.BooleanField(default=True)
 
     def __str__(self):
         return self.titre
