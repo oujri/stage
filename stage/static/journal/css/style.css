@@ -237,6 +237,7 @@ textarea.input {
 
 .header-logo .logo {
 	display:inline-block;
+	padding: 0 30px;
 }
 
 .header-logo .logo > img {
@@ -288,7 +289,6 @@ textarea.input {
 .main-nav li.active a {
 	border-bottom: 3px solid #EF233C;
     background-color: #FFF;
-    cursor: default;
 }
 
 .main-nav li a:hover, .main-nav li a:focus {
@@ -362,6 +362,16 @@ textarea.input {
 		float:none;
 		text-align:center;
 	}
+
+	.main-nav li a {
+		font-size: 11px;
+	}
+}
+
+@media only screen and (max-width: 991px) {
+	.header-social {
+		display: none;
+	}
 }
 
 @media only screen and (max-width: 767px) {
@@ -381,10 +391,6 @@ textarea.input {
     .header-links ul li span#currentDate {
         display: none;
     }
-
-	.header-social {
-		margin-top:-1px;
-	}
 	
 	.header-social ul li {
 		margin-right:-4px;
@@ -443,6 +449,10 @@ textarea.input {
 		max-height:400px;
 		overflow-x:hidden;
 		overflow-y:scroll;
+	}
+
+	.main-nav li a {
+		font-size: 13px;
 	}
 }
 
@@ -1068,6 +1078,7 @@ textarea.input {
 \*------------------------------------*/
 .article-breadcrumb {
 	margin-bottom: 15px;
+	margin-top: -20px;
 }
 
 .article-breadcrumb > li {

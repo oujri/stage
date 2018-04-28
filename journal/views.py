@@ -1,5 +1,6 @@
 from django.http import JsonResponse, HttpResponse
 from django.shortcuts import render, redirect
+from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 
 from datetime import timedelta, datetime
 from itertools import chain
@@ -28,7 +29,8 @@ def index(request):
     newsCar = News.objects.all().exclude(id__in=videoId).order_by('-id')[:3]
 
     # Tendance : Get last week post ordering by vue nomber and id
-    one_week_ago = datetime.today() - timedelta(days=7)
+    #one_week_ago = datetime.today() - timedelta(days=7)
+    one_week_ago = datetime.today() - timedelta(days=21)
     #   T All
     tendance = News.objects.filter(datePublication__gte=one_week_ago).exclude(id__in=videoId).order_by('-nombreVue', '-id')[:10]
     #   T Style de vie
@@ -165,10 +167,8 @@ def show(request, categorie, post):
         addedArticle = News.objects.filter(publisher=article.publisher).exclude(id__in=articleId).order_by('-datePublication')[:number]
         moreArticle = list(chain(moreArticle, addedArticle))
 
-    print('anass' + str(moreArticle.count()))
-
     context = {
-        'categories': Categorie.objects.all(),
+        'categories': Categorie.objects.all().exclude(name='actualites'),
         'weather': weather,
         'article': article,
         'categorie': categorie,
@@ -179,14 +179,65 @@ def show(request, categorie, post):
         'tags': tags,
         'replyForm': ReplyForm,
         'comments': comments,
-        'moreArticle': moreArticle
+        'moreArticle': moreArticle,
+        'navActive': '#nav' + article.categorie.name
     }
     return render(request, 'journal/post.html', context)
 
 
 def category(request, categorie):
-    id = Categorie.objects.get(name=categorie)
-    return HttpResponse(str(id))
+    # Meteo
+    url = 'http://api.openweathermap.org/data/2.5/weather?q=Rabat&units=metric&appid=91d3852842a30e80531df63b131af6d4'
+    r = requests.get(url).json()
+    weather = {
+        'city': 'Rabat',
+        'temperature': r['main']['temp'],
+        'description': r['weather'][0]['description'],
+        'icon': r['weather'][0]['icon'],
+    }
+
+    # TOP_READ
+    videoId = Video.objects.all().values_list('id', flat=True)
+    topRead = News.objects.all().exclude(id__in=videoId).order_by('-nombreVue', 'id')[:7]
+
+    # TOP COMMENTS
+    topComment = Commentaire.objects.all().order_by('-nombreLike', '-datePublication')[:4]
+
+    cat = Categorie.objects.get(name=categorie)
+
+    filtre = '-datePublication'
+    if request.method == 'POST':
+        filtre = request.POST['filter']
+
+    # LAST FIVE
+    lastFive = News.objects.filter(categorie=cat).order_by(filtre, '-id')[:5]
+
+    # OTHER ARTICLE
+    lastFiveId = lastFive.values_list('id', flat=True)
+    #other = News.objects.filter(categorie=cat).exclude(id__in=lastFiveId).order_by(filtre)
+    # for test
+    other = News.objects.all().exclude(id__in=lastFiveId).order_by(filtre, '-id')
+    page = request.GET.get('page', 1)
+    paginator = Paginator(other, 8)
+    try:
+        articles = paginator.page(page)
+    except PageNotAnInteger:
+        articles = paginator.page(1)
+    except EmptyPage:
+        articles = paginator.page(paginator.num_pages)
+
+    context = {
+        'categories': Categorie.objects.all().exclude(name='actualites'),
+        'weather': weather,
+        'topRead': topRead,
+        'topComment': topComment,
+        'newslatterForm': NewslatterForm(),
+        'lastFive': lastFive,
+        'category': cat,
+        'articles': articles,
+        'navActive': '#nav' + cat.name
+    }
+    return render(request, 'journal/category.html', context)
 
 
 def subscribe(request):

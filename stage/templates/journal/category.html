@@ -1,0 +1,211 @@
+{% extends 'base.html' %}
+
+{%  load static %}
+
+{% block title %}
+    {{ category.name.capitalize }}
+{% endblock %}
+
+{% block style %}
+    <link rel="stylesheet" href="{% static 'journal/css/category.css' %}">
+{% endblock %}
+
+{% block script %}
+    $("{{ navActive }}").addClass("active");
+{% endblock %}
+
+{% block content %}
+    <!-- SECTION -->
+    <div class="section category-info">
+        <div class="container">
+            <!-- breadcrumb -->
+            <ul class="article-breadcrumb">
+                <li><a href="{% url 'index' %}">Accueil</a></li>
+                <li><a href="{% url 'category' category.name %}">{{ category.name }}</a></li>
+            </ul>
+            <!-- /breadcrumb -->
+            <!-- Info -->
+            <div class="title">
+                <h2>
+                    {{ category.name }}
+                </h2>
+                <form action="{% url 'category' category.name %}" method="post">
+                    {% csrf_token %}
+                    <select name="filter" class="form-control" onchange="this.form.submit()">
+                        <option value="">Filtre</option>
+                        <option value="-datePublication">date publication</option>
+                        <option value="-nombreVue">nombre vue</option>
+                    </select>
+                </form>
+                <p>{{ category.description }}</p>
+            </div>
+            <!-- /Info -->
+        </div>
+    </div>
+    <!-- /SECTION LAST FIVE-->
+    <div class="section lastFive">
+        <!-- CONTAINER -->
+        <div class="container">
+            <!-- ROW -->
+            <div class="row">
+                <div class="col-md-6">
+                    <article class="article thumb-article first">
+                        <div class="article-img">
+                            <img src="{{ lastFive.first.imagePrincipale.image.url }}"
+                                 alt="{{ lastFive.first.imagePrincipale.description }}">
+                        </div>
+                        <div class="article-body">
+                            <h2 class="article-title"><a href="{% url 'post' lastFive.first.categorie lastFive.first.id %}">
+                                {{ lastFive.first.smallTitre }}</a></h2>
+                            <ul class="article-meta">
+                                <li><i class="fa fa-clock-o"></i> {{ lastFive.first.datePublication }}</li>
+                                <li><i class="fa fa-comments"></i> {{ lastFive.first.commentaire_set.count }}</li>
+                            </ul>
+                        </div>
+                    </article>
+                </div>
+                <div class="col-md-6">
+                    <div class="row">
+                        <div class="col-xs-6">
+                            <article class="article thumb-article">
+                                <div class="article-img">
+                                    <img src="{{ lastFive.1.imagePrincipale.image.url }}"
+                                         alt="{{ lastFive.1.imagePrincipale.description }}">
+                                </div>
+                                <div class="article-body">
+                                    <h2 class="article-title"><a href="{% url 'post' lastFive.1.categorie lastFive.1.id %}">
+                                        {{ lastFive.1.smallTitre }}</a></h2>
+                                    <ul class="article-meta">
+                                        <li><i class="fa fa-clock-o"></i> {{ lastFive.1.datePublication }}</li>
+                                        <li><i class="fa fa-comments"></i> {{ lastFive.1.commentaire_set.count }}</li>
+                                    </ul>
+                                </div>
+                            </article>
+                        </div>
+                        <div class="col-xs-6">
+                            <article class="article thumb-article">
+                                <div class="article-img">
+                                    <img src="{{ lastFive.2.imagePrincipale.image.url }}"
+                                         alt="{{ lastFive.2.imagePrincipale.description }}">
+                                </div>
+                                <div class="article-body">
+                                    <h2 class="article-title"><a href="{% url 'post' lastFive.2.categorie lastFive.2.id %}">
+                                        {{ lastFive.2.smallTitre }}</a></h2>
+                                    <ul class="article-meta">
+                                        <li><i class="fa fa-clock-o"></i> {{ lastFive.2.datePublication }}</li>
+                                        <li><i class="fa fa-comments"></i> {{ lastFive.2.commentaire_set.count }}</li>
+                                    </ul>
+                                </div>
+                            </article>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-xs-6">
+                            <article class="article thumb-article">
+                                <div class="article-img">
+                                    <img src="{{ lastFive.3.imagePrincipale.image.url }}"
+                                         alt="{{ lastFive.3.imagePrincipale.description }}">
+                                </div>
+                                <div class="article-body">
+                                    <h2 class="article-title"><a href="{% url 'post' lastFive.3.categorie lastFive.3.id %}">
+                                        {{ lastFive.3.smallTitre }}</a></h2>
+                                    <ul class="article-meta">
+                                        <li><i class="fa fa-clock-o"></i> {{ lastFive.3.datePublication }}</li>
+                                        <li><i class="fa fa-comments"></i> {{ lastFive.3.commentaire_set.count }}</li>
+                                    </ul>
+                                </div>
+                            </article>
+                        </div>
+                        <div class="col-xs-6">
+                            <article class="article thumb-article">
+                                <div class="article-img">
+                                    <a href="">
+                                    <img src="{{ lastFive.4.imagePrincipale.image.url }}"
+                                         alt="{{ lastFive.4.imagePrincipale.description }}"></a>
+                                </div>
+                                <div class="article-body">
+                                    <h2 class="article-title"><a href="{% url 'post' lastFive.4.categorie lastFive.4.id %}">
+                                        {{ lastFive.4.smallTitre }}</a></h2>
+                                    <ul class="article-meta">
+                                        <li><i class="fa fa-clock-o"></i> {{ lastFive.4.datePublication }}</li>
+                                        <li><i class="fa fa-comments"></i> {{ lastFive.4.commentaire_set.count }}</li>
+                                    </ul>
+                                </div>
+                            </article>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- /ROW -->
+        </div>
+        <!-- /CONTAINER -->
+    </div>
+    <!-- /SECTION LAST FIVE-->
+
+    <!-- SECTION ARTICLES -->
+    <div class="section articles">
+        <!-- CONTAINER -->
+        <div class="container">
+            <!-- ROW -->
+            <div class="row">
+                <!-- Main Column -->
+                <div class="col-md-8">
+                    {% for n in articles %}
+                        <article class="row post">
+                            <div class="col-md-4">
+                                <a href="{% url 'post' n.categorie.name n.id %}">
+                                    <img src="{{ n.imagePrincipale.image.url }}"
+                                         alt="{{ n.imagePrincipale.description }}">
+                                </a>
+                            </div>
+                            <div class="col-md-8">
+                                <a href="{% url 'post' n.categorie.name n.id %}">
+                                    <h3>{{ n.smallTitre }}</h3>
+                                </a>
+                                <ul>
+                                    <li><a href="#">{{ n.publisher }}</a></li>
+                                    <li><i class="fa fa-clock-o"></i> {{ n.datePublication }}</li>
+                                    <li><i class="fa fa-comments"></i> {{ n.commentaire_set.count }}</li>
+                                </ul>
+                                <p>{{ n.resume }}</p>
+                            </div>
+                        </article>
+                    {% endfor %}
+                    <div>
+                        {% if articles.has_other_pages %}
+                            <ul class="pagination">
+                            {% if articles.has_previous %}
+                                <li><a href="?page={{ articles.previous_page_number }}">&laquo;</a></li>
+                            {% else %}
+                                <li class="disabled"><span>&laquo;</span></li>
+                            {% endif %}
+                            {% for i in articles.paginator.page_range %}
+                                {% if articles.number == i %}
+                                    <li class="active"><span>{{ i }} <span class="sr-only">(current)</span></span></li>
+                                {% else %}
+                                    <li><a href="?page={{ i }}">{{ i }}</a></li>
+                                {% endif %}
+                            {% endfor %}
+                            {% if articles.has_next %}
+                                <li><a href="?page={{ articles.next_page_number }}">&raquo;</a></li>
+                            {% else %}
+                                <li class="disabled"><span>&raquo;</span></li>
+                            {% endif %}
+                            </ul>
+
+                            <p class="paginatorIndex">page {{ articles.number }} sur {{ articles.paginator.num_pages }}</p>
+                        {% endif %}
+                    </div>
+                </div>
+                <!-- /Main Column -->
+                <!-- Aside Column -->
+                <div class="col-md-4">
+                    {% include 'journal/aside.html' %}
+                </div>
+                <!-- /Aside Column -->
+            </div>
+            <!-- /ROW -->
+        </div>
+        <!-- /CONTAINER -->
+    </div>
+{% endblock %}

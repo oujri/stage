@@ -102,6 +102,21 @@ function hideMessage(){
 	$(".messageNewslatter").text("");
 	$("[name='email']").val('');
 }
+$( ".formSubscribe" ).submit(function( event ) {
+	event.preventDefault();
+	var form = $(this);
+    $.ajax({
+		url: form.attr("data-validate-username-url"),
+        data: form.serialize(),
+        dataType: 'json',
+        success: function (data) {
+			$(".messageNewslatter").text(data.message);
+            setTimeout(hideMessage, 5000);
+		}
+    });
+})
+
+
 
 $( ".formLike" ).submit(function( event ) {
 	event.preventDefault();

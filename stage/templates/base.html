@@ -31,6 +31,8 @@
 		<!-- Custom stlylesheet -->
 		<link type="text/css" rel="stylesheet" href="{% static 'journal/css/style.css' %}"/>
 
+        {% block style %}{% endblock %}
+
 		<!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
 		<!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
 		<!--[if lt IE 9]>
@@ -103,9 +105,9 @@
 				<div class="container">
 					<nav id="main-nav">
 						<ul class="main-nav nav navbar-nav">
-							<li class=""><a href="{% url 'index' %}">actualités</a></li>
+							<li id="navactualites"><a href="{% url 'category' 'actualites' %}">actualités</a></li>
                             {% for cat in categories %}
-							<li><a href="#">{{ cat.name }}</a></li>
+							    <li id="nav{{ cat.name }}"><a href="{% url 'category' cat.name %}">{{ cat.name }}</a></li>
                             {% endfor %}
 						</ul>
 					</nav>
@@ -123,20 +125,6 @@
 			</div>
 			<!-- /Nav Header -->
 
-            <!-- Trending Now -->
-            <div class="trendingNow">
-                <div class="container">
-                    <div class="title">
-                        Trending Now
-                    </div>
-                    <div class="news">
-                        <span>
-                            Amazon’s Apple Watch killer will be free and sell you everything
-                        </span>
-                    </div>
-                </div>
-            </div>
-            <!-- /Trending Now -->
         </header>
 		<!-- /Header -->
 
@@ -320,8 +308,10 @@
 		<script src="{% static 'journal/js/owl.carousel.min.js' %}"></script>
 		<script src="{% static 'journal/js/main.js' %}"></script>
 
-        {% block script %}
-        {% endblock %}
+        <script>
+            {% block script %}
+            {% endblock %}
+        </script>
 
 	</body>
 </html>

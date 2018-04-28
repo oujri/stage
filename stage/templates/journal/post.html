@@ -5,7 +5,28 @@
     {{ article.smallTitre }}
 {% endblock %}
 
+{% block script %}
+    $("{{ navActive }}").addClass("active");
+{% endblock %}
+
 {% block content %}
+
+    <!-- Trending Now -->
+    <div class="trendingNow">
+        <div class="container">
+            <div class="title">
+                Trending Now
+            </div>
+            <div class="news">
+                <span>
+                    Amazon’s Apple Watch killer will be free and sell you everything
+                </span>
+            </div>
+        </div>
+    </div>
+    <!-- /Trending Now -->
+
+
 		<!-- SECTION -->
 		<div class="section">
 			<!-- CONTAINER -->
@@ -17,7 +38,7 @@
 
 						<!-- breadcrumb -->
 						<ul class="article-breadcrumb">
-							<li><a href="{% url 'index' %}">actualités</a></li>
+							<li><a href="{% url 'index' %}">Accueil</a></li>
 							<li><a href="{% url 'category' categorie.name %}">{{ categorie.name }}</a></li>
 							<li>{{ article.smallTitre }}</li>
 						</ul>
