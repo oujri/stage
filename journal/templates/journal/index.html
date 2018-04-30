@@ -603,7 +603,7 @@
 					<div class="col-md-8">
 						<!-- section title -->
 						<div class="section-title">
-							<h2 class="title">Ajoutés récemment</h2>
+                            <a class="title" href="{% url 'lastArticles' %}">Ajoutés récemment</a>
 						</div>
 						<!-- /section title -->
                         <!-- section Article -->
@@ -637,10 +637,10 @@
 						<!-- pagination -->
 						<div class="article-pagination">
 							<ul>
-								<li class="active"><a href="#" class="active">1</a></li>
-								<li><a href="#">2</a></li>
-								<li><a href="#">3</a></li>
-								<li><a href="#">...</a></li>
+								<li class="active"><a href="{% url 'lastArticles' %}">1</a></li>
+								<li><a href="{% url 'lastArticles' %}">2</a></li>
+								<li><a href="{% url 'lastArticles' %}">3</a></li>
+								<li><a href="{% url 'lastArticles' %}">...</a></li>
 							</ul>
 						</div>
 						<!-- /pagination -->
@@ -729,7 +729,4 @@
 {% endblock %}
 
 {% block script %}
-    <script>
-
-    </script>
 {% endblock %}

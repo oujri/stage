@@ -12,6 +12,7 @@
 
 {% block script %}
     $("{{ navActive }}").addClass("active");
+    $("#filtre").val("{{ filtre }}");
 {% endblock %}
 
 {% block content %}
@@ -29,12 +30,11 @@
                 <h2>
                     {{ category.name }}
                 </h2>
-                <form action="{% url 'category' category.name %}" method="post">
-                    {% csrf_token %}
-                    <select name="filter" class="form-control" onchange="this.form.submit()">
-                        <option value="">Filtre</option>
+                <form action="{% url 'category' category.name %}" method="get">
+                    <select name="filtre" id="filtre" class="form-control" onchange="this.form.submit()">
                         <option value="-datePublication">date publication</option>
-                        <option value="-nombreVue">nombre vue</option>
+                        <option value="-nombreVue">nombre de vue</option>
+                        <option value="-commentNumber">nombre de commentaire</option>
                     </select>
                 </form>
                 <p>{{ category.description }}</p>

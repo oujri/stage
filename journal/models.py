@@ -4,17 +4,40 @@ from imagekit.models import ImageSpecField
 from imagekit.processors import ResizeToFill
 
 
+class Image(models.Model):
+    description = models.CharField(max_length=255, blank=True)
+    image = models.ImageField(upload_to='images/')
+    datePublication = models.DateTimeField(auto_now_add=True)
+    image_thumbnail = ImageSpecField(
+        source='image',
+        processors=[ResizeToFill(262, 175)],
+        format='JPEG',
+        options={'quality': 100})
+    image_video = ImageSpecField(
+        source='image',
+        processors=[ResizeToFill(600, 600)],
+        format='JPEG',
+        options={'quality': 100})
+
+    def __str__(self):
+        return self.image.name
+
+
 class Publisher(models.Model):
     nom = models.CharField(max_length=100)
     prenom = models.CharField(max_length=100)
     email = models.EmailField()
     tel = models.CharField(max_length=30)
     description = models.TextField(blank=True)
+    dateCreation = models.DateTimeField(auto_now_add=True, null=True)
     link = models.URLField(blank=True)
     facebook = models.URLField(blank=True)
     twitter = models.URLField(blank=True)
     youtube = models.URLField(blank=True)
     instagram = models.URLField(blank=True)
+    google = models.URLField(blank=True)
+    linkedin = models.URLField(blank=True)
+    photoDeProfil = models.ForeignKey(Image, default=60, on_delete=models.SET(60))
 
     def __str__(self):
         return self.nom + ' ' + self.prenom
@@ -38,26 +61,6 @@ class Tag(models.Model):
 
     def __str__(self):
         return self.name
-
-
-class Image(models.Model):
-    description = models.CharField(max_length=255, blank=True)
-    image = models.ImageField(upload_to='uploads/images/')
-    datePublication = models.DateTimeField(auto_now_add=True)
-    lien = models.URLField(null=True, blank=True)
-    image_thumbnail = ImageSpecField(
-        source='image',
-        processors=[ResizeToFill(262, 175)],
-        format='JPEG',
-        options={'quality': 100})
-    image_video = ImageSpecField(
-        source='image',
-        processors=[ResizeToFill(600, 600)],
-        format='JPEG',
-        options={'quality': 100})
-
-    def __str__(self):
-        return self.image.name
 
 
 class News(models.Model):

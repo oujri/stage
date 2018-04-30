@@ -62,7 +62,7 @@
 								</ul>
 								<h1 class="article-title">{{ article.titre }}</h1>
 								<ul class="article-meta">
-                                    <li><a href="#"><b>{{ article.publisher }}</b></a></li>
+                                    <li><a href="{% url 'author' article.publisher.id %}"><b>{{ article.publisher }}</b></a></li>
 									<li><i class="fa fa-clock-o"></i> {{ article.datePublication|date }}</li>
 									<li><i class="fa fa-comments"></i> {{ article.commentaire_set.count }}</li>
 								</ul>

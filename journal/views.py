@@ -1,10 +1,12 @@
 from django.http import JsonResponse, HttpResponse
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
+from django.db.models import Count
 
 from datetime import timedelta, datetime
 from itertools import chain
 
+from journal.models import Publisher
 from .models import Categorie, Image, News, Video, Commentaire, Tag, Reponse, Newslatter
 from .forms import ImageUploadForm, NewslatterForm, ReplyForm, SignalForm
 
@@ -71,7 +73,15 @@ def index(request):
 
     # LAST ADD
     #   LAST ADD NEWS
-    lastAdd = News.objects.all().exclude(id__in=videoId).order_by('-datePublication')[:4]
+    lastAdd = News.objects.all().exclude(id__in=videoId).order_by('-datePublication')
+    page = request.GET.get('page', 1)
+    paginator = Paginator(lastAdd, 4)
+    try:
+        articles = paginator.page(page)
+    except PageNotAnInteger:
+        articles = paginator.page(1)
+    except EmptyPage:
+        articles = paginator.page(paginator.num_pages)
     #   LAST ADD VIEDO
     lastAddVideo = Video.objects.all().order_by('-datePublication')[:4]
     #   LAST ADD COMMENT
@@ -95,7 +105,7 @@ def index(request):
         'newslatterForm': NewslatterForm(),
         'topRead': topRead,
         'topVideo': topVideo,
-        'lastAdd': lastAdd,
+        'lastAdd': articles,
         'lastAddVideo': lastAddVideo,
         'lastAddComment': lastAddComment,
         'lastAddImage': lastAddImage,
@@ -205,18 +215,18 @@ def category(request, categorie):
 
     cat = Categorie.objects.get(name=categorie)
 
-    filtre = '-datePublication'
-    if request.method == 'POST':
-        filtre = request.POST['filter']
+    filtre = request.GET.get('filtre', '-datePublication')
+
+    news = News.objects.filter(categorie=cat).annotate(commentNumber=Count('commentaire'))
 
     # LAST FIVE
-    lastFive = News.objects.filter(categorie=cat).order_by(filtre, '-id')[:5]
+    lastFive = news.order_by(filtre, '-id')[:5]
 
     # OTHER ARTICLE
     lastFiveId = lastFive.values_list('id', flat=True)
-    #other = News.objects.filter(categorie=cat).exclude(id__in=lastFiveId).order_by(filtre)
+    # other = news.exclude(id__in=lastFiveId).order_by(filtre)
     # for test
-    other = News.objects.all().exclude(id__in=lastFiveId).order_by(filtre, '-id')
+    other = News.objects.all().exclude(id__in=lastFiveId).order_by('-id')
     page = request.GET.get('page', 1)
     paginator = Paginator(other, 8)
     try:
@@ -235,9 +245,55 @@ def category(request, categorie):
         'lastFive': lastFive,
         'category': cat,
         'articles': articles,
-        'navActive': '#nav' + cat.name
+        'navActive': '#nav' + cat.name,
+        'filtre': filtre
     }
     return render(request, 'journal/category.html', context)
+
+
+def lastArticles(request):
+    # Meteo
+    url = 'http://api.openweathermap.org/data/2.5/weather?q=Rabat&units=metric&appid=91d3852842a30e80531df63b131af6d4'
+    r = requests.get(url).json()
+    weather = {
+        'city': 'Rabat',
+        'temperature': r['main']['temp'],
+        'description': r['weather'][0]['description'],
+        'icon': r['weather'][0]['icon'],
+    }
+
+    # TOP_READ
+    videoId = Video.objects.all().values_list('id', flat=True)
+    topRead = News.objects.all().exclude(id__in=videoId).order_by('-nombreVue', 'id')[:7]
+
+    # TOP COMMENTS
+    topComment = Commentaire.objects.all().order_by('-nombreLike', '-datePublication')[:4]
+
+    # FILTER
+    filtre = request.GET.get('filtre', '-datePublication')
+    news = News.objects.annotate(commentNumber=Count('commentaire'))
+
+    # ARTICLES
+    articles = news.order_by(filtre)
+    page = request.GET.get('page', 1)
+    paginator = Paginator(articles, 15)
+    try:
+        articles = paginator.page(page)
+    except PageNotAnInteger:
+        articles = paginator.page(1)
+    except EmptyPage:
+        articles = paginator.page(paginator.num_pages)
+
+    context = {
+        'categories': Categorie.objects.all().exclude(name='actualites'),
+        'weather': weather,
+        'topRead': topRead,
+        'topComment': topComment,
+        'newslatterForm': NewslatterForm(),
+        'articles': articles,
+        'filtre': filtre
+    }
+    return render(request, 'journal/lastArticles.html', context)
 
 
 def subscribe(request):
@@ -319,3 +375,56 @@ def repondre(request, comment):
         'formButtonRepondre': '#formButtonRepondre' + str(comment)
     }
     return JsonResponse(data)
+
+
+def author(request, id):
+    # Meteo
+    url = 'http://api.openweathermap.org/data/2.5/weather?q=Rabat&units=metric&appid=91d3852842a30e80531df63b131af6d4'
+    r = requests.get(url).json()
+    weather = {
+        'city': 'Rabat',
+        'temperature': r['main']['temp'],
+        'description': r['weather'][0]['description'],
+        'icon': r['weather'][0]['icon'],
+    }
+
+    # TOP_READ
+    videoId = Video.objects.all().values_list('id', flat=True)
+    topRead = News.objects.all().exclude(id__in=videoId).order_by('-nombreVue', 'id')[:7]
+
+    # TOP COMMENTS
+    topComment = Commentaire.objects.all().order_by('-nombreLike', '-datePublication')[:4]
+
+    # AUTHOR
+    aut = get_object_or_404(Publisher, id=id)
+
+    # COMMENT NUMBER
+    number = Commentaire.objects.filter(email=aut.email).count()
+
+    # ARTICLES
+    articles = aut.news_set.all().order_by('-datePublication')
+    page = request.GET.get('page', 1)
+    paginator = Paginator(articles, 14)
+    try:
+        articles = paginator.page(page)
+    except PageNotAnInteger:
+        articles = paginator.page(1)
+    except EmptyPage:
+        articles = paginator.page(paginator.num_pages)
+
+    # OTHER AUTHOR
+    authors = Publisher.objects.annotate(newsCount=Count('news')).order_by('-newsCount')[:5]
+
+    context = {
+        'categories': Categorie.objects.all().exclude(name='actualites'),
+        'weather': weather,
+        'topRead': topRead,
+        'topComment': topComment,
+        'newslatterForm': NewslatterForm(),
+        'author': aut,
+        'articles': articles,
+        'commentNumber': number,
+        'authors': authors
+
+    }
+    return render(request, 'journal/author.html', context)
