@@ -283,7 +283,7 @@ textarea.input {
     height: 47px;
     font-size: 13px;
     padding: 13px 21px;
-    transition: all .2s ease-in;
+    transition: all .1s ease-in;
 }
 
 .main-nav li.active a {

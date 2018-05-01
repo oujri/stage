@@ -52,6 +52,11 @@
                                 <div class="row">
                             {% endif %}
                             <div class="col-md-6">
+                                {% if n.videoUrl != None %}
+                                    Video
+                                {% else %}
+                                    News
+                                {% endif %}
                                 <!-- ARTICLE -->
                                 <article class="article">
                                     <div class="article-img">
@@ -64,7 +69,9 @@
                                         </ul>
                                     </div>
                                     <div class="article-body">
-                                        <h3 class="article-title"><a href="{% url 'post' n.categorie.name n.id %}">{{ n.smallTitre|truncatechars:62 }}</a></h3>
+                                        <h3 class="article-title">
+                                            <a href="{% url 'post' n.categorie.name n.id %}">{{ n.smallTitre|truncatechars:62 }}</a>
+                                        </h3>
                                         <ul class="article-meta">
                                             <li><i class="fa fa-clock-o"></i> {{ n.datePublication }}</li>
                                             <li><i class="fa fa-comments"></i> {{ n.commentaire_set.count }}</li>

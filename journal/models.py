@@ -1,12 +1,39 @@
+import time
+import os
+import uuid
+
 from django.db import models
+from django.utils.deconstruct import deconstructible
 
 from imagekit.models import ImageSpecField
 from imagekit.processors import ResizeToFill
 
 
+# For rename the file before save
+@deconstructible
+class PathAndRename(object):
+    def __init__(self, sub_path):
+        self.path = sub_path
+
+    def __call__(self, instance, filename):
+        # eg: filename = 'my uploaded file.jpg'
+        ext = filename.split('.')[-1]  # eg: 'jpg'
+        uid = uuid.uuid4().hex[:10]  # eg: '567ae32f97'
+
+        # eg: 'my-uploaded-file'
+        new_name = '-'.join(filename.replace('.%s' % ext, '').split())
+
+        # eg: 'my-uploaded-file_64c942aa64.jpg'
+        renamed_filename = '%(new_name)s_%(uid)s.%(ext)s' % {'new_name': new_name, 'uid': uid, 'ext': ext}
+
+        # eg: 'images/2017/01/29/my-uploaded-file_64c942aa64.jpg'
+        return os.path.join(self.path, renamed_filename)
+
+
 class Image(models.Model):
     description = models.CharField(max_length=255, blank=True)
-    image = models.ImageField(upload_to='images/')
+    image_path = time.strftime('images/%Y/%m/%d')
+    image = models.ImageField(upload_to=PathAndRename(image_path))
     datePublication = models.DateTimeField(auto_now_add=True)
     image_thumbnail = ImageSpecField(
         source='image',
@@ -65,7 +92,7 @@ class Tag(models.Model):
 
 class News(models.Model):
     titre = models.CharField(max_length=255)
-    smallTitre = models.CharField(default=titre, max_length=255)
+    smallTitre = models.CharField(null=True, blank=True, max_length=255)
     contenu = models.TextField()
     datePublication = models.DateTimeField(auto_now_add=True)
     nombreVue = models.IntegerField(default=0)
@@ -89,6 +116,8 @@ class News(models.Model):
 
 class Video(News):
     videoUrl = models.URLField()
+    data_merge = models.IntegerField(default=2)
+    equipe_selection = models.BooleanField(default=False)
 
 
 class Comment(models.Model):

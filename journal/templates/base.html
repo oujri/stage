@@ -109,6 +109,7 @@
                             {% for cat in categories %}
 							    <li id="nav{{ cat.name }}"><a href="{% url 'category' cat.name %}">{{ cat.name }}</a></li>
                             {% endfor %}
+                            <li id="navvideo"><a href="{% url 'video' %}">Videos</a></li>
 						</ul>
 					</nav>
 					<div class="button-nav">

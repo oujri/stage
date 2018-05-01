@@ -15,6 +15,8 @@ urlpatterns = [
     path('repondre/<int:comment>/', views.repondre, name='repondre'),
     path('lastArticles/', views.lastArticles, name='lastArticles'),
     path('author/<int:id>/', views.author, name='author'),
+    path('video/', views.video, name='video'),
+    path('video/<int:id>/', views.video_show, name='video_show'),
     path('<slug:categorie>/<int:post>/', views.show, name='post'),
     path('<slug:categorie>/', views.category, name='category'),
 ]

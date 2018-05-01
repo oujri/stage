@@ -403,6 +403,11 @@ def author(request, id):
 
     # ARTICLES
     articles = aut.news_set.all().order_by('-datePublication')
+
+    for a in articles:
+        if isinstance(a, Video):
+            print('Video')
+
     page = request.GET.get('page', 1)
     paginator = Paginator(articles, 14)
     try:
@@ -428,3 +433,52 @@ def author(request, id):
 
     }
     return render(request, 'journal/author.html', context)
+
+
+def video(request):
+    # Meteo
+    url = 'http://api.openweathermap.org/data/2.5/weather?q=Rabat&units=metric&appid=91d3852842a30e80531df63b131af6d4'
+    r = requests.get(url).json()
+    weather = {
+        'city': 'Rabat',
+        'temperature': r['main']['temp'],
+        'description': r['weather'][0]['description'],
+        'icon': r['weather'][0]['icon'],
+    }
+
+    # TOP_READ
+    videoId = Video.objects.all().values_list('id', flat=True)
+    topRead = News.objects.all().exclude(id__in=videoId).order_by('-nombreVue', 'id')[:7]
+
+    # TOP COMMENTS
+    topComment = Commentaire.objects.all().order_by('-nombreLike', '-datePublication')[:4]
+
+    # VIDEO SELECTION
+    video_selection = Video.objects.filter(equipe_selection=True).order_by('-datePublication')[:5]
+
+    # OTHER VIDEO
+    other_video = Video.objects.all().order_by('-datePublication')
+    page = request.GET.get('page', 1)
+    paginator = Paginator(other_video, 10)
+    try:
+        other_video = paginator.page(page)
+    except PageNotAnInteger:
+        other_video = paginator.page(1)
+    except EmptyPage:
+        other_video = paginator.page(paginator.num_pages)
+
+    context = {
+        'categories': Categorie.objects.all().exclude(name='actualites'),
+        'weather': weather,
+        'topRead': topRead,
+        'topComment': topComment,
+        'newslatterForm': NewslatterForm(),
+        'video_selection': video_selection,
+        'other_video': other_video
+    }
+
+    return render(request, 'journal/video.html', context)
+
+
+def video_show(request, id):
+    return HttpResponse(Video.objects.get(id=id).titre)
