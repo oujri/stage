@@ -11,55 +11,55 @@
 {% endblock %}
 
 {% block script %}
-
+    $("#navvideo").addClass("active");
 {% endblock %}
 
 {% block content %}
-<div class="section video">
-    <div class="container">
-        <ul class="article-breadcrumb">
-            <li><a href="{% url 'index' %}">Accueil</a></li>
-            <li><a href="{% url 'video' %}">Videos</a></li>
-            <li><a href="{% url 'video_show' video.id %}">{{ video.smallTitre }}</a></li>
-        </ul>
-        <div class="row">
-            <div class="col-md-8 videoWrapper">
-                <iframe width="100%" height="391.5px" src="{{ video.videoUrl }}" frameborder="0" allowfullscreen></iframe>
-                <ul class="list-inline social">
-                    <li class="facebook"><a href="#"><i class="fa fa-facebook"></i> <span>Facebook</span></a></li>
-                    <li class="twitter"><a href="#"><i class="fa fa-twitter"></i> <span>Twitter</span></a></li>
-                    <li class="google"><a href="#"><i class="fa fa-google-plus"></i> <span>Google+</span></a></li>
-                    <li class="instagram"><a href="#"><i class="fa fa-instagram"></i> <span>Instagram</span></a></li>
-                </ul>
-            </div>
-            <div class="col-md-4">
-                <ul class="list-inline">
-                    {% for tag in tags %}
-                        <li style="background: {{ tag.color }}">
-                            <a href="#" class="tag">{{ tag.name }}</a>
-                        </li>
-                    {% endfor %}
-                </ul>
-                <h2>{{ video.titre }}</h2>
-                <ul class="list-inline">
-                    <li class="publisher"><a href="{% url 'author' video.publisher.id %}"><strong>{{ video.publisher }}</strong></a></li>
-                    <li><i class="fa fa-clock-o"></i> {{ video.datePublication|date }}</li>
-                    <li><i class="fa fa-comments"></i> {{ video.commentaire_set.count }}</li>
-                    <li><i class="fa fa-eye"> {{ video.nombreVue }}</i></li>
-                </ul>
-                <div class="img-ad hidden-sm hidden-xs">
-                    <img src="{% static 'journal/img/ad.gif' %}" alt="ad">
+    <div class="section video">
+        <div class="container">
+            <ul class="article-breadcrumb">
+                <li><a href="{% url 'index' %}">Accueil</a></li>
+                <li><a href="{% url 'video' %}">Videos</a></li>
+                <li><a href="{% url 'video_show' video.id %}">{{ video.smallTitre }}</a></li>
+            </ul>
+            <div class="row">
+                <div class="col-md-8 videoWrapper">
+                    <iframe width="100%" height="391.5px" src="{{ video.videoUrl }}" frameborder="0" allowfullscreen></iframe>
+                    <ul class="list-inline social">
+                        <li class="facebook"><a href="#"><i class="fa fa-facebook"></i> <span>Facebook</span></a></li>
+                        <li class="twitter"><a href="#"><i class="fa fa-twitter"></i> <span>Twitter</span></a></li>
+                        <li class="google"><a href="#"><i class="fa fa-google-plus"></i> <span>Google+</span></a></li>
+                        <li class="instagram"><a href="#"><i class="fa fa-instagram"></i> <span>Instagram</span></a></li>
+                    </ul>
+                </div>
+                <div class="col-md-4">
+                    <ul class="list-inline">
+                        {% for tag in tags %}
+                            <li style="background: {{ tag.color }}">
+                                <a href="#" class="tag">{{ tag.name }}</a>
+                            </li>
+                        {% endfor %}
+                    </ul>
+                    <h2>{{ video.titre }}</h2>
+                    <ul class="list-inline">
+                        <li class="publisher"><a href="{% url 'author' video.publisher.id %}"><strong>{{ video.publisher }}</strong></a></li>
+                        <li><i class="fa fa-clock-o"></i> {{ video.datePublication|date }}</li>
+                        <li><i class="fa fa-comments"></i> {{ video.commentaire_set.count }}</li>
+                        <li><i class="fa fa-eye"> {{ video.nombreVue }}</i></li>
+                    </ul>
+                    <div class="img-ad hidden-sm hidden-xs">
+                        <img src="{% static 'journal/img/ad.gif' %}" alt="ad">
+                    </div>
                 </div>
             </div>
         </div>
     </div>
-</div>
     <div class="more-author">
         <div class="container">
             <h3>Du méme auteur</h3>
             <div class="row">
                 {% for video in more_video %}
-                <div class="col-md-3">
+                <div class="col-md-3 col-sm-6">
                     <!-- ARTICLE -->
                     <article class="article">
                         <div class="article-img">
@@ -89,4 +89,229 @@
             </div>
         </div>
     </div>
+    {% if video.contenu != "null" %}
+    <div class="section contenu">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-8">
+                {% autoescape off %}
+                    {{ video.contenu }}
+                {% endautoescape %}
+                    <!-- article comments -->
+						<div class="article-comments">
+							<div class="section-title">
+								<h2 class="title">Commentaires</h2>
+							</div>
+
+                            {% for comment in video.sorted_comment %}
+                                <div class="media">
+                                    <div class="media-left">
+                                        <span class="numberLike" id="numberLike{{ comment.id }}">{{ comment.nombreLike }}</span>
+                                    </div>
+                                    <div class="media-body">
+                                        <div class="media-heading">
+                                            <h5>{{ comment.nomComplet }} <span class="reply-time">{{ comment.datePublication }}</span></h5>
+                                        </div>
+                                        <p>{{ comment.message }}</p>
+                                        <form id="formButtonRepondre{{ comment.id }}">
+                                            <button class="reply-btn" type="button" onclick="
+                                                    check = $('#repondreForm{{ comment.id }}').css('display');
+                                                    if (check == 'none') {
+                                                        $( this ).css('background-color', '#000');
+                                                        $( this ).css('color', '#FFF');
+                                                        $('#repondreForm{{ comment.id }}').css('display', 'block');
+                                                    } else {
+                                                        $( this ).css('background-color', '#FFF');
+                                                        $( this ).css('color', '#000');
+                                                        $('#repondreForm{{ comment.id }}').css('display', 'none');
+                                                    }">
+                                                Répondre
+                                            </button>
+                                        </form>
+                                        <form id="formButtonSignaler{{ comment.id }}">
+                                            <button class="reply-btn" type="button" onclick="
+                                                    check = $('#signalForm{{ comment.id }}').css('display');
+                                                    if (check == 'none') {
+                                                        $( this ).css('background-color', '#000');
+                                                        $( this ).css('color', '#FFF');
+                                                        $('#signalForm{{ comment.id }}').css('display', 'block');
+                                                    } else {
+                                                        $( this ).css('background-color', '#FFF');
+                                                        $( this ).css('color', '#000');
+                                                        $('#signalForm{{ comment.id }}').css('display', 'none');
+                                                    }">
+                                                Signaler
+                                            </button>
+                                        </form>
+                                        <div id="divComment{{ comment.id }}" class="hideC">
+                                            <form action="{% url 'like' comment.id %}" method="POST" role="form" class="formLike"
+                                                data-validate-username-url="{% url 'like' comment.id %}">
+                                                {% csrf_token %}
+                                                <input type="hidden" name="method" value="like">
+                                                <input type="hidden" name="type" value="comment">
+                                                <button class="btnLike"><i class="fa fa-thumbs-up"></i></button>
+                                            </form>
+                                            <form action="{% url 'like' comment.id %}" method="POST" role="form" class="formLike"
+                                                data-validate-username-url="{% url 'like' comment.id %}">
+                                                {% csrf_token %}
+                                                <input type="hidden" name="method" value="dislike">
+                                                <input type="hidden" name="type" value="comment">
+                                                <button class="btnDislike"><i class="fa fa-thumbs-down"></i></button>
+                                            </form>
+                                        </div>
+                                        <form action="{% url 'signal' comment.id %}" method="POST" role="form" class="formSignal"
+                                                data-validate-username-url="{% url 'signal' comment.id %}"
+                                                id="signalForm{{ comment.id }}">
+                                            {% csrf_token %}
+                                            {{ signalForm.email }}
+                                            {{ signalForm.motif }}
+                                            <input type="hidden" name="type" value="comment">
+                                            <button class="reply-btn">Envoyer</button>
+                                        </form>
+                                        <p id="messageSignal{{ comment.id }}" class="label label-info label-signal"></p>
+                                        <form action="{% url 'repondre' comment.id %}" method="POST" role="form" class="formRepondre"
+                                                data-validate-username-url="{% url 'repondre' comment.id %}"
+                                                id="repondreForm{{ comment.id }}">
+                                            {% csrf_token %}
+                                            {{ replyForm.name }}
+                                            {{ replyForm.email }}
+                                            <button class="reply-btn">Publier</button>
+                                            {{ replyForm.message }}
+                                        </form>
+                                    </div>
+                                {% for reponse in comment.reponse_set.all %}
+
+                                        <div class="media">
+                                            <div class="media-left">
+                                                <span class="numberLike" id="numberLike{{ reponse.id }}">{{ reponse.nombreLike }}</span>
+                                            </div>
+                                            <div class="media-body">
+                                                <div class="media-heading">
+                                                    <h5>{{ reponse.nomComplet }} <span class="reply-time">{{ reponse.datePublication }}</span></h5>
+                                                </div>
+                                                <p>{{ reponse.message }}</p>
+                                                <form id="formButtonSignaler{{ reponse.id }}">
+                                                    <button class="reply-btn" type="button" onclick="
+                                                            check = $('#signalForm{{ reponse.id }}').css('display');
+                                                            if (check == 'none') {
+                                                                $( this ).css('background-color', '#000');
+                                                                $( this ).css('color', '#FFF');
+                                                                $('#signalForm{{ reponse.id }}').css('display', 'block');
+                                                            } else {
+                                                                $( this ).css('background-color', '#FFF');
+                                                                $( this ).css('color', '#000');
+                                                                $('#signalForm{{ reponse.id }}').css('display', 'none');
+                                                            }">
+                                                        Signaler
+                                                    </button>
+                                                </form>
+                                                <div id="divComment{{ reponse.id }}" class="hideC">
+                                                    <form action="{% url 'like' reponse.id %}" method="POST" role="form" class="formLike"
+                                                        data-validate-username-url="{% url 'like' reponse.id %}">
+                                                        {% csrf_token %}
+                                                        <input type="hidden" name="method" value="like">
+                                                        <input type="hidden" name="type" value="reponse">
+                                                        <button class="btnLike"><i class="fa fa-thumbs-up"></i></button>
+                                                    </form>
+                                                    <form action="{% url 'like' reponse.id %}" method="POST" role="form" class="formLike"
+                                                        data-validate-username-url="{% url 'like' reponse.id %}">
+                                                        {% csrf_token %}
+                                                        <input type="hidden" name="method" value="dislike">
+                                                        <input type="hidden" name="type" value="reponse">
+                                                        <button class="btnDislike"><i class="fa fa-thumbs-down"></i></button>
+                                                    </form>
+                                                </div>
+                                                <form action="{% url 'signal' reponse.id %}" method="POST" role="form" class="formSignal"
+                                                        data-validate-username-url="{% url 'signal' reponse.id %}"
+                                                        id="signalForm{{ reponse.id }}">
+                                                    {% csrf_token %}
+                                                    {{ signalForm.email }}
+                                                    {{ signalForm.motif }}
+                                                    <input type="hidden" name="type" value="reponse">
+                                                    <button class="reply-btn">Envoyer</button>
+                                                </form>
+                                                <p id="messageSignal{{ reponse.id }}" class="label label-info label-signal"></p>
+                                            </div>
+                                        </div>
+                                {% endfor %}
+                                </div>
+                            {% endfor %}
+
+                            <div id="addNewComment">
+                                <div class="media">
+                                    <div class="media-left">
+                                        <span class="numberLike">0</span>
+                                    </div>
+                                    <div class="media-body">
+                                        <div class="media-heading">
+                                            <h5 id="addNewCommentH5">
+                                                <span class="reply-time" id="addNewCommentSpan"></span>
+                                            </h5>
+                                        </div>
+                                        <p id="addNewCommentP"></p>
+                                    </div>
+                                </div>
+                            </div>
+
+                        </div>
+						<!-- /article comments -->
+
+						<!-- reply form -->
+                        <p id="messageComment" class="label label-success"></p>
+						<div class="article-reply-form" id="article-reply-form">
+							<div class="section-title">
+								<h2 class="title">Laissez un commentaire</h2>
+							</div>
+
+							<form action="{% url 'comment' video.id %}" method="POST" id="commentForm" role="form"
+                                data-validate-username-url="{% url 'comment' video.id %}">
+                                    {% csrf_token %}
+                                {{ replyForm.name }}
+                                {{ replyForm.email }}
+                                {{ replyForm.message }}
+								<button class="input-btn">Envoyer</button>
+							</form>
+						</div>
+						<!-- /reply form -->
+                </div>
+                <div class="col-md-4">
+                    <!-- widget dernières vidéos -->
+                    <div class="widget">
+                        <div class="widget-title">
+                            <h2 class="title">dernières vidéos</h2>
+                        </div>
+
+                        <!-- owl carousel 4 -->
+                        <div id="owl-carousel-4" class="owl-carousel owl-theme">
+                            {% for v in lastAddVideo %}
+                                <!-- ARTICLE -->
+                                <article class="article thumb-article">
+                                    <div class="article-img">
+                                        <img src="{{ v.imagePrincipale.image_video.url }}" alt="{{ v.imagePrincipale.description }}">
+                                    </div>
+                                    <div class="article-body">
+                                        <ul class="article-info">
+                                            <li class="article-category"><a href="{% url 'video' %}">
+                                                Videos</a></li>
+                                            <li class="article-type"><i class="fa fa-video-camera"></i></li>
+                                        </ul>
+                                        <h3 class="article-title"><a href="{% url 'video_show' v.id %}">
+                                            {{ v.smallTitre }}</a></h3>
+                                        <ul class="article-meta">
+                                            <li><i class="fa fa-clock-o"></i> {{ v.datePublication }}</li>
+                                            <li><i class="fa fa-comments"></i> {{ v.commentaire_set.count }}</li>
+                                        </ul>
+                                    </div>
+                                </article>
+                                <!-- /ARTICLE -->
+                            {% endfor %}
+                        </div>
+                        <!-- /owl carousel 4 -->
+                    </div>
+                    <!-- /widget dernières vidéos -->
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
 {% endblock %}

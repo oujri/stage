@@ -568,11 +568,11 @@
                                     </div>
                                     <div class="article-body">
                                         <ul class="article-info">
-                                            <li class="article-category"><a href="{% url 'category' v.categorie.name %}">
-                                                {{ v.categorie }}</a></li>
+                                            <li class="article-category"><a href="{% url 'video' %}">
+                                                Videos</a></li>
                                             <li class="article-type"><i class="fa fa-video-camera"></i></li>
                                         </ul>
-                                        <h3 class="article-title"><a href="{% url 'post' v.categorie.name v.id %}">
+                                        <h3 class="article-title"><a href="{% url 'video_show' v.id %}">
                                             {{ v.smallTitre }}</a></h3>
                                         <ul class="article-meta">
                                             <li><i class="fa fa-clock-o"></i> {{ v.datePublication }}</li>
@@ -665,11 +665,11 @@
                                         </div>
                                         <div class="article-body">
                                             <ul class="article-info">
-                                                <li class="article-category"><a href="{% url 'category' v.categorie.name %}">
-                                                    {{ v.categorie }}</a></li>
+                                                <li class="article-category"><a href="{% url 'video' %}">
+                                                    videos</a></li>
                                                 <li class="article-type"><i class="fa fa-video-camera"></i></li>
                                             </ul>
-                                            <h3 class="article-title"><a href="{% url 'post' v.categorie.name v.id %}">
+                                            <h3 class="article-title"><a href="{% url 'video_show' v.id %}">
                                                 {{ v.smallTitre }}</a></h3>
                                             <ul class="article-meta">
                                                 <li><i class="fa fa-clock-o"></i> {{ v.datePublication }}</li>

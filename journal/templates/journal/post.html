@@ -86,10 +86,10 @@
 						<!-- article comments -->
 						<div class="article-comments">
 							<div class="section-title">
-								<h2 class="title">Comments</h2>
+								<h2 class="title">Commentaires</h2>
 							</div>
 
-                            {% for comment in comments %}
+                            {% for comment in article.sorted_comment %}
                                 <div class="media">
                                     <div class="media-left">
                                         <span class="numberLike" id="numberLike{{ comment.id }}">{{ comment.nombreLike }}</span>

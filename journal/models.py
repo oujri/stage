@@ -110,6 +110,9 @@ class News(models.Model):
         self.nombreVue += 1
         self.save()
 
+    def sorted_comment(self):
+        return self.commentaire_set.all().order_by('-nombreLike')
+
     class Meta:
         verbose_name_plural = 'News'
 

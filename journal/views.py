@@ -166,9 +166,6 @@ def show(request, categorie, post):
     # ARTICLE TAGS
     tags = Tag.objects.filter(news=article)
 
-    # ARTICLE COMMENT
-    comments = Commentaire.objects.filter(news=article).order_by('-nombreLike')
-
     # MORE FROM AUTHOR
     moreArticle = News.objects.filter(publisher=article.publisher, categorie=article.categorie).exclude(id=article.id).order_by('-datePublication')[:4]
     if moreArticle.count() < 4:
@@ -188,7 +185,6 @@ def show(request, categorie, post):
         'topComment': topComment,
         'tags': tags,
         'replyForm': ReplyForm,
-        'comments': comments,
         'moreArticle': moreArticle,
         'navActive': '#nav' + article.categorie.name
     }
@@ -501,6 +497,7 @@ def video_show(request, id):
     # VIDEO
     video = get_object_or_404(Video, id=id)
     video.addVue()
+    print(video.contenu)
 
     # VIDEO TAGS
     tags = Tag.objects.filter(news=video)
@@ -515,14 +512,21 @@ def video_show(request, id):
             '-datePublication')[:number]
         more_video = list(chain(more_video, added_video))
 
+    #   LAST ADD VIEDO
+    lastAddVideo = Video.objects.all().order_by('-datePublication')[:4]
+
     context = {
         'categories': Categorie.objects.all().exclude(name='actualites'),
         'weather': weather,
         'topRead': topRead,
         'topComment': topComment,
+        'newslatterForm': NewslatterForm(),
         'video': video,
         'tags': tags,
-        'more_video': more_video
+        'more_video': more_video,
+        'lastAddVideo': lastAddVideo,
+        'signalForm': SignalForm(),
+        'replyForm': ReplyForm,
     }
 
     return render(request, 'journal/video_view.html', context)
