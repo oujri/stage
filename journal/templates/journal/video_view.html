@@ -1,0 +1,92 @@
+{% extends 'base.html' %}
+
+{% load static %}
+
+{% block title %}
+    Video: {{ video.smallTitre }}
+{% endblock %}
+
+{% block style %}
+    <link rel="stylesheet" href="{% static 'journal/css/video-show.css' %}">
+{% endblock %}
+
+{% block script %}
+
+{% endblock %}
+
+{% block content %}
+<div class="section video">
+    <div class="container">
+        <ul class="article-breadcrumb">
+            <li><a href="{% url 'index' %}">Accueil</a></li>
+            <li><a href="{% url 'video' %}">Videos</a></li>
+            <li><a href="{% url 'video_show' video.id %}">{{ video.smallTitre }}</a></li>
+        </ul>
+        <div class="row">
+            <div class="col-md-8 videoWrapper">
+                <iframe width="100%" height="391.5px" src="{{ video.videoUrl }}" frameborder="0" allowfullscreen></iframe>
+                <ul class="list-inline social">
+                    <li class="facebook"><a href="#"><i class="fa fa-facebook"></i> <span>Facebook</span></a></li>
+                    <li class="twitter"><a href="#"><i class="fa fa-twitter"></i> <span>Twitter</span></a></li>
+                    <li class="google"><a href="#"><i class="fa fa-google-plus"></i> <span>Google+</span></a></li>
+                    <li class="instagram"><a href="#"><i class="fa fa-instagram"></i> <span>Instagram</span></a></li>
+                </ul>
+            </div>
+            <div class="col-md-4">
+                <ul class="list-inline">
+                    {% for tag in tags %}
+                        <li style="background: {{ tag.color }}">
+                            <a href="#" class="tag">{{ tag.name }}</a>
+                        </li>
+                    {% endfor %}
+                </ul>
+                <h2>{{ video.titre }}</h2>
+                <ul class="list-inline">
+                    <li class="publisher"><a href="{% url 'author' video.publisher.id %}"><strong>{{ video.publisher }}</strong></a></li>
+                    <li><i class="fa fa-clock-o"></i> {{ video.datePublication|date }}</li>
+                    <li><i class="fa fa-comments"></i> {{ video.commentaire_set.count }}</li>
+                    <li><i class="fa fa-eye"> {{ video.nombreVue }}</i></li>
+                </ul>
+                <div class="img-ad hidden-sm hidden-xs">
+                    <img src="{% static 'journal/img/ad.gif' %}" alt="ad">
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+    <div class="more-author">
+        <div class="container">
+            <h3>Du méme auteur</h3>
+            <div class="row">
+                {% for video in more_video %}
+                <div class="col-md-3">
+                    <!-- ARTICLE -->
+                    <article class="article">
+                        <div class="article-img">
+                            <a href="{% url 'video_show' video.id %}">
+                                <img src="{{ video.imagePrincipale.image.url }}"
+                                     alt="{{ video.imagePrincipale.description }}">
+                            </a>
+                            <ul class="article-info">
+                                <li class="article-type"><a href="{% url 'video_show' video.id %}">
+                                    <i class="fa fa-play"></i></a></li>
+                            </ul>
+                        </div>
+                        <div class="article-body">
+                            <h4 class="article-title"><a href="{% url 'video_show' video.id %}">
+                                {{ video.smallTitre }}.
+                            </a></h4>
+                            <ul class="article-meta">
+                                <li><a href="{% url 'author' video.publisher.id %}">{{ video.publisher }}</a></li>
+                                <li><i class="fa fa-clock-o"></i> {{ video.datePublication|date }}</li>
+                                <li class="pull-right"><i class="fa fa-comments"></i> {{ video.commentaire_set.count }}</li>
+                            </ul>
+                        </div>
+                    </article>
+                    <!-- /ARTICLE -->
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+{% endblock %}

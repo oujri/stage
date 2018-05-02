@@ -481,4 +481,48 @@ def video(request):
 
 
 def video_show(request, id):
-    return HttpResponse(Video.objects.get(id=id).titre)
+    # Meteo
+    url = 'http://api.openweathermap.org/data/2.5/weather?q=Rabat&units=metric&appid=91d3852842a30e80531df63b131af6d4'
+    r = requests.get(url).json()
+    weather = {
+        'city': 'Rabat',
+        'temperature': r['main']['temp'],
+        'description': r['weather'][0]['description'],
+        'icon': r['weather'][0]['icon'],
+    }
+
+    # TOP_READ
+    videoId = Video.objects.all().values_list('id', flat=True)
+    topRead = News.objects.all().exclude(id__in=videoId).order_by('-nombreVue', 'id')[:7]
+
+    # TOP COMMENTS
+    topComment = Commentaire.objects.all().order_by('-nombreLike', '-datePublication')[:4]
+
+    # VIDEO
+    video = get_object_or_404(Video, id=id)
+    video.addVue()
+
+    # VIDEO TAGS
+    tags = Tag.objects.filter(news=video)
+
+    # MORE FROM AUTHOR
+    more_video = Video.objects.filter(publisher=video.publisher, categorie=video.categorie).exclude(
+        id=video.id).order_by('-datePublication')[:4]
+    if more_video.count() < 4:
+        video_id = more_video.values_list('id', flat=True)
+        number = 4 - more_video.count()
+        added_video = Video.objects.filter(publisher=video.publisher).exclude(id__in=video_id).order_by(
+            '-datePublication')[:number]
+        more_video = list(chain(more_video, added_video))
+
+    context = {
+        'categories': Categorie.objects.all().exclude(name='actualites'),
+        'weather': weather,
+        'topRead': topRead,
+        'topComment': topComment,
+        'video': video,
+        'tags': tags,
+        'more_video': more_video
+    }
+
+    return render(request, 'journal/video_view.html', context)
