@@ -31,6 +31,9 @@
 		<!-- Custom stlylesheet -->
 		<link type="text/css" rel="stylesheet" href="{% static 'journal/css/style.css' %}"/>
 
+        <!-- Abstract nav -->
+        <link rel="stylesheet" href="{% static 'css/main_style.css' %}">
+
         {% block style %}{% endblock %}
 
 		<!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
@@ -43,6 +46,7 @@
     </head>
 	<body>
 
+        {% include 'top_nav.html' %}
 		<!-- Header -->
 		<header id="header">
 			<!-- Top Header -->
@@ -59,9 +63,6 @@
 							<li><a href="{% url 'about' %}">à propos</a></li>
 							<li><a href="{% url 'contact' %}">Contact</a></li>
 							<li><a href="{% url 'privacy' %}">Privacy</a></li>
-							<li><a href="#">
-                                <i class="fa fa-sign-in"></i> Se connecter
-                            </a></li>
 						</ul>
 					</div>
 					<div class="header-social">
@@ -308,6 +309,7 @@
 		<script src="{% static 'journal/js/bootstrap.min.js' %}"></script>
 		<script src="{% static 'journal/js/owl.carousel.min.js' %}"></script>
 		<script src="{% static 'journal/js/main.js' %}"></script>
+        <script src="{% static 'js/nav.js' %}"></script>
 
         <script>
             {% block script %}

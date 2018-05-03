@@ -95,6 +95,8 @@
 		autoplay : true,
 	});
 
+	$('.nav-news').addClass('active');
+
 })(jQuery);
 
 // Ajax for Subscribe

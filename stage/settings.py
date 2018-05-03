@@ -33,6 +33,8 @@ ALLOWED_HOSTS = []
 INSTALLED_APPS = [
     'journal',
     'imagekit',
+    'main_app',
+    'widget_tweaks',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -56,7 +58,7 @@ ROOT_URLCONF = 'stage.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],#[os.path.join(BASE_DIR, 'stage/templates')],
+        'DIRS': [],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -64,6 +66,7 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+                'journal.context_processors.global_var',
             ],
         },
     },
@@ -125,9 +128,15 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 
-#STATICFILES_DIRS = [
-#    os.path.join(BASE_DIR, 'stage/static'),
-#]
-
 MEDIA_URL = '/uploads/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'journal/uploads')
+
+# Email Configuration
+EMAIL_USE_TLS = True
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_HOST_USER = 'bebi.company@gmail.com'
+EMAIL_HOST_PASSWORD = 'Alfa@@@123'
+EMAIL_PORT = 587
+
+# Authentication BackEnd
+AUTHENTICATION_BACKENDS = ['main_app.backends.EmailBackend']

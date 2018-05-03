@@ -623,6 +623,10 @@ textarea.input {
     height: 380px;
 }
 
+.tendance {
+	padding-bottom: 0;
+}
+
 .tendance .article .article-img img{
     max-height: 175px;
 }
@@ -1211,7 +1215,7 @@ textarea.input {
 .article-comments .media .media-body form button {
 	background: #FFF;
 	border: 1px solid;
-	height: 35px;
+	height: 34px;
 	transition: .5s all;
 }
 
@@ -1289,8 +1293,13 @@ textarea.input {
 	margin-bottom:30px;
 }
 
+.article-reply-form .section-title {
+	margin-bottom: 0;
+}
+
 .article-reply-form form input.input {
 	width: calc(50% - 10px);
+	margin-top: 20px;
 }
 
 .article-reply-form form input.input +  input.input {

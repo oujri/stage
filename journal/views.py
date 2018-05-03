@@ -1,4 +1,4 @@
-from django.http import JsonResponse, HttpResponse
+from django.http import JsonResponse
 from django.shortcuts import render, redirect, get_object_or_404
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.db.models import Count
@@ -8,108 +8,90 @@ from itertools import chain
 
 from journal.models import Publisher
 from .models import Categorie, Image, News, Video, Commentaire, Tag, Reponse, Newslatter
-from .forms import ImageUploadForm, NewslatterForm, ReplyForm, SignalForm
+from .forms import ImageUploadForm, ReplyForm, SignalForm
 
-import requests
+
+#####################################################
+#               PAGE REQUEST VIEW                   #
+#####################################################
 
 
 def index(request):
+    # VIDEO ID
+    video_id = Video.objects.all().values_list('id', flat=True)
 
-    # Meteo
-    url = 'http://api.openweathermap.org/data/2.5/weather?q=Rabat&units=metric&appid=91d3852842a30e80531df63b131af6d4'
-    r = requests.get(url).json()
-    weather = {
-        'city': 'Rabat',
-        'temperature': r['main']['temp'],
-        'description': r['weather'][0]['description'],
-        'icon': r['weather'][0]['icon'],
-    }
+    # CAROUSEL
+    new_car = News.objects.all().exclude(id__in=video_id).order_by('-id')[:3]
 
-    videoId = Video.objects.all().values_list('id', flat=True)
-
-    # Caroussel
-    newsCar = News.objects.all().exclude(id__in=videoId).order_by('-id')[:3]
-
-    # Tendance : Get last week post ordering by vue nomber and id
-    #one_week_ago = datetime.today() - timedelta(days=7)
+    # TRENDING : Get last week post ordering by view number and id
+    # one_week_ago = datetime.today() - timedelta(days=7)
     one_week_ago = datetime.today() - timedelta(days=21)
     #   T All
-    tendance = News.objects.filter(datePublication__gte=one_week_ago).exclude(id__in=videoId).order_by('-nombreVue', '-id')[:10]
+    tendance = News.objects.filter(datePublication__gte=one_week_ago).exclude(id__in=video_id).order_by('-nombreVue', '-id')[:10]
     #   T Style de vie
-    categorie = Categorie.objects.get(name='styleDeVie')
-    tstyledevie = News.objects.filter(categorie=categorie, datePublication__gte=one_week_ago).exclude(id__in=videoId).order_by('-nombreVue')[:8]
+    t_category = Categorie.objects.get(name='styleDeVie')
+    t_style_de_vie = News.objects.filter(categorie=t_category, datePublication__gte=one_week_ago).exclude(id__in=video_id).order_by('-nombreVue')[:8]
     #   T Sport
-    categorie = Categorie.objects.get(name='sports')
-    tsports = News.objects.filter(categorie=categorie, datePublication__gte=one_week_ago).exclude(id__in=videoId).order_by('-nombreVue')[:8]
+    t_category = Categorie.objects.get(name='sports')
+    t_sports = News.objects.filter(categorie=t_category, datePublication__gte=one_week_ago).exclude(id__in=video_id).order_by('-nombreVue')[:8]
     #   T Sport
-    categorie = Categorie.objects.get(name='technologie')
-    ttec = News.objects.filter(categorie=categorie, datePublication__gte=one_week_ago).exclude(id__in=videoId).order_by('-nombreVue')[:8]
-    #   T Economie
-    categorie = Categorie.objects.get(name='economie')
-    teco = News.objects.filter(categorie=categorie, datePublication__gte=one_week_ago).exclude(id__in=videoId).order_by('-nombreVue')[:8]
+    t_category = Categorie.objects.get(name='technologie')
+    t_tec = News.objects.filter(categorie=t_category, datePublication__gte=one_week_ago).exclude(id__in=video_id).order_by('-nombreVue')[:8]
+    #   T ECONOMIE
+    t_category = Categorie.objects.get(name='economie')
+    t_eco = News.objects.filter(categorie=t_category, datePublication__gte=one_week_ago).exclude(id__in=video_id).order_by('-nombreVue')[:8]
     #   T Internationnal
-    categorie = Categorie.objects.get(name='internationnal')
-    tinter = News.objects.filter(categorie=categorie, datePublication__gte=one_week_ago).exclude(id__in=videoId).order_by('-nombreVue')[:8]
+    t_category = Categorie.objects.get(name='internationnal')
+    t_inter = News.objects.filter(categorie=t_category, datePublication__gte=one_week_ago).exclude(id__in=video_id).order_by('-nombreVue')[:8]
 
     # LAST ADD
     #   Internationnal
-    categorie = Categorie.objects.get(name='internationnal')
-    lastInter = News.objects.filter(categorie=categorie).exclude(id__in=videoId).order_by('-id')[:3]
+    l_category = Categorie.objects.get(name='internationnal')
+    last_inter = News.objects.filter(categorie=l_category).exclude(id__in=video_id).order_by('-id')[:3]
     #   Economie
-    categorie = Categorie.objects.get(name='economie')
-    lastEco = News.objects.filter(categorie=categorie).exclude(id__in=videoId).order_by('-id')[:3]
+    l_category = Categorie.objects.get(name='economie')
+    last_eco = News.objects.filter(categorie=l_category).exclude(id__in=video_id).order_by('-id')[:3]
     #   News
-    categorie = Categorie.objects.get(name='actualites')
-    lastNews = News.objects.filter(categorie=categorie).exclude(id__in=videoId).order_by('-id')[:5]
-
-    # TOP_READ
-    topRead = News.objects.all().exclude(id__in=videoId).order_by('-nombreVue', 'id')[:7]
+    l_category = Categorie.objects.get(name='actualites')
+    last_news = News.objects.filter(categorie=l_category).exclude(id__in=video_id).order_by('-id')[:5]
 
     # TOP VIDEO
-    topVideo = Video.objects.all().order_by('-nombreVue', '-id')[:5]
-
-    # TOP COMMENTS
-    topComment = Commentaire.objects.all().order_by('-nombreLike', '-datePublication')[:4]
+    top_video = Video.objects.all().order_by('-nombreVue', '-id')[:5]
 
     # LAST ADD
     #   LAST ADD NEWS
-    lastAdd = News.objects.all().exclude(id__in=videoId).order_by('-datePublication')
+    last_add = News.objects.all().exclude(id__in=video_id).order_by('-datePublication')
     page = request.GET.get('page', 1)
-    paginator = Paginator(lastAdd, 4)
+    paginator = Paginator(last_add, 4)
     try:
         articles = paginator.page(page)
     except PageNotAnInteger:
         articles = paginator.page(1)
     except EmptyPage:
         articles = paginator.page(paginator.num_pages)
-    #   LAST ADD VIEDO
-    lastAddVideo = Video.objects.all().order_by('-datePublication')[:4]
+    #   LAST ADD VIDEO
+    last_add_video = Video.objects.all().order_by('-datePublication')[:4]
     #   LAST ADD COMMENT
-    lastAddComment = Commentaire.objects.all().order_by('-datePublication')[:3]
+    last_add_comment = Commentaire.objects.all().order_by('-datePublication')[:3]
     #   LAST ADD IMAGE
-    lastAddImage = Image.objects.all().order_by('-datePublication')[:6]
+    last_add_image = Image.objects.all().order_by('-datePublication')[:6]
 
     context = {
-        'categories': Categorie.objects.all().exclude(name='actualites'),
-        'weather': weather,
-        'newscar': newsCar,
+        'newscar': new_car,
         'tendance': tendance,
-        'tstyledevie': tstyledevie,
-        'tsports': tsports,
-        'ttec': ttec,
-        'teco': teco,
-        'tinter': tinter,
-        'lastEco': lastEco,
-        'lastInter': lastInter,
-        'lastNews': lastNews,
-        'newslatterForm': NewslatterForm(),
-        'topRead': topRead,
-        'topVideo': topVideo,
+        'tstyledevie': t_style_de_vie,
+        'tsports': t_sports,
+        'ttec': t_tec,
+        'teco': t_eco,
+        'tinter': t_inter,
+        'lastEco': last_eco,
+        'lastInter': last_inter,
+        'lastNews': last_news,
+        'topVideo': top_video,
         'lastAdd': articles,
-        'lastAddVideo': lastAddVideo,
-        'lastAddComment': lastAddComment,
-        'lastAddImage': lastAddImage,
-        'topComment': topComment
+        'lastAddVideo': last_add_video,
+        'lastAddComment': last_add_comment,
+        'lastAddImage': last_add_image,
     }
     return render(request, 'journal/index.html', context)
 
@@ -141,23 +123,6 @@ def upload(request):
 
 
 def show(request, categorie, post):
-    # Meteo
-    url = 'http://api.openweathermap.org/data/2.5/weather?q=Rabat&units=metric&appid=91d3852842a30e80531df63b131af6d4'
-    r = requests.get(url).json()
-    weather = {
-        'city': 'Rabat',
-        'temperature': r['main']['temp'],
-        'description': r['weather'][0]['description'],
-        'icon': r['weather'][0]['icon'],
-    }
-
-    # TOP_READ
-    videoId = Video.objects.all().values_list('id', flat=True)
-    topRead = News.objects.all().exclude(id__in=videoId).order_by('-nombreVue', 'id')[:7]
-
-    # TOP COMMENTS
-    topComment = Commentaire.objects.all().order_by('-nombreLike', '-datePublication')[:4]
-
     # GET INFORMATION
     article = News.objects.get(id=post)
     article.addVue()
@@ -167,53 +132,44 @@ def show(request, categorie, post):
     tags = Tag.objects.filter(news=article)
 
     # MORE FROM AUTHOR
-    moreArticle = News.objects.filter(publisher=article.publisher, categorie=article.categorie).exclude(id=article.id).order_by('-datePublication')[:4]
-    if moreArticle.count() < 4:
-        articleId = moreArticle.values_list('id', flat=True)
-        number = 4 - moreArticle.count()
-        addedArticle = News.objects.filter(publisher=article.publisher).exclude(id__in=articleId).order_by('-datePublication')[:number]
-        moreArticle = list(chain(moreArticle, addedArticle))
+    more_article = News.objects.filter(publisher=article.publisher, categorie=article.categorie).exclude(id=article.id).order_by('-datePublication')[:4]
+    if more_article.count() < 4:
+        article_id = more_article.values_list('id', flat=True)
+        number = 4 - more_article.count()
+        added_article = News.objects.filter(publisher=article.publisher).exclude(id__in=article_id).order_by('-datePublication')[:number]
+        more_article = list(chain(more_article, added_article))
+
+    reply_form = ReplyForm()
+    signal_form = SignalForm()
+    if request.user.is_authenticated:
+        reply_form.fields['email'].widget.attrs['hidden'] = 'true'
+        reply_form.fields['email'].widget.attrs['value'] = request.user.email
+        reply_form.fields['name'].widget.attrs['hidden'] = 'true'
+        reply_form.fields['name'].widget.attrs['value'] = request.user
+        signal_form.fields['email'].widget.attrs['hidden'] = 'true'
+        signal_form.fields['email'].widget.attrs['value'] = request.user.email
 
     context = {
-        'categories': Categorie.objects.all().exclude(name='actualites'),
-        'weather': weather,
         'article': article,
         'categorie': categorie,
-        'newslatterForm': NewslatterForm(),
-        'signalForm': SignalForm(),
-        'topRead': topRead,
-        'topComment': topComment,
+        'signalForm': signal_form,
         'tags': tags,
-        'replyForm': ReplyForm,
-        'moreArticle': moreArticle,
+        'replyForm': reply_form,
+        'moreArticle': more_article,
         'navActive': '#nav' + article.categorie.name
     }
     return render(request, 'journal/post.html', context)
 
 
 def category(request, categorie):
-    # Meteo
-    url = 'http://api.openweathermap.org/data/2.5/weather?q=Rabat&units=metric&appid=91d3852842a30e80531df63b131af6d4'
-    r = requests.get(url).json()
-    weather = {
-        'city': 'Rabat',
-        'temperature': r['main']['temp'],
-        'description': r['weather'][0]['description'],
-        'icon': r['weather'][0]['icon'],
-    }
-
-    # TOP_READ
-    videoId = Video.objects.all().values_list('id', flat=True)
-    topRead = News.objects.all().exclude(id__in=videoId).order_by('-nombreVue', 'id')[:7]
-
-    # TOP COMMENTS
-    topComment = Commentaire.objects.all().order_by('-nombreLike', '-datePublication')[:4]
+    # VIDEO ID
+    video_id = Video.objects.all().values_list('id', flat=True)
 
     cat = Categorie.objects.get(name=categorie)
 
     filtre = request.GET.get('filtre', '-datePublication')
 
-    news = News.objects.filter(categorie=cat).annotate(commentNumber=Count('commentaire'))
+    news = News.objects.filter(categorie=cat).annotate(commentNumber=Count('commentaire')).exclude(id__in=video_id)
 
     # LAST FIVE
     lastFive = news.order_by(filtre, '-id')[:5]
@@ -233,11 +189,6 @@ def category(request, categorie):
         articles = paginator.page(paginator.num_pages)
 
     context = {
-        'categories': Categorie.objects.all().exclude(name='actualites'),
-        'weather': weather,
-        'topRead': topRead,
-        'topComment': topComment,
-        'newslatterForm': NewslatterForm(),
         'lastFive': lastFive,
         'category': cat,
         'articles': articles,
@@ -248,26 +199,12 @@ def category(request, categorie):
 
 
 def lastArticles(request):
-    # Meteo
-    url = 'http://api.openweathermap.org/data/2.5/weather?q=Rabat&units=metric&appid=91d3852842a30e80531df63b131af6d4'
-    r = requests.get(url).json()
-    weather = {
-        'city': 'Rabat',
-        'temperature': r['main']['temp'],
-        'description': r['weather'][0]['description'],
-        'icon': r['weather'][0]['icon'],
-    }
-
-    # TOP_READ
-    videoId = Video.objects.all().values_list('id', flat=True)
-    topRead = News.objects.all().exclude(id__in=videoId).order_by('-nombreVue', 'id')[:7]
-
-    # TOP COMMENTS
-    topComment = Commentaire.objects.all().order_by('-nombreLike', '-datePublication')[:4]
+    # VIDEO ID
+    video_id = Video.objects.all().values_list('id', flat=True)
 
     # FILTER
     filtre = request.GET.get('filtre', '-datePublication')
-    news = News.objects.annotate(commentNumber=Count('commentaire'))
+    news = News.objects.annotate(commentNumber=Count('commentaire')).exclude(id__in=video_id)
 
     # ARTICLES
     articles = news.order_by(filtre)
@@ -281,15 +218,108 @@ def lastArticles(request):
         articles = paginator.page(paginator.num_pages)
 
     context = {
-        'categories': Categorie.objects.all().exclude(name='actualites'),
-        'weather': weather,
-        'topRead': topRead,
-        'topComment': topComment,
-        'newslatterForm': NewslatterForm(),
         'articles': articles,
         'filtre': filtre
     }
     return render(request, 'journal/lastArticles.html', context)
+
+
+def author(request, id):
+    # AUTHOR
+    aut = get_object_or_404(Publisher, id=id)
+
+    # COMMENT NUMBER
+    number = Commentaire.objects.filter(email=aut.email).count()
+
+    # ARTICLES
+    articles = aut.news_set.all().order_by('-datePublication')
+
+    for a in articles:
+        if isinstance(a, Video):
+            print('Video')
+
+    page = request.GET.get('page', 1)
+    paginator = Paginator(articles, 14)
+    try:
+        articles = paginator.page(page)
+    except PageNotAnInteger:
+        articles = paginator.page(1)
+    except EmptyPage:
+        articles = paginator.page(paginator.num_pages)
+
+    # OTHER AUTHOR
+    authors = Publisher.objects.annotate(newsCount=Count('news')).order_by('-newsCount')[:5]
+
+    context = {
+        'author': aut,
+        'articles': articles,
+        'commentNumber': number,
+        'authors': authors
+
+    }
+    return render(request, 'journal/author.html', context)
+
+
+def video(request):
+    # VIDEO SELECTION
+    video_selection = Video.objects.filter(equipe_selection=True).order_by('-datePublication')[:5]
+
+    # OTHER VIDEO
+    other_video = Video.objects.all().order_by('-datePublication')
+    page = request.GET.get('page', 1)
+    paginator = Paginator(other_video, 10)
+    try:
+        other_video = paginator.page(page)
+    except PageNotAnInteger:
+        other_video = paginator.page(1)
+    except EmptyPage:
+        other_video = paginator.page(paginator.num_pages)
+
+    context = {
+        'video_selection': video_selection,
+        'other_video': other_video
+    }
+
+    return render(request, 'journal/video.html', context)
+
+
+def video_show(request, id):
+    # VIDEO
+    video = get_object_or_404(Video, id=id)
+    video.addVue()
+    print(video.contenu)
+
+    # VIDEO TAGS
+    tags = Tag.objects.filter(news=video)
+
+    # MORE FROM AUTHOR
+    more_video = Video.objects.filter(publisher=video.publisher, categorie=video.categorie).exclude(
+        id=video.id).order_by('-datePublication')[:4]
+    if more_video.count() < 4:
+        video_id = more_video.values_list('id', flat=True)
+        number = 4 - more_video.count()
+        added_video = Video.objects.filter(publisher=video.publisher).exclude(id__in=video_id).order_by(
+            '-datePublication')[:number]
+        more_video = list(chain(more_video, added_video))
+
+    #   LAST ADD VIEDO
+    lastAddVideo = Video.objects.all().order_by('-datePublication')[:4]
+
+    context = {
+        'video': video,
+        'tags': tags,
+        'more_video': more_video,
+        'lastAddVideo': lastAddVideo,
+        'signalForm': SignalForm(),
+        'replyForm': ReplyForm,
+    }
+
+    return render(request, 'journal/video_view.html', context)
+
+
+#####################################################
+#               AJAX REQUEST VIEW                   #
+#####################################################
 
 
 def subscribe(request):
@@ -325,12 +355,12 @@ def comment(request, post):
 
 
 def like(request, comment):
-    type = request.GET.get('type', None)
+    comment_type = request.GET.get('type', None)
     method = request.GET.get('method', None)
     c = Commentaire()
-    if type == 'reponse':
+    if comment_type == 'reponse':
         c = Reponse.objects.get(id=comment)
-    elif type == 'comment':
+    elif comment_type == 'comment':
         c = Commentaire.objects.get(id=comment)
     if method == 'like':
         c.like()
@@ -345,12 +375,12 @@ def like(request, comment):
 
 
 def signal(request, comment):
-    type = request.GET.get('type', None)
+    comment_type = request.GET.get('type', None)
     email = request.GET.get('email', None)
     motif = request.GET.get('motif', None)
-    if type == 'reponse':
+    if comment_type == 'reponse':
         Reponse.objects.get(id=comment).signalreponse_set.create(email=email, motif=motif)
-    elif type == 'comment':
+    elif comment_type == 'comment':
         Commentaire.objects.get(id=comment).signalcomment_set.create(email=email, motif=motif)
     data = {
         'message': 'Merci pour votre avertissement, nous allons consulter votre signal le plus tot possible',
@@ -371,162 +401,3 @@ def repondre(request, comment):
         'formButtonRepondre': '#formButtonRepondre' + str(comment)
     }
     return JsonResponse(data)
-
-
-def author(request, id):
-    # Meteo
-    url = 'http://api.openweathermap.org/data/2.5/weather?q=Rabat&units=metric&appid=91d3852842a30e80531df63b131af6d4'
-    r = requests.get(url).json()
-    weather = {
-        'city': 'Rabat',
-        'temperature': r['main']['temp'],
-        'description': r['weather'][0]['description'],
-        'icon': r['weather'][0]['icon'],
-    }
-
-    # TOP_READ
-    videoId = Video.objects.all().values_list('id', flat=True)
-    topRead = News.objects.all().exclude(id__in=videoId).order_by('-nombreVue', 'id')[:7]
-
-    # TOP COMMENTS
-    topComment = Commentaire.objects.all().order_by('-nombreLike', '-datePublication')[:4]
-
-    # AUTHOR
-    aut = get_object_or_404(Publisher, id=id)
-
-    # COMMENT NUMBER
-    number = Commentaire.objects.filter(email=aut.email).count()
-
-    # ARTICLES
-    articles = aut.news_set.all().order_by('-datePublication')
-
-    for a in articles:
-        if isinstance(a, Video):
-            print('Video')
-
-    page = request.GET.get('page', 1)
-    paginator = Paginator(articles, 14)
-    try:
-        articles = paginator.page(page)
-    except PageNotAnInteger:
-        articles = paginator.page(1)
-    except EmptyPage:
-        articles = paginator.page(paginator.num_pages)
-
-    # OTHER AUTHOR
-    authors = Publisher.objects.annotate(newsCount=Count('news')).order_by('-newsCount')[:5]
-
-    context = {
-        'categories': Categorie.objects.all().exclude(name='actualites'),
-        'weather': weather,
-        'topRead': topRead,
-        'topComment': topComment,
-        'newslatterForm': NewslatterForm(),
-        'author': aut,
-        'articles': articles,
-        'commentNumber': number,
-        'authors': authors
-
-    }
-    return render(request, 'journal/author.html', context)
-
-
-def video(request):
-    # Meteo
-    url = 'http://api.openweathermap.org/data/2.5/weather?q=Rabat&units=metric&appid=91d3852842a30e80531df63b131af6d4'
-    r = requests.get(url).json()
-    weather = {
-        'city': 'Rabat',
-        'temperature': r['main']['temp'],
-        'description': r['weather'][0]['description'],
-        'icon': r['weather'][0]['icon'],
-    }
-
-    # TOP_READ
-    videoId = Video.objects.all().values_list('id', flat=True)
-    topRead = News.objects.all().exclude(id__in=videoId).order_by('-nombreVue', 'id')[:7]
-
-    # TOP COMMENTS
-    topComment = Commentaire.objects.all().order_by('-nombreLike', '-datePublication')[:4]
-
-    # VIDEO SELECTION
-    video_selection = Video.objects.filter(equipe_selection=True).order_by('-datePublication')[:5]
-
-    # OTHER VIDEO
-    other_video = Video.objects.all().order_by('-datePublication')
-    page = request.GET.get('page', 1)
-    paginator = Paginator(other_video, 10)
-    try:
-        other_video = paginator.page(page)
-    except PageNotAnInteger:
-        other_video = paginator.page(1)
-    except EmptyPage:
-        other_video = paginator.page(paginator.num_pages)
-
-    context = {
-        'categories': Categorie.objects.all().exclude(name='actualites'),
-        'weather': weather,
-        'topRead': topRead,
-        'topComment': topComment,
-        'newslatterForm': NewslatterForm(),
-        'video_selection': video_selection,
-        'other_video': other_video
-    }
-
-    return render(request, 'journal/video.html', context)
-
-
-def video_show(request, id):
-    # Meteo
-    url = 'http://api.openweathermap.org/data/2.5/weather?q=Rabat&units=metric&appid=91d3852842a30e80531df63b131af6d4'
-    r = requests.get(url).json()
-    weather = {
-        'city': 'Rabat',
-        'temperature': r['main']['temp'],
-        'description': r['weather'][0]['description'],
-        'icon': r['weather'][0]['icon'],
-    }
-
-    # TOP_READ
-    videoId = Video.objects.all().values_list('id', flat=True)
-    topRead = News.objects.all().exclude(id__in=videoId).order_by('-nombreVue', 'id')[:7]
-
-    # TOP COMMENTS
-    topComment = Commentaire.objects.all().order_by('-nombreLike', '-datePublication')[:4]
-
-    # VIDEO
-    video = get_object_or_404(Video, id=id)
-    video.addVue()
-    print(video.contenu)
-
-    # VIDEO TAGS
-    tags = Tag.objects.filter(news=video)
-
-    # MORE FROM AUTHOR
-    more_video = Video.objects.filter(publisher=video.publisher, categorie=video.categorie).exclude(
-        id=video.id).order_by('-datePublication')[:4]
-    if more_video.count() < 4:
-        video_id = more_video.values_list('id', flat=True)
-        number = 4 - more_video.count()
-        added_video = Video.objects.filter(publisher=video.publisher).exclude(id__in=video_id).order_by(
-            '-datePublication')[:number]
-        more_video = list(chain(more_video, added_video))
-
-    #   LAST ADD VIEDO
-    lastAddVideo = Video.objects.all().order_by('-datePublication')[:4]
-
-    context = {
-        'categories': Categorie.objects.all().exclude(name='actualites'),
-        'weather': weather,
-        'topRead': topRead,
-        'topComment': topComment,
-        'newslatterForm': NewslatterForm(),
-        'video': video,
-        'tags': tags,
-        'more_video': more_video,
-        'lastAddVideo': lastAddVideo,
-        'signalForm': SignalForm(),
-        'replyForm': ReplyForm,
-    }
-
-    return render(request, 'journal/video_view.html', context)
