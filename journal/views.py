@@ -122,11 +122,11 @@ def upload(request):
     })
 
 
-def show(request, categorie, post):
+def show(request, category_name, post):
     # GET INFORMATION
     article = News.objects.get(id=post)
     article.addVue()
-    categorie = Categorie.objects.get(name=categorie)
+    selected_category = Categorie.objects.get(name=category_name)
 
     # ARTICLE TAGS
     tags = Tag.objects.filter(news=article)
@@ -139,6 +139,7 @@ def show(request, categorie, post):
         added_article = News.objects.filter(publisher=article.publisher).exclude(id__in=article_id).order_by('-datePublication')[:number]
         more_article = list(chain(more_article, added_article))
 
+    # DYNAMIC COMMENT FORM
     reply_form = ReplyForm()
     signal_form = SignalForm()
     if request.user.is_authenticated:
@@ -151,7 +152,7 @@ def show(request, categorie, post):
 
     context = {
         'article': article,
-        'categorie': categorie,
+        'categorie': selected_category,
         'signalForm': signal_form,
         'tags': tags,
         'replyForm': reply_form,
@@ -161,24 +162,24 @@ def show(request, categorie, post):
     return render(request, 'journal/post.html', context)
 
 
-def category(request, categorie):
+def category(request, category_name):
     # VIDEO ID
     video_id = Video.objects.all().values_list('id', flat=True)
 
-    cat = Categorie.objects.get(name=categorie)
+    cat = Categorie.objects.get(name=category_name)
 
-    filtre = request.GET.get('filtre', '-datePublication')
+    news_filter = request.GET.get('filtre', '-datePublication')
 
     news = News.objects.filter(categorie=cat).annotate(commentNumber=Count('commentaire')).exclude(id__in=video_id)
 
     # LAST FIVE
-    lastFive = news.order_by(filtre, '-id')[:5]
+    last_five = news.order_by(news_filter, '-id')[:5]
 
     # OTHER ARTICLE
-    lastFiveId = lastFive.values_list('id', flat=True)
-    # other = news.exclude(id__in=lastFiveId).order_by(filtre)
+    last_five_id = last_five.values_list('id', flat=True)
+    # other = news.exclude(id__in=lastFiveId).order_by(news_filter)
     # for test
-    other = News.objects.all().exclude(id__in=lastFiveId).order_by('-id')
+    other = News.objects.all().exclude(id__in=last_five_id).order_by('-id')
     page = request.GET.get('page', 1)
     paginator = Paginator(other, 8)
     try:
@@ -189,16 +190,16 @@ def category(request, categorie):
         articles = paginator.page(paginator.num_pages)
 
     context = {
-        'lastFive': lastFive,
+        'lastFive': last_five,
         'category': cat,
         'articles': articles,
         'navActive': '#nav' + cat.name,
-        'filtre': filtre
+        'filtre': news_filter
     }
     return render(request, 'journal/category.html', context)
 
 
-def lastArticles(request):
+def last_articles(request):
     # VIDEO ID
     video_id = Video.objects.all().values_list('id', flat=True)
 
@@ -285,33 +286,43 @@ def video(request):
 
 def video_show(request, id):
     # VIDEO
-    video = get_object_or_404(Video, id=id)
-    video.addVue()
-    print(video.contenu)
+    selected_video = get_object_or_404(Video, id=id)
+    selected_video.addVue()
 
     # VIDEO TAGS
-    tags = Tag.objects.filter(news=video)
+    tags = Tag.objects.filter(news=selected_video)
 
     # MORE FROM AUTHOR
-    more_video = Video.objects.filter(publisher=video.publisher, categorie=video.categorie).exclude(
-        id=video.id).order_by('-datePublication')[:4]
+    more_video = Video.objects.filter(publisher=selected_video.publisher, categorie=selected_video.categorie).exclude(
+        id=selected_video.id).order_by('-datePublication')[:4]
     if more_video.count() < 4:
         video_id = more_video.values_list('id', flat=True)
         number = 4 - more_video.count()
-        added_video = Video.objects.filter(publisher=video.publisher).exclude(id__in=video_id).order_by(
+        added_video = Video.objects.filter(publisher=selected_video.publisher).exclude(id__in=video_id).order_by(
             '-datePublication')[:number]
         more_video = list(chain(more_video, added_video))
 
-    #   LAST ADD VIEDO
-    lastAddVideo = Video.objects.all().order_by('-datePublication')[:4]
+    # LAST ADD VIDEO
+    last_add_video = Video.objects.all().order_by('-datePublication')[:4]
+
+    # DYNAMIC COMMENT FORM
+    reply_form = ReplyForm()
+    signal_form = SignalForm()
+    if request.user.is_authenticated:
+        reply_form.fields['email'].widget.attrs['hidden'] = 'true'
+        reply_form.fields['email'].widget.attrs['value'] = request.user.email
+        reply_form.fields['name'].widget.attrs['hidden'] = 'true'
+        reply_form.fields['name'].widget.attrs['value'] = request.user
+        signal_form.fields['email'].widget.attrs['hidden'] = 'true'
+        signal_form.fields['email'].widget.attrs['value'] = request.user.email
 
     context = {
-        'video': video,
+        'video': selected_video,
         'tags': tags,
         'more_video': more_video,
-        'lastAddVideo': lastAddVideo,
-        'signalForm': SignalForm(),
-        'replyForm': ReplyForm,
+        'lastAddVideo': last_add_video,
+        'signalForm': signal_form,
+        'replyForm': reply_form,
     }
 
     return render(request, 'journal/video_view.html', context)
