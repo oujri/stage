@@ -40,7 +40,7 @@
                             </li>
                         {% endfor %}
                     </ul>
-                    <h2>{{ video.titre }}</h2>
+                    <h2>{{ video.title }}</h2>
                     <ul class="list-inline">
                         <li class="publisher"><a href="{% url 'author' video.journalist.id %}"><strong>{{ video.journalist }}</strong></a></li>
                         <li><i class="fa fa-clock-o"></i> {{ video.date_publication|date }}</li>
