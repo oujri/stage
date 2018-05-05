@@ -206,17 +206,17 @@
                                     <!-- ARTICLE -->
                                     <article class="article widget-article">
                                         <div class="article-img">
-                                            <a href="{% url 'post' n.categorie.name n.id %}">
-                                                <img src="{{ n.imagePrincipale.image_thumbnail.url }}"
-                                                     alt="{{ n.imagePrincipale.description }}">
+                                            <a href="{% url 'post' n.category.name n.id %}">
+                                                <img src="{{ n.primary_image.image_thumbnail.url }}"
+                                                     alt="{{ n.primary_image.description }}">
                                             </a>
                                         </div>
                                         <div class="article-body">
-                                            <h4 class="article-title"><a href="{% url 'post' n.categorie.name n.id %}">
-                                                {{ n.smallTitre }}</a></h4>
+                                            <h4 class="article-title"><a href="{% url 'post' n.category.name n.id %}">
+                                                {{ n.small_title }}</a></h4>
                                             <ul class="article-meta">
-                                                <li><i class="fa fa-clock-o"></i> {{ n.datePublication|date }}</li>
-                                                <li><i class="fa fa-comments"></i> {{ n.commentaire_set.count }}</li>
+                                                <li><i class="fa fa-clock-o"></i> {{ n.date_publication|date }}</li>
+                                                <li><i class="fa fa-comments"></i> {{ n.comment_set.count }}</li>
                                             </ul>
                                         </div>
                                     </article>
@@ -240,9 +240,9 @@
                                             <i class="fa fa-comments"></i>
                                             <div class="tweet-body">
                                                 <p>
-                                                    <span>{{ c.nomComplet }}</span>
+                                                    <span>{{ c.full_name }}</span>
                                                     {{ c.message|truncatewords:10 }}
-                                                    <a href="{% url 'post' c.news.categorie.name c.news.id %}">{{ c.news.smallTitre }}</a></p>
+                                                    <a href="{% url 'post' c.news.category.name c.news.id %}">{{ c.news.small_title }}</a></p>
                                             </div>
                                         </li>
                                     {% endfor %}

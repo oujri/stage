@@ -29,7 +29,7 @@ class Entreprise(models.Model):
 
 
 class Profil(models.Model):
-    date_naissance = models.DateField(null=True,blank=True)
+    date_naissance = models.DateField(null=True, blank=True)
     website = models.CharField(max_length=300, default="", null=True, blank=True)
     entreprise = models.ForeignKey(Entreprise, blank=True, null=True, on_delete=models.CASCADE)
     user = models.OneToOneField(User, blank=True, null=True, on_delete=models.CASCADE)

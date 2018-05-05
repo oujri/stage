@@ -1,4 +1,4 @@
-from journal.models import Categorie, Video, News, Commentaire
+from journal.models import Category, Video, News, Comment
 from journal.forms import NewslatterForm
 import requests
 
@@ -16,13 +16,13 @@ def global_var(request):
 
     # TOP_READ
     video_id = Video.objects.all().values_list('id', flat=True)
-    top_read = News.objects.all().exclude(id__in=video_id).order_by('-nombreVue', 'id')[:7]
+    top_read = News.objects.all().exclude(id__in=video_id).order_by('-view_number', 'id')[:7]
 
     # TOP COMMENTS
-    top_comment = Commentaire.objects.all().order_by('-nombreLike', '-datePublication')[:4]
+    top_comment = Comment.objects.all().order_by('-number_like', '-date_publication')[:4]
 
     context = {
-        'categories': Categorie.objects.all().exclude(name='actualites'),
+        'categories': Category.objects.all().exclude(name='actualites'),
         'weather': weather,
         'topRead': top_read,
         'topComment': top_comment,

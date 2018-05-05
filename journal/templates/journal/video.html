@@ -37,7 +37,7 @@
             <div class="owl-carousel owl-theme" id="myOwl">
                 {% for video in video_selection %}
                     <div class="item-video" data-merge="{{ video.data_merge }}">
-                        <a class="owl-video" href="{{ video.videoUrl }}"></a>
+                        <a class="owl-video" href="{{ video.video_url }}"></a>
                     </div>
                 {% endfor %}
             </div>
@@ -59,8 +59,8 @@
                         <article class="article">
                             <div class="article-img">
                                 <a href="{% url 'video_show' video.id %}">
-                                    <img src="{{ video.imagePrincipale.image.url }}"
-                                         alt="{{ video.imagePrincipale.description }}">
+                                    <img src="{{ video.primary_image.image.url }}"
+                                         alt="{{ video.primary_image.description }}">
                                 </a>
                                 <ul class="article-info">
                                     <li class="article-type"><a href="{% url 'video_show' video.id %}">
@@ -69,12 +69,12 @@
                             </div>
                             <div class="article-body">
                                 <h4 class="article-title"><a href="{% url 'video_show' video.id %}">
-                                    {{ video.smallTitre }}.
+                                    {{ video.small_title }}.
                                 </a></h4>
                                 <ul class="article-meta">
-                                    <li><a href="{% url 'author' video.publisher.id %}">{{ video.publisher }}</a></li>
-                                    <li><i class="fa fa-clock-o"></i> {{ video.datePublication|date }}</li>
-                                    <li class="pull-right"><i class="fa fa-comments"></i> {{ video.commentaire_set.count }}</li>
+                                    <li><a href="{% url 'author' video.journalist.id %}">{{ video.journalist }}</a></li>
+                                    <li><i class="fa fa-clock-o"></i> {{ video.date_publication|date }}</li>
+                                    <li class="pull-right"><i class="fa fa-comments"></i> {{ video.comment_set.count }}</li>
                                 </ul>
                             </div>
                         </article>

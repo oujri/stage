@@ -81,7 +81,7 @@ WSGI_APPLICATION = 'stage.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': 'journal',
+        'NAME': 'newspaper',
         'USER': 'anass',
         'PASSWORD': 'casacasa5',
         'HOST': 'localhost',

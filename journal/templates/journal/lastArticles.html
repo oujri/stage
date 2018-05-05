@@ -12,7 +12,7 @@
 {% endblock %}
 
 {% block script %}
-    $("#filtre").val("{{ filtre }}");
+    $("#filter").val("{{ filter }}");
 {% endblock %}
 
 
@@ -33,10 +33,10 @@
                     Ajoutés récemment
                 </h2>
                 <form action="{% url 'lastArticles' %}" method="get">
-                    <select name="filtre" id="filtre" class="form-control" onchange="this.form.submit()">
-                        <option value="-datePublication">date publication</option>
-                        <option value="-nombreVue">nombre de vue</option>
-                        <option value="-commentNumber">nombre de commentaire</option>
+                    <select name="filter" id="filter" class="form-control" onchange="this.form.submit()">
+                        <option value="-date_publication">date publication</option>
+                        <option value="-view_number">nombre de vue</option>
+                        <option value="-comment_number">nombre de commentaire</option>
                     </select>
                 </form>
             </div>
@@ -54,19 +54,19 @@
                     <!-- ARTICLE -->
                     <article class="article">
                         <div class="article-img">
-                            <a href="{% url 'post' n.categorie.name n.id %}">
-                                <img src="{{ n.imagePrincipale.image.url }}" alt="{{ n.imagePrincipale.description }}">
+                            <a href="{% url 'post' n.category.name n.id %}">
+                                <img src="{{ n.primary_image.image.url }}" alt="{{ n.primary_image.description }}">
                             </a>
                             <ul class="article-info">
-                                <li class="article-category"><a href="{% url 'category' n.categorie.name %}">{{ n.categorie.name }}</a></li>
-                                <li class="article-type"><i class="fa {{ n.categorie.icon }}"></i></li>
+                                <li class="article-category"><a href="{% url 'category' n.category.name %}">{{ n.category.name }}</a></li>
+                                <li class="article-type"><i class="fa {{ n.category.icon }}"></i></li>
                             </ul>
                         </div>
                         <div class="article-body">
-                            <h3 class="article-title"><a href="{% url 'post' n.categorie.name n.id %}">{{ n.smallTitre|truncatechars:62 }}</a></h3>
+                            <h3 class="article-title"><a href="{% url 'post' n.category.name n.id %}">{{ n.small_title|truncatechars:62 }}</a></h3>
                             <ul class="article-meta">
-                                <li><i class="fa fa-clock-o"></i> {{ n.datePublication }}</li>
-                                <li><i class="fa fa-comments"></i> {{ n.commentaire_set.count }}</li>
+                                <li><i class="fa fa-clock-o"></i> {{ n.date_publication }}</li>
+                                <li><i class="fa fa-comments"></i> {{ n.comment_set.count }}</li>
                             </ul>
                             <p>{{ n.resume|truncatechars:155 }}</p>
                         </div>

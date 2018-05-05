@@ -2,7 +2,7 @@
 {% load static %}
 
 {% block title %}
-    {{ article.smallTitre }}
+    {{ article.small_title }}
 {% endblock %}
 
 {% block script %}
@@ -39,8 +39,8 @@
 						<!-- breadcrumb -->
 						<ul class="article-breadcrumb">
 							<li><a href="{% url 'index' %}">Accueil</a></li>
-							<li><a href="{% url 'category' categorie.name %}">{{ categorie.name }}</a></li>
-							<li>{{ article.smallTitre }}</li>
+							<li><a href="{% url 'category' article.category.name %}">{{ article.category.name }}</a></li>
+							<li>{{ article.small_title }}</li>
 						</ul>
 						<!-- /breadcrumb -->
 					
@@ -52,22 +52,22 @@
 								<a href="#" class="google"><i class="fa fa-google-plus"></i></a>
 							</div>
 							<div class="article-main-img">
-								<img src="{{ article.imagePrincipale.image.url }}" alt="{{ article.imagePrincipale.description }}">
+								<img src="{{ article.primary_image.image.url }}" alt="{{ article.primary_image.description }}">
 							</div>
 							<div class="article-body">
 								<ul class="article-info">
-									<li class="article-category"><a href="{% url 'category' categorie.name %}">
-                                        {{ categorie.name }}</a></li>
+									<li class="article-category"><a href="{% url 'category' article.category.name %}">
+                                        {{ article.category.name }}</a></li>
 									<li class="article-type"><i class="fa fa-file-text"></i></li>
 								</ul>
-								<h1 class="article-title">{{ article.titre }}</h1>
+								<h1 class="article-title">{{ article.title }}</h1>
 								<ul class="article-meta">
-                                    <li><a href="{% url 'author' article.publisher.id %}"><b>{{ article.publisher }}</b></a></li>
-									<li><i class="fa fa-clock-o"></i> {{ article.datePublication|date }}</li>
-									<li><i class="fa fa-comments"></i> {{ article.commentaire_set.count }}</li>
+                                    <li><a href="{% url 'author' article.journalist.id %}"><b>{{ article.journalist }}</b></a></li>
+									<li><i class="fa fa-clock-o"></i> {{ article.date_publication|date }}</li>
+									<li><i class="fa fa-comments"></i> {{ article.comment_set.count }}</li>
 								</ul>
                                 {% autoescape off %}
-                                {{ article.contenu }}
+                                {{ article.content }}
                                 {% endautoescape %}
                             </div>
 						</article>
@@ -93,11 +93,11 @@
                             {% for comment in article.sorted_comment %}
                                 <div class="media">
                                     <div class="media-left">
-                                        <span class="numberLike" id="numberLike{{ comment.id }}">{{ comment.nombreLike }}</span>
+                                        <span class="numberLike" id="numberLike{{ comment.id }}">{{ comment.number_like }}</span>
                                     </div>
                                     <div class="media-body">
                                         <div class="media-heading">
-                                            <h5>{{ comment.nomComplet }} <span class="reply-time">{{ comment.datePublication }}</span></h5>
+                                            <h5>{{ comment.full_name }} <span class="reply-time">{{ comment.date_publication }}</span></h5>
                                         </div>
                                         <p>{{ comment.message }}</p>
                                         <form id="formButtonRepondre{{ comment.id }}">
@@ -150,8 +150,8 @@
                                                 data-validate-username-url="{% url 'signal' comment.id %}"
                                                 id="signalForm{{ comment.id }}">
                                             {% csrf_token %}
-                                            {{ signalForm.email }}
-                                            {{ signalForm.motif }}
+                                            {{ signal_form.email }}
+                                            {{ signal_form.motif }}
                                             <input type="hidden" name="type" value="comment">
                                             <button class="reply-btn">Envoyer</button>
                                         </form>
@@ -160,64 +160,64 @@
                                                 data-validate-username-url="{% url 'repondre' comment.id %}"
                                                 id="repondreForm{{ comment.id }}">
                                             {% csrf_token %}
-                                            {{ replyForm.name }}
-                                            {{ replyForm.email }}
+                                            {{ reply_form.name }}
+                                            {{ reply_form.email }}
                                             <button class="reply-btn">Publier</button>
-                                            {{ replyForm.message }}
+                                            {{ reply_form.message }}
                                         </form>
                                     </div>
-                                {% for reponse in comment.reponse_set.all %}
+                                {% for answer in comment.answer_set.all %}
 
                                         <div class="media">
                                             <div class="media-left">
-                                                <span class="numberLike" id="numberLike{{ reponse.id }}">{{ reponse.nombreLike }}</span>
+                                                <span class="numberLike" id="numberLike{{ answer.id }}">{{ answer.number_like }}</span>
                                             </div>
                                             <div class="media-body">
                                                 <div class="media-heading">
-                                                    <h5>{{ reponse.nomComplet }} <span class="reply-time">{{ reponse.datePublication }}</span></h5>
+                                                    <h5>{{ answer.full_name }} <span class="reply-time">{{ answer.date_publication }}</span></h5>
                                                 </div>
-                                                <p>{{ reponse.message }}</p>
-                                                <form id="formButtonSignaler{{ reponse.id }}">
+                                                <p>{{ answer.message }}</p>
+                                                <form id="formButtonSignaler{{ answer.id }}">
                                                     <button class="reply-btn" type="button" onclick="
-                                                            check = $('#signalForm{{ reponse.id }}').css('display');
+                                                            check = $('#signalForm{{ answer.id }}').css('display');
                                                             if (check == 'none') {
                                                                 $( this ).css('background-color', '#000');
                                                                 $( this ).css('color', '#FFF');
-                                                                $('#signalForm{{ reponse.id }}').css('display', 'block');
+                                                                $('#signalForm{{ answer.id }}').css('display', 'block');
                                                             } else {
                                                                 $( this ).css('background-color', '#FFF');
                                                                 $( this ).css('color', '#000');
-                                                                $('#signalForm{{ reponse.id }}').css('display', 'none');
+                                                                $('#signalForm{{ answer.id }}').css('display', 'none');
                                                             }">
                                                         Signaler
                                                     </button>
                                                 </form>
-                                                <div id="divComment{{ reponse.id }}" class="hideC">
-                                                    <form action="{% url 'like' reponse.id %}" method="POST" role="form" class="formLike"
-                                                        data-validate-username-url="{% url 'like' reponse.id %}">
+                                                <div id="divComment{{ answer.id }}" class="hideC">
+                                                    <form action="{% url 'like' answer.id %}" method="POST" role="form" class="formLike"
+                                                        data-validate-username-url="{% url 'like' answer.id %}">
                                                         {% csrf_token %}
                                                         <input type="hidden" name="method" value="like">
-                                                        <input type="hidden" name="type" value="reponse">
+                                                        <input type="hidden" name="type" value="answer">
                                                         <button class="btnLike"><i class="fa fa-thumbs-up"></i></button>
                                                     </form>
-                                                    <form action="{% url 'like' reponse.id %}" method="POST" role="form" class="formLike"
-                                                        data-validate-username-url="{% url 'like' reponse.id %}">
+                                                    <form action="{% url 'like' answer.id %}" method="POST" role="form" class="formLike"
+                                                        data-validate-username-url="{% url 'like' answer.id %}">
                                                         {% csrf_token %}
                                                         <input type="hidden" name="method" value="dislike">
-                                                        <input type="hidden" name="type" value="reponse">
+                                                        <input type="hidden" name="type" value="answer">
                                                         <button class="btnDislike"><i class="fa fa-thumbs-down"></i></button>
                                                     </form>
                                                 </div>
-                                                <form action="{% url 'signal' reponse.id %}" method="POST" role="form" class="formSignal"
-                                                        data-validate-username-url="{% url 'signal' reponse.id %}"
-                                                        id="signalForm{{ reponse.id }}">
+                                                <form action="{% url 'signal' answer.id %}" method="POST" role="form" class="formSignal"
+                                                        data-validate-username-url="{% url 'signal' answer.id %}"
+                                                        id="signalForm{{ answer.id }}">
                                                     {% csrf_token %}
-                                                    {{ signalForm.email }}
-                                                    {{ signalForm.motif }}
-                                                    <input type="hidden" name="type" value="reponse">
+                                                    {{ signal_form.email }}
+                                                    {{ signal_form.motif }}
+                                                    <input type="hidden" name="type" value="answer">
                                                     <button class="reply-btn">Envoyer</button>
                                                 </form>
-                                                <p id="messageSignal{{ reponse.id }}" class="label label-info label-signal"></p>
+                                                <p id="messageSignal{{ answer.id }}" class="label label-info label-signal"></p>
                                             </div>
                                         </div>
                                 {% endfor %}
@@ -253,9 +253,9 @@
 							<form action="{% url 'comment' article.id %}" method="POST" id="commentForm" role="form"
                                 data-validate-username-url="{% url 'comment' article.id %}">
                                     {% csrf_token %}
-                                {{ replyForm.name }}
-                                {{ replyForm.email }}
-                                {{ replyForm.message }}
+                                {{ reply_form.name }}
+                                {{ reply_form.email }}
+                                {{ reply_form.message }}
 								<button class="input-btn">Envoyer</button>
 							</form>
 						</div>
@@ -307,26 +307,26 @@
 						
 						<!-- row -->
 						<div class="row">
-                            {% for n in moreArticle %}
+                            {% for n in more_article %}
                                 {% if forloop.counter < 5 %}
                                     <!-- Column -->
                                     <div class="col-md-3 col-sm-6">
                                         <!-- ARTICLE -->
                                         <article class="article">
                                             <div class="article-img">
-                                                <a href="{% url 'post' n.categorie.name n.id %}">
-                                                    <img src="{{ n.imagePrincipale.image.url }}" alt="{{ n.imagePrincipale.description }}">
+                                                <a href="{% url 'post' n.category.name n.id %}">
+                                                    <img src="{{ n.primary_image.image.url }}" alt="{{ n.primary_image.description }}">
                                                 </a>
                                                 <ul class="article-info">
-                                                    <li class="article-type"><i class="fa {{ n.categorie.icon }}"></i></li>
+                                                    <li class="article-type"><i class="fa {{ n.category.icon }}"></i></li>
                                                 </ul>
                                             </div>
                                             <div class="article-body">
-                                                <h4 class="article-title"><a href="{% url 'post' n.categorie.name n.id %}">
-                                                    {{ n.smallTitre }}</a></h4>
+                                                <h4 class="article-title"><a href="{% url 'post' n.category.name n.id %}">
+                                                    {{ n.small_title }}</a></h4>
                                                 <ul class="article-meta">
-                                                    <li><i class="fa fa-clock-o"></i> {{ n.datePublication }}</li>
-                                                    <li><i class="fa fa-comments"></i> {{ n.commentaire_set.count }}</li>
+                                                    <li><i class="fa fa-clock-o"></i> {{ n.date_publication }}</li>
+                                                    <li><i class="fa fa-comments"></i> {{ n.comment_set.count }}</li>
                                                 </ul>
                                             </div>
                                         </article>

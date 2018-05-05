@@ -6,8 +6,7 @@ from django.db.models import Count
 from datetime import timedelta, datetime
 from itertools import chain
 
-from journal.models import Publisher
-from .models import Categorie, Image, News, Video, Commentaire, Tag, Reponse, Newsletter, CommentFilter
+from .models import Category, Image, News, Video, Comment, Tag, Answer, Newsletter, CommentFilter, Journalist
 from .forms import ImageUploadForm, ReplyForm, SignalForm
 
 from django.contrib.postgres.search import SearchQuery, SearchRank, SearchVector
@@ -30,40 +29,40 @@ def index(request):
     # one_week_ago = datetime.today() - timedelta(days=7)
     one_week_ago = datetime.today() - timedelta(days=21)
     #   T All
-    tendance = News.objects.filter(datePublication__gte=one_week_ago).exclude(id__in=video_id).order_by('-nombreVue', '-id')[:10]
+    tendance = News.objects.filter(date_publication__gte=one_week_ago).exclude(id__in=video_id).order_by('-view_number', '-id')[:10]
     #   T Style de vie
-    t_category = Categorie.objects.get(name='styleDeVie')
-    t_style_de_vie = News.objects.filter(categorie=t_category, datePublication__gte=one_week_ago).exclude(id__in=video_id).order_by('-nombreVue')[:8]
+    t_category = Category.objects.get(name='styleDeVie')
+    t_style_de_vie = News.objects.filter(category=t_category, date_publication__gte=one_week_ago).exclude(id__in=video_id).order_by('-view_number')[:8]
     #   T Sport
-    t_category = Categorie.objects.get(name='sports')
-    t_sports = News.objects.filter(categorie=t_category, datePublication__gte=one_week_ago).exclude(id__in=video_id).order_by('-nombreVue')[:8]
+    t_category = Category.objects.get(name='sports')
+    t_sports = News.objects.filter(category=t_category, date_publication__gte=one_week_ago).exclude(id__in=video_id).order_by('-view_number')[:8]
     #   T Sport
-    t_category = Categorie.objects.get(name='technologie')
-    t_tec = News.objects.filter(categorie=t_category, datePublication__gte=one_week_ago).exclude(id__in=video_id).order_by('-nombreVue')[:8]
+    t_category = Category.objects.get(name='technologie')
+    t_tec = News.objects.filter(category=t_category, date_publication__gte=one_week_ago).exclude(id__in=video_id).order_by('-view_number')[:8]
     #   T ECONOMIE
-    t_category = Categorie.objects.get(name='economie')
-    t_eco = News.objects.filter(categorie=t_category, datePublication__gte=one_week_ago).exclude(id__in=video_id).order_by('-nombreVue')[:8]
+    t_category = Category.objects.get(name='economie')
+    t_eco = News.objects.filter(category=t_category, date_publication__gte=one_week_ago).exclude(id__in=video_id).order_by('-view_number')[:8]
     #   T Internationnal
-    t_category = Categorie.objects.get(name='internationnal')
-    t_inter = News.objects.filter(categorie=t_category, datePublication__gte=one_week_ago).exclude(id__in=video_id).order_by('-nombreVue')[:8]
+    t_category = Category.objects.get(name='internationnal')
+    t_inter = News.objects.filter(category=t_category, date_publication__gte=one_week_ago).exclude(id__in=video_id).order_by('-view_number')[:8]
 
     # LAST ADD
     #   Internationnal
-    l_category = Categorie.objects.get(name='internationnal')
-    last_inter = News.objects.filter(categorie=l_category).exclude(id__in=video_id).order_by('-id')[:3]
+    l_category = Category.objects.get(name='internationnal')
+    last_inter = News.objects.filter(category=l_category).exclude(id__in=video_id).order_by('-id')[:3]
     #   Economie
-    l_category = Categorie.objects.get(name='economie')
-    last_eco = News.objects.filter(categorie=l_category).exclude(id__in=video_id).order_by('-id')[:3]
+    l_category = Category.objects.get(name='economie')
+    last_eco = News.objects.filter(category=l_category).exclude(id__in=video_id).order_by('-id')[:3]
     #   News
-    l_category = Categorie.objects.get(name='actualites')
-    last_news = News.objects.filter(categorie=l_category).exclude(id__in=video_id).order_by('-id')[:5]
+    l_category = Category.objects.get(name='actualites')
+    last_news = News.objects.filter(category=l_category).exclude(id__in=video_id).order_by('-id')[:5]
 
     # TOP VIDEO
-    top_video = Video.objects.all().order_by('-nombreVue', '-id')[:5]
+    top_video = Video.objects.all().order_by('-view_number', '-id')[:5]
 
     # LAST ADD
     #   LAST ADD NEWS
-    last_add = News.objects.all().exclude(id__in=video_id).order_by('-datePublication')
+    last_add = News.objects.all().exclude(id__in=video_id).order_by('-date_publication')
     page = request.GET.get('page', 1)
     paginator = Paginator(last_add, 4)
     try:
@@ -73,11 +72,11 @@ def index(request):
     except EmptyPage:
         articles = paginator.page(paginator.num_pages)
     #   LAST ADD VIDEO
-    last_add_video = Video.objects.all().order_by('-datePublication')[:4]
+    last_add_video = Video.objects.all().order_by('-date_publication')[:4]
     #   LAST ADD COMMENT
-    last_add_comment = Commentaire.objects.all().order_by('-datePublication')[:3]
+    last_add_comment = Comment.objects.all().order_by('-date_publication')[:3]
     #   LAST ADD IMAGE
-    last_add_image = Image.objects.all().order_by('-datePublication')[:6]
+    last_add_image = Image.objects.all().order_by('-date_publication')[:6]
 
     context = {
         'newscar': new_car,
@@ -133,19 +132,19 @@ def upload(request):
 def article_show(request, category_name, post):
     # GET INFORMATION
     article = News.objects.get(id=post)
-    article.addVue()
-    selected_category = Categorie.objects.get(name=category_name)
+    article.add_view()
+    selected_category = Category.objects.get(name=category_name)
 
     # ARTICLE TAGS
     tags = Tag.objects.filter(news=article)
 
     # MORE FROM AUTHOR
-    more_article = News.objects.filter(publisher=article.publisher, categorie=article.categorie).exclude(id=article.id).order_by('-datePublication')[:4]
+    more_article = News.objects.filter(journalist=article.journalist, category=article.category).exclude(id=article.id).order_by('-date_publication')[:4]
     if more_article.count() < 4:
         article_id = more_article.values_list('id', flat=True)
         number = 4 - more_article.count()
-        added_article = News.objects.filter(publisher=article.publisher).exclude(id__in=article_id)
-        added_article.order_by('-datePublication')[:number]
+        added_article = News.objects.filter(journalist=article.journalist).exclude(id__in=article_id)
+        added_article.order_by('-date_publication')[:number]
         more_article = list(chain(more_article, added_article))
 
     # DYNAMIC COMMENT FORM
@@ -161,12 +160,11 @@ def article_show(request, category_name, post):
 
     context = {
         'article': article,
-        'categorie': selected_category,
-        'signalForm': signal_form,
+        'signal_form': signal_form,
         'tags': tags,
-        'replyForm': reply_form,
-        'moreArticle': more_article,
-        'navActive': '#nav' + article.categorie.name
+        'reply_form': reply_form,
+        'more_article': more_article,
+        'navActive': '#nav' + article.category.name
     }
     return render(request, 'journal/post.html', context)
 
@@ -176,11 +174,11 @@ def category(request, category_name):
     # VIDEO ID
     video_id = Video.objects.all().values_list('id', flat=True)
 
-    cat = Categorie.objects.get(name=category_name)
+    cat = Category.objects.get(name=category_name)
 
-    news_filter = request.GET.get('filtre', '-datePublication')
+    news_filter = request.GET.get('filter', '-date_publication')
 
-    news = News.objects.filter(categorie=cat).annotate(commentNumber=Count('commentaire')).exclude(id__in=video_id)
+    news = News.objects.filter(category=cat).annotate(comment_number=Count('comment')).exclude(id__in=video_id)
 
     # LAST FIVE
     last_five = news.order_by(news_filter, '-id')[:5]
@@ -200,11 +198,11 @@ def category(request, category_name):
         articles = paginator.page(paginator.num_pages)
 
     context = {
-        'lastFive': last_five,
+        'last_five': last_five,
         'category': cat,
         'articles': articles,
         'navActive': '#nav' + cat.name,
-        'filtre': news_filter
+        'filter': news_filter
     }
     return render(request, 'journal/category.html', context)
 
@@ -216,9 +214,9 @@ def tag(request, tag_name):
     # VIDEO ID
     video_id = Video.objects.all().values_list('id', flat=True)
 
-    news_filter = request.GET.get('filtre', '-datePublication')
+    news_filter = request.GET.get('filter', '-date_publication')
 
-    news = News.objects.filter(tag=selected_tag).annotate(commentNumber=Count('commentaire')).exclude(id__in=video_id)
+    news = News.objects.filter(tag=selected_tag).annotate(comment_number=Count('comment')).exclude(id__in=video_id)
 
     count = news.count()
 
@@ -241,9 +239,9 @@ def tag(request, tag_name):
 
     context = {
         'tag': selected_tag,
-        'lastFive': last_five,
+        'last_five': last_five,
         'articles': articles,
-        'filtre': news_filter,
+        'filter': news_filter,
         'count': count
     }
 
@@ -256,8 +254,8 @@ def last_articles(request):
     video_id = Video.objects.all().values_list('id', flat=True)
 
     # FILTER
-    news_filter = request.GET.get('filtre', '-datePublication')
-    news = News.objects.annotate(commentNumber=Count('commentaire')).exclude(id__in=video_id)
+    news_filter = request.GET.get('filter', '-date_publication')
+    news = News.objects.annotate(comment_number=Count('comment')).exclude(id__in=video_id)
 
     # ARTICLES
     articles = news.order_by(news_filter)
@@ -272,7 +270,7 @@ def last_articles(request):
 
     context = {
         'articles': articles,
-        'filtre': news_filter
+        'filter': news_filter
     }
     return render(request, 'journal/lastArticles.html', context)
 
@@ -280,13 +278,13 @@ def last_articles(request):
 # ## AUTHOR PAGE ## #
 def author(request, selected_author_id):
     # AUTHOR
-    aut = get_object_or_404(Publisher, id=selected_author_id)
+    aut = get_object_or_404(Journalist, id=selected_author_id)
 
     # COMMENT NUMBER
-    number = Commentaire.objects.filter(email=aut.email).count()
+    number = Comment.objects.filter(email=aut.email).count()
 
     # ARTICLES
-    articles = aut.news_set.all().order_by('-datePublication')
+    articles = aut.news_set.all().order_by('-date_publication')
 
     for a in articles:
         if isinstance(a, Video):
@@ -302,12 +300,12 @@ def author(request, selected_author_id):
         articles = paginator.page(paginator.num_pages)
 
     # OTHER AUTHOR
-    authors = Publisher.objects.annotate(newsCount=Count('news')).order_by('-newsCount')[:5]
+    authors = Journalist.objects.annotate(news_count=Count('news')).order_by('-news_count')[:5]
 
     context = {
         'author': aut,
         'articles': articles,
-        'commentNumber': number,
+        'comment_number': number,
         'authors': authors
 
     }
@@ -317,10 +315,10 @@ def author(request, selected_author_id):
 # ## ALL VIDEO PAGE ## #
 def video(request):
     # VIDEO SELECTION
-    video_selection = Video.objects.filter(equipe_selection=True).order_by('-datePublication')[:5]
+    video_selection = Video.objects.filter(team_selection=True).order_by('-date_publication')[:5]
 
     # OTHER VIDEO
-    other_video = Video.objects.all().order_by('-datePublication')
+    other_video = Video.objects.all().order_by('-date_publication')
     page = request.GET.get('page', 1)
     paginator = Paginator(other_video, 10)
     try:
@@ -342,23 +340,23 @@ def video(request):
 def video_show(request, selected_video_id):
     # VIDEO
     selected_video = get_object_or_404(Video, id=selected_video_id)
-    selected_video.addVue()
+    selected_video.add_view()
 
     # VIDEO TAGS
     tags = Tag.objects.filter(news=selected_video)
 
     # MORE FROM AUTHOR
-    more_video = Video.objects.filter(publisher=selected_video.publisher, categorie=selected_video.categorie).exclude(
-        id=selected_video.id).order_by('-datePublication')[:4]
+    more_video = Video.objects.filter(journalist=selected_video.journalist, category=selected_video.category).exclude(
+        id=selected_video.id).order_by('-date_publication')[:4]
     if more_video.count() < 4:
         video_id = more_video.values_list('id', flat=True)
         number = 4 - more_video.count()
-        added_video = Video.objects.filter(publisher=selected_video.publisher).exclude(id__in=video_id).order_by(
-            '-datePublication')[:number]
+        added_video = Video.objects.filter(journalist=selected_video.journalist).exclude(id__in=video_id).order_by(
+            '-date_publication')[:number]
         more_video = list(chain(more_video, added_video))
 
     # LAST ADD VIDEO
-    last_add_video = Video.objects.all().order_by('-datePublication')[:4]
+    last_add_video = Video.objects.all().order_by('-date_publication')[:4]
 
     # DYNAMIC COMMENT FORM
     reply_form = ReplyForm()
@@ -389,12 +387,12 @@ def search(request):
     keywords = request.GET.get('q')
     if keywords:
         query = SearchQuery(keywords)
-        title_vector = SearchVector('titre', weight='A')
+        title_vector = SearchVector('title', weight='A')
         resume_vector = SearchVector('resume', weight='B')
-        content_vector = SearchVector('contenu', weight='C')
+        content_vector = SearchVector('content', weight='C')
         vectors = title_vector + content_vector + resume_vector
         qs = qs.annotate(search=vectors).filter(search=query)
-        qs = qs.annotate(rank=SearchRank(vectors, query)).order_by('-rank', '-nombreVue')
+        qs = qs.annotate(rank=SearchRank(vectors, query)).order_by('-rank', '-view_number')
     else:
         return redirect('index')
 
@@ -460,13 +458,13 @@ def comment(request, post):
             }
             return JsonResponse(data)
 
-    c = News.objects.get(id=post).commentaire_set.create(nomComplet=name, email=email, message=message)
+    c = News.objects.get(id=post).comment_set.create(full_name=name, email=email, message=message)
     data = {
         'accept': comment_verify,
         'message': 'Commentaire ajouté',
         'name': name,
         'comment': message,
-        'date': c.datePublication
+        'date': c.date_publication
     }
     return JsonResponse(data)
 
@@ -475,17 +473,17 @@ def comment(request, post):
 def like(request, selected_comment):
     comment_type = request.GET.get('type', None)
     method = request.GET.get('method', None)
-    c = Commentaire()
-    if comment_type == 'reponse':
-        c = Reponse.objects.get(id=selected_comment)
+    c = Comment()
+    if comment_type == 'answer':
+        c = Answer.objects.get(id=selected_comment)
     elif comment_type == 'comment':
-        c = Commentaire.objects.get(id=selected_comment)
+        c = Comment.objects.get(id=selected_comment)
     if method == 'like':
         c.like()
     elif method == 'dislike':
         c.dislike()
     data = {
-        'nombre': str(c.nombreLike),
+        'nombre': str(c.number_like),
         'id': '#numberLike'+str(c.id),
         'div': '#divComment'+str(c.id)
     }
@@ -497,10 +495,10 @@ def signal(request, selected_comment):
     comment_type = request.GET.get('type', None)
     email = request.GET.get('email', None)
     motif = request.GET.get('motif', None)
-    if comment_type == 'reponse':
-        Reponse.objects.get(id=selected_comment).signalreponse_set.create(email=email, motif=motif)
+    if comment_type == 'answer':
+        Answer.objects.get(id=selected_comment).signalanswer_set.create(email=email, cause=motif)
     elif comment_type == 'comment':
-        Commentaire.objects.get(id=selected_comment).signalcomment_set.create(email=email, motif=motif)
+        Comment.objects.get(id=selected_comment).signalcomment_set.create(email=email, cause=motif)
     data = {
         'message': 'Merci pour votre avertissement, nous allons consulter votre signal le plus tot possible',
         'formButton': '#formButtonSignaler'+str(selected_comment),
@@ -528,7 +526,7 @@ def reply(request, selected_comment):
             }
             return JsonResponse(data)
 
-    Commentaire.objects.get(id=selected_comment).reponse_set.create(email=email, nomComplet=name, message=message)
+    Comment.objects.get(id=selected_comment).answer_set.create(email=email, full_name=name, message=message)
     data = {
         'accept': comment_verify,
         # 'formRepondre': '#repondreForm' + str(selected_comment), # For AJAX

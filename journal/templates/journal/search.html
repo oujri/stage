@@ -37,16 +37,16 @@
                     {% for article in article_result %}
                     <div class="row search-article">
                         <div class="col-md-3">
-                            <a href="{% url 'post' article.categorie article.id %}">
-                                <img src="{{ article.imagePrincipale.image_video.url }}" alt="{{ article.imagePrincipale.description }}">
+                            <a href="{% url 'post' article.category article.id %}">
+                                <img src="{{ article.primary_image.image_video.url }}" alt="{{ article.primary_image.description }}">
                             </a>
                         </div>
                         <div class="col-md-9">
-                            <h3><a href="{% url 'post' article.categorie article.id %}">{{ article.smallTitre }}</a></h3>
+                            <h3><a href="{% url 'post' article.category article.id %}">{{ article.small_title }}</a></h3>
                             <ul class="list-inline">
-                                <li><a href="{% url 'author' article.publisher.id %}">{{ article.publisher }}</a></li>
-                                <li><i class="fa fa-clock-o"></i> {{ article.datePublication }}</li>
-                                <li><i class="fa fa-comments"></i> {{ article.commentaire_set.count }}</li>
+                                <li><a href="{% url 'author' article.journalist.id %}">{{ article.journalist }}</a></li>
+                                <li><i class="fa fa-clock-o"></i> {{ article.date_publication }}</li>
+                                <li><i class="fa fa-comments"></i> {{ article.comment_set.count }}</li>
                             </ul>
                             <p>{{ article.resume }}</p>
                         </div>
