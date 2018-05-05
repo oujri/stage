@@ -173,9 +173,14 @@ $( ".formRepondre" ).submit(function( event ) {
         data: form.serialize(),
         dataType: 'json',
         success: function (data) {
-			$(data.formRepondre).css('display', 'none');
-			$(data.formButtonRepondre).css('display', 'none');
-			location.reload(forceGet=false);
+			if(data.accept) {
+                //$(data.formRepondre).css('display', 'none');
+                //$(data.formButtonRepondre).css('display', 'none');
+                location.reload(forceGet = false);
+            }
+            else {
+				alert(data.message);
+			}
 		}
     });
 });
@@ -188,17 +193,21 @@ $( "#commentForm" ).submit(function( event ) {
         data: form.serialize(),
         dataType: 'json',
         success: function (data) {
-			$("#messageComment").text(data.message);
-			$("#addNewCommentH5").text(data.name);
-			$("#addNewCommentSpan").text(data.date);
-			$("#addNewCommentP").text(data.comment);
-			$("#addNewComment").css('display', 'block');
-			$("#messageComment").css('display', 'block');
-			$("#article-reply-form").css('display', 'none');
-			//location.reload(forceGet=false);
-			setTimeout(function(){
-				$("#messageComment").css('display', 'none');
-			}, 5000);
+			if(data.accept) {
+                $("#messageComment").text(data.message);
+                $("#addNewCommentH5").text(data.name);
+                $("#addNewCommentSpan").text(data.date);
+                $("#addNewCommentP").text(data.comment);
+                $("#addNewComment").css('display', 'block');
+                $("#messageComment").css('display', 'block');
+                $("#article-reply-form").css('display', 'none');
+                //location.reload(forceGet=false);
+                setTimeout(function () {
+                    $("#messageComment").css('display', 'none');
+                }, 5000);
+            } else {
+				alert(data.message);
+			}
 		}
     });
 });

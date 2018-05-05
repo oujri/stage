@@ -97,6 +97,7 @@ class News(models.Model):
     datePublication = models.DateTimeField(auto_now_add=True)
     nombreVue = models.IntegerField(default=0)
     resume = models.TextField(blank=True, null=True)
+    comment_enable = models.BooleanField(default=True, verbose_name='Activer les commentaires')
     publisher = models.ForeignKey(Publisher, on_delete=models.CASCADE)
     categorie = models.ForeignKey(Categorie, blank=True, null=True, on_delete=models.CASCADE)
     imagePrincipale = models.ForeignKey(Image, on_delete=models.CASCADE)
@@ -173,8 +174,18 @@ class SignalReponse(Signal):
     reponse = models.ForeignKey(Reponse, on_delete=models.CASCADE)
 
 
-class Newslatter(models.Model):
+class Newsletter(models.Model):
     email = models.EmailField(primary_key=True)
 
     def __str__(self):
         return self.email
+
+
+class CommentFilter(models.Model):
+    word = models.CharField(max_length=50)
+
+    def __str__(self):
+        return self.word
+
+    class Meta:
+        verbose_name_plural = 'CommentsFilter'

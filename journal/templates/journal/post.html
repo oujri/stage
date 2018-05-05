@@ -82,7 +82,8 @@
 							</ul>
 						</div>
 						<!-- /widget tags -->
-						
+
+                        {% if article.comment_enable %}
 						<!-- article comments -->
 						<div class="article-comments">
 							<div class="section-title">
@@ -259,6 +260,14 @@
 							</form>
 						</div>
 						<!-- /reply form -->
+                        {% else %}
+                            <div class="section comment-disable">
+                                <p class="label label-warning">
+                                    <i class="fa fa-warning"></i>
+                                    Les commentaires pour cet article sont désactivées
+                                </p>
+                            </div>
+                        {% endif %}
 					</div>
 					<!-- /Main Column -->
 					

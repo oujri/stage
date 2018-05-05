@@ -7,8 +7,10 @@ from datetime import timedelta, datetime
 from itertools import chain
 
 from journal.models import Publisher
-from .models import Categorie, Image, News, Video, Commentaire, Tag, Reponse, Newslatter
+from .models import Categorie, Image, News, Video, Commentaire, Tag, Reponse, Newsletter, CommentFilter
 from .forms import ImageUploadForm, ReplyForm, SignalForm
+
+from django.contrib.postgres.search import SearchQuery, SearchRank, SearchVector
 
 
 #####################################################
@@ -16,6 +18,7 @@ from .forms import ImageUploadForm, ReplyForm, SignalForm
 #####################################################
 
 
+# ## HOME PAGE ## #
 def index(request):
     # VIDEO ID
     video_id = Video.objects.all().values_list('id', flat=True)
@@ -96,18 +99,22 @@ def index(request):
     return render(request, 'journal/index.html', context)
 
 
+# ## ABOUT PAGE ## #
 def about(request):
     return render(request, 'journal/about.html')
 
 
+# ## CONTACT PAGE ## #
 def contact(request):
     return render(request, 'journal/contact.html')
 
 
+# ## PRIVACY PAGE ## #
 def privacy(request):
     return render(request, 'journal/privacy.html')
 
 
+# ## IMAGE UPLOAD PAGE ## #
 def upload(request):
     if request.method == 'POST':
         form = ImageUploadForm(request.POST, request.FILES)
@@ -122,7 +129,8 @@ def upload(request):
     })
 
 
-def show(request, category_name, post):
+# ## SELECTED ARTICLE SHOW PAGE ## #
+def article_show(request, category_name, post):
     # GET INFORMATION
     article = News.objects.get(id=post)
     article.addVue()
@@ -136,7 +144,8 @@ def show(request, category_name, post):
     if more_article.count() < 4:
         article_id = more_article.values_list('id', flat=True)
         number = 4 - more_article.count()
-        added_article = News.objects.filter(publisher=article.publisher).exclude(id__in=article_id).order_by('-datePublication')[:number]
+        added_article = News.objects.filter(publisher=article.publisher).exclude(id__in=article_id)
+        added_article.order_by('-datePublication')[:number]
         more_article = list(chain(more_article, added_article))
 
     # DYNAMIC COMMENT FORM
@@ -162,6 +171,7 @@ def show(request, category_name, post):
     return render(request, 'journal/post.html', context)
 
 
+# ## ARTICLE CATEGORY PAGE ## #
 def category(request, category_name):
     # VIDEO ID
     video_id = Video.objects.all().values_list('id', flat=True)
@@ -199,16 +209,17 @@ def category(request, category_name):
     return render(request, 'journal/category.html', context)
 
 
+# ## LAST ADDED ARTICLE PAGE ## #
 def last_articles(request):
     # VIDEO ID
     video_id = Video.objects.all().values_list('id', flat=True)
 
     # FILTER
-    filtre = request.GET.get('filtre', '-datePublication')
+    news_filter = request.GET.get('filtre', '-datePublication')
     news = News.objects.annotate(commentNumber=Count('commentaire')).exclude(id__in=video_id)
 
     # ARTICLES
-    articles = news.order_by(filtre)
+    articles = news.order_by(news_filter)
     page = request.GET.get('page', 1)
     paginator = Paginator(articles, 15)
     try:
@@ -220,14 +231,15 @@ def last_articles(request):
 
     context = {
         'articles': articles,
-        'filtre': filtre
+        'filtre': news_filter
     }
     return render(request, 'journal/lastArticles.html', context)
 
 
-def author(request, id):
+# ## AUTHOR PAGE ## #
+def author(request, selected_author_id):
     # AUTHOR
-    aut = get_object_or_404(Publisher, id=id)
+    aut = get_object_or_404(Publisher, id=selected_author_id)
 
     # COMMENT NUMBER
     number = Commentaire.objects.filter(email=aut.email).count()
@@ -261,6 +273,7 @@ def author(request, id):
     return render(request, 'journal/author.html', context)
 
 
+# ## ALL VIDEO PAGE ## #
 def video(request):
     # VIDEO SELECTION
     video_selection = Video.objects.filter(equipe_selection=True).order_by('-datePublication')[:5]
@@ -284,9 +297,10 @@ def video(request):
     return render(request, 'journal/video.html', context)
 
 
-def video_show(request, id):
+# ## SELECTED VIDEO SHOW PAGE ## #
+def video_show(request, selected_video_id):
     # VIDEO
-    selected_video = get_object_or_404(Video, id=id)
+    selected_video = get_object_or_404(Video, id=selected_video_id)
     selected_video.addVue()
 
     # VIDEO TAGS
@@ -328,35 +342,85 @@ def video_show(request, id):
     return render(request, 'journal/video_view.html', context)
 
 
+# ## NEWS SEARCH PAGE ## #
+def search(request):
+    qs = News.objects.filter(active=True)
+    keywords = request.GET.get('q')
+    if keywords:
+        query = SearchQuery(keywords)
+        title_vector = SearchVector('titre', weight='A')
+        resume_vector = SearchVector('resume', weight='B')
+        content_vector = SearchVector('contenu', weight='C')
+        vectors = title_vector + content_vector + resume_vector
+        qs = qs.annotate(search=vectors).filter(search=query)
+        qs = qs.annotate(rank=SearchRank(vectors, query)).order_by('-rank', '-nombreVue')
+    else:
+        return redirect('index')
+
+    count = qs.all().count()
+
+    page = request.GET.get('page', 1)
+    paginator = Paginator(qs, 7)
+    try:
+        qs = paginator.page(page)
+    except PageNotAnInteger:
+        qs = paginator.page(1)
+    except EmptyPage:
+        qs = paginator.page(paginator.num_pages)
+
+    context = {
+        'article_result': qs,
+        'search': keywords,
+        'count': count
+    }
+
+    return render(request, 'journal/search.html', context)
+
 #####################################################
 #               AJAX REQUEST VIEW                   #
 #####################################################
 
 
+# ## NEWSLETTER SUBSCRIBE FUNCTION ## #
 def subscribe(request):
     email = request.GET.get('email', None)
     if email is None:
         return redirect('index')
     data = {
-        'is_taken': Newslatter.objects.filter(email=email).exists()
+        'is_taken': Newsletter.objects.filter(email=email).exists()
     }
     if data['is_taken']:
         data['message'] = 'Vous êtes déjà inscrit'
     else:
-        registration = Newslatter(email=email)
+        registration = Newsletter(email=email)
         registration.save()
         data['message'] = 'Inscription effectué'
     return JsonResponse(data)
 
 
+# ## COMMENT ARTICLE FUNCTION ## #
 def comment(request, post):
     name = request.GET.get('name', None)
     email = request.GET.get('email', None)
     message = request.GET.get('message', None)
     if email is None:
         return redirect('index')
+
+    comment_verify = True
+    for c_filter in CommentFilter.objects.all():
+        if c_filter.word in str(message):
+            message = 'Commentaire inapproprié, veuillez vérifier les mots utilisés dans votre commentaire'
+            comment_verify = False
+            print(str(comment_verify))
+            data = {
+                'message': message,
+                'accept': comment_verify
+            }
+            return JsonResponse(data)
+
     c = News.objects.get(id=post).commentaire_set.create(nomComplet=name, email=email, message=message)
     data = {
+        'accept': comment_verify,
         'message': 'Commentaire ajouté',
         'name': name,
         'comment': message,
@@ -365,14 +429,15 @@ def comment(request, post):
     return JsonResponse(data)
 
 
-def like(request, comment):
+# ## LIKE AND DISLIKE COMMENT FUNCTION ## #
+def like(request, selected_comment):
     comment_type = request.GET.get('type', None)
     method = request.GET.get('method', None)
     c = Commentaire()
     if comment_type == 'reponse':
-        c = Reponse.objects.get(id=comment)
+        c = Reponse.objects.get(id=selected_comment)
     elif comment_type == 'comment':
-        c = Commentaire.objects.get(id=comment)
+        c = Commentaire.objects.get(id=selected_comment)
     if method == 'like':
         c.like()
     elif method == 'dislike':
@@ -385,30 +450,46 @@ def like(request, comment):
     return JsonResponse(data)
 
 
-def signal(request, comment):
+# ## SIGNAL COMMENT AND REPLY FUNCTION ## #
+def signal(request, selected_comment):
     comment_type = request.GET.get('type', None)
     email = request.GET.get('email', None)
     motif = request.GET.get('motif', None)
     if comment_type == 'reponse':
-        Reponse.objects.get(id=comment).signalreponse_set.create(email=email, motif=motif)
+        Reponse.objects.get(id=selected_comment).signalreponse_set.create(email=email, motif=motif)
     elif comment_type == 'comment':
-        Commentaire.objects.get(id=comment).signalcomment_set.create(email=email, motif=motif)
+        Commentaire.objects.get(id=selected_comment).signalcomment_set.create(email=email, motif=motif)
     data = {
         'message': 'Merci pour votre avertissement, nous allons consulter votre signal le plus tot possible',
-        'formButton': '#formButtonSignaler'+str(comment),
-        'formSignaler': '#signalForm'+str(comment),
-        'paragraphe': '#messageSignal'+str(comment)
+        'formButton': '#formButtonSignaler'+str(selected_comment),
+        'formSignaler': '#signalForm'+str(selected_comment),
+        'paragraphe': '#messageSignal'+str(selected_comment)
     }
     return JsonResponse(data)
 
 
-def repondre(request, comment):
+# ## COMMENT REPLY FUNCTION ## #
+def reply(request, selected_comment):
     email = request.GET.get('email', None)
     name = request.GET.get('name', None)
     message = request.GET.get('message', None)
-    Commentaire.objects.get(id=comment).reponse_set.create(email=email, nomComplet=name, message=message)
+
+    comment_verify = True
+    for c_filter in CommentFilter.objects.all():
+        if c_filter.word in str(message):
+            message = 'Réponse inapproprié, veuillez vérifier les mots utilisés dans votre réponse'
+            comment_verify = False
+            print(str(comment_verify))
+            data = {
+                'message': message,
+                'accept': comment_verify
+            }
+            return JsonResponse(data)
+
+    Commentaire.objects.get(id=selected_comment).reponse_set.create(email=email, nomComplet=name, message=message)
     data = {
-        'formRepondre': '#repondreForm' + str(comment),
-        'formButtonRepondre': '#formButtonRepondre' + str(comment)
+        'accept': comment_verify,
+        # 'formRepondre': '#repondreForm' + str(selected_comment), # For AJAX
+        # 'formButtonRepondre': '#formButtonRepondre' + str(selected_comment) # For AJAX
     }
     return JsonResponse(data)

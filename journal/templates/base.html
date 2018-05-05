@@ -117,9 +117,8 @@
 						<button class="search-collapse-btn"><i class="fa fa-search"></i></button>
 						<button class="nav-collapse-btn"><i class="fa fa-bars"></i></button>
 						<div class="search-form">
-							<form action="{% url 'index' %}" method="get">
-								<input class="input" type="text" name="search" placeholder="Search">
-                                <input type="hidden" name="method" value="search">
+							<form action="{% url 'search' %}" method="get">
+								<input class="input" type="text" name="q" placeholder="Search">
 							</form>
 						</div>
 					</div>
