@@ -174,3 +174,28 @@
 .pagination>li>span:hover {
     color: #ef233c;
 }
+
+
+
+
+
+
+
+
+
+.tag-info .title h2.tag-name {
+    color: #FFF;
+    padding: 1px 30px;
+}
+
+.tag-info {
+    background-color: #fcfcfc;
+    border-bottom: 1px solid #f2f2f2;
+    margin-top: -20px;
+    padding-bottom: 18px;
+    padding-top: 40px;
+}
+
+.tag-last-five {
+    padding-top: 30px;
+}

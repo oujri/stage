@@ -36,7 +36,7 @@
                     <ul class="list-inline">
                         {% for tag in tags %}
                             <li style="background: {{ tag.color }}">
-                                <a href="#" class="tag">{{ tag.name }}</a>
+                                <a href="{% url 'tag' tag.name %}" class="tag">{{ tag.name }}</a>
                             </li>
                         {% endfor %}
                     </ul>

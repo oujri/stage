@@ -209,6 +209,47 @@ def category(request, category_name):
     return render(request, 'journal/category.html', context)
 
 
+# ## TAG PAGE ## #
+def tag(request, tag_name):
+    selected_tag = get_object_or_404(Tag, name=tag_name)
+
+    # VIDEO ID
+    video_id = Video.objects.all().values_list('id', flat=True)
+
+    news_filter = request.GET.get('filtre', '-datePublication')
+
+    news = News.objects.filter(tag=selected_tag).annotate(commentNumber=Count('commentaire')).exclude(id__in=video_id)
+
+    count = news.count()
+
+    # LAST FIVE
+    last_five = news.order_by(news_filter, '-id')[:5]
+
+    # OTHER ARTICLE
+    last_five_id = last_five.values_list('id', flat=True)
+    # other = news.exclude(id__in=lastFiveId).order_by(news_filter)
+    # for test
+    other = News.objects.all().exclude(id__in=last_five_id).order_by('-id')
+    page = request.GET.get('page', 1)
+    paginator = Paginator(other, 8)
+    try:
+        articles = paginator.page(page)
+    except PageNotAnInteger:
+        articles = paginator.page(1)
+    except EmptyPage:
+        articles = paginator.page(paginator.num_pages)
+
+    context = {
+        'tag': selected_tag,
+        'lastFive': last_five,
+        'articles': articles,
+        'filtre': news_filter,
+        'count': count
+    }
+
+    return render(request, 'journal/tag.html', context)
+
+
 # ## LAST ADDED ARTICLE PAGE ## #
 def last_articles(request):
     # VIDEO ID
@@ -375,6 +416,7 @@ def search(request):
     }
 
     return render(request, 'journal/search.html', context)
+
 
 #####################################################
 #               AJAX REQUEST VIEW                   #

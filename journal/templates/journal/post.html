@@ -77,7 +77,7 @@
 						<div class="widget-tags">
 							<ul>
                                 {% for tag in tags %}
-                                    <li style="background: {{ tag.color }}"><a href="#">{{ tag.name }}</a></li>
+                                    <li style="background: {{ tag.color }}"><a href="{% url 'tag' tag.name %}">{{ tag.name }}</a></li>
                                 {% endfor %}
 							</ul>
 						</div>
