@@ -60,6 +60,9 @@
                                 <span>{{ weather.city }}</span>
                             </li>
                             <li><span id="currentDate"></span></li>
+                            {% if is_journalist %}
+                                <li><a id="journalist-space" href="{% url 'journalist' %}">Espace Journalistes</a></li>
+                            {% endif %}
 							<li><a href="{% url 'about' %}">à propos</a></li>
 							<li><a href="{% url 'contact' %}">Contact</a></li>
 							<li><a href="{% url 'privacy' %}">Privacy</a></li>
@@ -183,7 +186,7 @@
                                 <form action="{% url 'subscribe' %}" method="POST" role="form" class="formSubscribe"
                                 data-validate-username-url="{% url 'subscribe' %}">
                                     {% csrf_token %}
-                                    {{ newslatterForm.email }}
+                                    {{ newsletterForm.email }}
                                     <button class="input-btn" type="submit">S'inscrire</button>
                                     <p class="messageNewslatter"></p>
                                 </form>

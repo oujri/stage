@@ -2,10 +2,9 @@ import time
 import os
 import uuid
 
+from django.contrib.auth.models import User
 from django.db import models
 from django.utils.deconstruct import deconstructible
-
-from main_app.models import Profil
 
 from imagekit.models import ImageSpecField
 from imagekit.processors import ResizeToFill
@@ -55,10 +54,11 @@ class Image(models.Model):
 class Journalist(models.Model):
     first_name = models.CharField(max_length=100)
     last_name = models.CharField(max_length=100)
-    email = models.EmailField()
+    email = models.EmailField(unique=True)
     tel = models.CharField(max_length=30)
     description = models.TextField(blank=True)
     date_creation = models.DateTimeField(auto_now_add=True, null=True)
+    active = models.BooleanField(default=True)
     link = models.URLField(blank=True)
     facebook = models.URLField(blank=True)
     twitter = models.URLField(blank=True)
@@ -69,7 +69,11 @@ class Journalist(models.Model):
     profile_picture = models.ForeignKey(Image, default=60, on_delete=models.SET(60))
 
     def __str__(self):
-        return self.first_name + ' ' + self.last_name
+        return self.first_name.capitalize() + ' ' + self.last_name.upper()
+
+    @staticmethod
+    def email_list():
+        return Journalist.objects.filter(active=True).values_list('email', flat=True)
 
 
 class Category(models.Model):

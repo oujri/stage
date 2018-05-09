@@ -30,7 +30,7 @@
 							<form action="{% url 'subscribe' %}" method="POST" role="form" class="formSubscribe"
                                 data-validate-username-url="{% url 'subscribe' %}">
                                 {% csrf_token %}
-								{{ newslatterForm.email }}
+								{{ newsletterForm.email }}
 								<button class="input-btn" type="submit">S'inscrire</button>
 							</form>
                             <p class="messageNewslatter"></p>

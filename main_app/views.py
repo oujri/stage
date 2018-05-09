@@ -35,7 +35,7 @@ def signup(request):
             profil = Profil.objects.get_or_create(user=user)[0]
             profil.save()
 
-            send_confirmation_signup_mail(request,user)# une méthode qu'on a nous meme défini ( un peu plus bas )
+            send_confirmation_signup_mail(request, user)# une méthode qu'on a nous meme défini ( un peu plus bas )
 
             return render(request, 'authentification/sign_up.html', {'form_inscription': form_inscription,})
     else:

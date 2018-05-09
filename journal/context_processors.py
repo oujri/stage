@@ -1,5 +1,5 @@
-from journal.models import Category, Video, News, Comment
-from journal.forms import NewslatterForm
+from journal.models import Category, Video, News, Comment, Journalist
+from journal.forms import NewsletterForm
 import requests
 
 
@@ -21,12 +21,21 @@ def global_var(request):
     # TOP COMMENTS
     top_comment = Comment.objects.all().order_by('-number_like', '-date_publication')[:4]
 
+    # IS JOURNALIST
+    check = False
+
+    if request.user.is_authenticated:
+        user = request.user
+        if user.email in Journalist.email_list():
+            check = True
+
     context = {
         'categories': Category.objects.all().exclude(name='actualites'),
         'weather': weather,
         'topRead': top_read,
         'topComment': top_comment,
-        'newslatterForm': NewslatterForm()
+        'newsletterForm': NewsletterForm(),
+        'is_journalist': check
     }
 
     return context

@@ -7,13 +7,13 @@ from datetime import timedelta, datetime
 from itertools import chain
 
 from .models import Category, Image, News, Video, Comment, Tag, Answer, Newsletter, CommentFilter, Journalist
-from .forms import ImageUploadForm, ReplyForm, SignalForm
+from .forms import ImageUploadForm, ReplyForm, SignalForm, JournalistProfileForm
 
 from django.contrib.postgres.search import SearchQuery, SearchRank, SearchVector
 
 
 #####################################################
-#               PAGE REQUEST VIEW                   #
+#            PUBLIC PAGE REQUEST VIEW               #
 #####################################################
 
 
@@ -29,22 +29,28 @@ def index(request):
     # one_week_ago = datetime.today() - timedelta(days=7)
     one_week_ago = datetime.today() - timedelta(days=21)
     #   T All
-    tendance = News.objects.filter(date_publication__gte=one_week_ago).exclude(id__in=video_id).order_by('-view_number', '-id')[:10]
+    trending = News.objects.filter(date_publication__gte=one_week_ago).exclude(
+        id__in=video_id).order_by('-view_number', '-id')[:10]
     #   T Style de vie
     t_category = Category.objects.get(name='styleDeVie')
-    t_style_de_vie = News.objects.filter(category=t_category, date_publication__gte=one_week_ago).exclude(id__in=video_id).order_by('-view_number')[:8]
+    t_style_de_vie = News.objects.filter(category=t_category, date_publication__gte=one_week_ago).exclude(
+        id__in=video_id).order_by('-view_number')[:8]
     #   T Sport
     t_category = Category.objects.get(name='sports')
-    t_sports = News.objects.filter(category=t_category, date_publication__gte=one_week_ago).exclude(id__in=video_id).order_by('-view_number')[:8]
+    t_sports = News.objects.filter(category=t_category, date_publication__gte=one_week_ago).exclude(
+        id__in=video_id).order_by('-view_number')[:8]
     #   T Sport
     t_category = Category.objects.get(name='technologie')
-    t_tec = News.objects.filter(category=t_category, date_publication__gte=one_week_ago).exclude(id__in=video_id).order_by('-view_number')[:8]
+    t_tec = News.objects.filter(category=t_category, date_publication__gte=one_week_ago).exclude(
+        id__in=video_id).order_by('-view_number')[:8]
     #   T ECONOMIE
     t_category = Category.objects.get(name='economie')
-    t_eco = News.objects.filter(category=t_category, date_publication__gte=one_week_ago).exclude(id__in=video_id).order_by('-view_number')[:8]
+    t_eco = News.objects.filter(category=t_category, date_publication__gte=one_week_ago).exclude(
+        id__in=video_id).order_by('-view_number')[:8]
     #   T Internationnal
     t_category = Category.objects.get(name='internationnal')
-    t_inter = News.objects.filter(category=t_category, date_publication__gte=one_week_ago).exclude(id__in=video_id).order_by('-view_number')[:8]
+    t_inter = News.objects.filter(category=t_category, date_publication__gte=one_week_ago).exclude(
+        id__in=video_id).order_by('-view_number')[:8]
 
     # LAST ADD
     #   Internationnal
@@ -80,7 +86,7 @@ def index(request):
 
     context = {
         'newscar': new_car,
-        'tendance': tendance,
+        'tendance': trending,
         'tstyledevie': t_style_de_vie,
         'tsports': t_sports,
         'ttec': t_tec,
@@ -133,18 +139,18 @@ def article_show(request, category_name, post):
     # GET INFORMATION
     article = News.objects.get(id=post)
     article.add_view()
-    selected_category = Category.objects.get(name=category_name)
 
     # ARTICLE TAGS
     tags = Tag.objects.filter(news=article)
 
     # MORE FROM AUTHOR
-    more_article = News.objects.filter(journalist=article.journalist, category=article.category).exclude(id=article.id).order_by('-date_publication')[:4]
+    more_article = News.objects.filter(journalist=article.journalist, category=article.category).exclude(
+        id=article.id).order_by('-date_publication')[:4]
     if more_article.count() < 4:
         article_id = more_article.values_list('id', flat=True)
         number = 4 - more_article.count()
         added_article = News.objects.filter(journalist=article.journalist).exclude(id__in=article_id)
-        added_article.order_by('-date_publication')[:number]
+        added_article = added_article.order_by('-date_publication')[:number]
         more_article = list(chain(more_article, added_article))
 
     # DYNAMIC COMMENT FORM
@@ -533,3 +539,135 @@ def reply(request, selected_comment):
         # 'formButtonRepondre': '#formButtonRepondre' + str(selected_comment) # For AJAX
     }
     return JsonResponse(data)
+
+
+#####################################################
+#            JOURNALIST MANAGEMENT VIEW             #
+#####################################################
+
+def journalist(request):
+    if request.user.is_authenticated:
+        user = request.user
+        if user.email in Journalist.email_list():
+            # VIDEO ID
+            video_id = Video.objects.all().values_list('id', flat=True)
+
+            # JOURNALIST
+            j = get_object_or_404(Journalist, email=user.email)
+
+            # STATISTIC
+            # ## COMMENT COUNT
+            number_comment = 0
+
+            # ## NEWS COUNT
+            # ## NEWS VIEW SUM
+            number_news = 0
+            news_views_sum = 0
+            for n in News.objects.exclude(id__in=video_id).filter(journalist=j):
+                number_news += 1
+                news_views_sum += n.view_number
+                number_comment += n.comment_set.count()
+
+            # ## VIDEO COUNT
+            # ## VIDEO VIEW SUM
+            number_video = 0
+            video_views_sum = 0
+            for v in Video.objects.filter(journalist=j):
+                number_video += 1
+                video_views_sum += v.view_number
+                number_comment += v.comment_set.count()
+
+            # ## SELF COMMENT COUNT
+            self_comment_count = Comment.objects.filter(email=j.email).count()
+
+            statistic = {
+                'number_comment': number_comment,
+                'number_news': number_news,
+                'news_views_sum': news_views_sum,
+                'number_video': number_video,
+                'video_views_sum': video_views_sum,
+                'self_comment_count': self_comment_count
+            }
+
+            # TOP ARTICLE
+            top_article = News.objects.exclude(id__in=video_id).filter(journalist=j).order_by('-view_number').first()
+
+            # TOP VIDEO
+            top_video = Video.objects.filter(journalist=j).order_by('-view_number').first()
+
+            context = {
+                'journalist': j,
+                'statistic': statistic,
+                'top_article': top_article,
+                'top_video': top_video
+            }
+            return render(request, 'journal/journalist/journalist.html', context)
+
+    return redirect('index')
+
+
+def journalist_profile(request):
+
+    if request.user.is_authenticated:
+        user = request.user
+        if user.email in Journalist.email_list():
+
+            # JOURNALIST
+            j = get_object_or_404(Journalist, email=user.email)
+
+            form = JournalistProfileForm()
+            message = 'null'
+
+            if request.method == 'POST':
+                form = JournalistProfileForm(request.POST)
+
+                if form.is_valid():
+                    cd = form.cleaned_data
+                    user.username = cd['username']
+                    user.save()
+
+                    j.first_name = cd['first_name']
+                    j.last_name = cd['last_name']
+                    j.tel = cd['telephone']
+                    j.link = cd['website']
+                    j.facebook = cd['facebook']
+                    j.twitter = cd['twitter']
+                    j.instagram = cd['instagram']
+                    j.youtube = cd['youtube']
+                    j.google = cd['google_plus']
+                    j.linkedin = cd['linkedin']
+                    j.description = cd['description']
+                    j.save()
+
+                    message = 'Informations modifiées avec succès'
+
+            # INFO
+            number_comment = 0
+            sum_views = 0
+            for n in News.objects.filter(journalist=j):
+                sum_views += n.view_number
+                number_comment += n.comment_set.count()
+
+            # FORM
+            form.fields['username'].widget.attrs['value'] = user.username
+            form.fields['telephone'].widget.attrs['value'] = j.tel
+            form.fields['first_name'].widget.attrs['value'] = j.first_name
+            form.fields['last_name'].widget.attrs['value'] = j.last_name
+            form.fields['website'].widget.attrs['value'] = j.link
+            form.fields['facebook'].widget.attrs['value'] = j.facebook
+            form.fields['twitter'].widget.attrs['value'] = j.twitter
+            form.fields['instagram'].widget.attrs['value'] = j.instagram
+            form.fields['youtube'].widget.attrs['value'] = j.youtube
+            form.fields['google_plus'].widget.attrs['value'] = j.google
+            form.fields['linkedin'].widget.attrs['value'] = j.linkedin
+
+            context = {
+                'journalist': j,
+                'form': form,
+                'sum_views': sum_views,
+                'number_comment': number_comment,
+                'message': message
+            }
+            return render(request, 'journal/journalist/journalist-profile.html', context)
+
+    return redirect('index')

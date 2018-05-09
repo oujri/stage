@@ -29,21 +29,7 @@ class Entreprise(models.Model):
 
 
 class Profil(models.Model):
-    date_naissance = models.DateField(null=True, blank=True)
-    website = models.CharField(max_length=300, default="", null=True, blank=True)
-    entreprise = models.ForeignKey(Entreprise, blank=True, null=True, on_delete=models.CASCADE)
     user = models.OneToOneField(User, blank=True, null=True, on_delete=models.CASCADE)
-    photo_profil = models.OneToOneField(Image, blank=True, null=True, on_delete=models.CASCADE,  related_name="profil_photo")
-    photo_couverture = models.OneToOneField(Image, blank=True, null=True, on_delete=models.CASCADE,  related_name="photo_cover")
-    facebook = models.CharField(max_length=300, blank=True, null=True, default="")
-    youtube = models.CharField(max_length=300, blank=True, null=True, default="")
-    instagram = models.CharField(max_length=300, blank=True, null=True, default="")
-    linkedin = models.CharField(max_length=300, blank=True, null=True, default="")
-    tel = models.CharField(max_length=300, blank=True, null=True, default="")
-    ville = models.CharField(max_length=300, blank=True, null=True, default="")
-    pays = models.CharField(max_length=300, blank=True, null=True, default="")
-    fonction = models.CharField(max_length=300, blank=True, null=True, default="")
-    service = models.CharField(max_length=300, blank=True, null=True, default="")
     token_email = models.CharField(max_length=300, blank=True, null=True, default="")
     token_email_expiration = models.DateTimeField(blank=True, null=True)
 
