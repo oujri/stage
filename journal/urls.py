@@ -23,4 +23,5 @@ urlpatterns = [
     path('journalist/journalist-profile/', views.journalist_profile, name='journalist_profile'),
     path('<slug:category_name>/<int:post>/', views.article_show, name='post'),
     path('<slug:category_name>/', views.category, name='category'),
+
 ]

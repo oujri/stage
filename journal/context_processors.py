@@ -8,7 +8,7 @@ def global_var(request):
     url = 'http://api.openweathermap.org/data/2.5/weather?q=Rabat&units=metric&appid=91d3852842a30e80531df63b131af6d4'
     r = requests.get(url).json()
     weather = {
-        'city': 'Rabat',
+        'city': 'Casablanca',
         'temperature': r['main']['temp'],
         'description': r['weather'][0]['description'],
         'icon': r['weather'][0]['icon'],

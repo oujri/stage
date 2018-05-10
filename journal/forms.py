@@ -5,7 +5,18 @@ from .models import Image
 class ImageUploadForm(forms.ModelForm):
     class Meta:
         model = Image
-        fields = ('description', 'image', )
+        fields = ('image', )
+
+
+class JournalistImageUploadForm(forms.Form):
+    image = forms.ImageField(
+        widget=forms.FileInput(
+            attrs={
+                'class': 'inputfile inputfile-1',
+                'accept': 'image/*'
+            }
+        )
+    )
 
 
 class NewsletterForm(forms.Form):
@@ -165,7 +176,7 @@ class JournalistProfileForm(forms.Form):
     description = forms.CharField(
         widget=forms.Textarea(
             attrs={
-                'rows': '4',
+                'rows': '5',
                 'class': 'form-control border-input',
                 'placeholder': 'Ici vous pouvez écrire votre description'
             }

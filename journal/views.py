@@ -1,4 +1,4 @@
-from django.http import JsonResponse
+from django.http import JsonResponse, HttpResponse
 from django.shortcuts import render, redirect, get_object_or_404
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.db.models import Count
@@ -7,7 +7,7 @@ from datetime import timedelta, datetime
 from itertools import chain
 
 from .models import Category, Image, News, Video, Comment, Tag, Answer, Newsletter, CommentFilter, Journalist
-from .forms import ImageUploadForm, ReplyForm, SignalForm, JournalistProfileForm
+from .forms import ImageUploadForm, ReplyForm, SignalForm, JournalistProfileForm, JournalistImageUploadForm
 
 from django.contrib.postgres.search import SearchQuery, SearchRank, SearchVector
 
@@ -617,29 +617,43 @@ def journalist_profile(request):
 
             form = JournalistProfileForm()
             message = 'null'
+            message_image = 'null'
 
             if request.method == 'POST':
-                form = JournalistProfileForm(request.POST)
 
-                if form.is_valid():
-                    cd = form.cleaned_data
-                    user.username = cd['username']
-                    user.save()
+                if request.POST['method'] == 'image':
+                    form_image = JournalistImageUploadForm(request.POST, request.FILES)
+                    if form_image.is_valid():
+                        img = Image(image=form_image.cleaned_data['image'], description='Profile image')
+                        img.save()
+                        j.profile_picture = img
+                        j.save()
+                        message_image = 'success'
+                    else:
+                        message_image = 'failed'
 
-                    j.first_name = cd['first_name']
-                    j.last_name = cd['last_name']
-                    j.tel = cd['telephone']
-                    j.link = cd['website']
-                    j.facebook = cd['facebook']
-                    j.twitter = cd['twitter']
-                    j.instagram = cd['instagram']
-                    j.youtube = cd['youtube']
-                    j.google = cd['google_plus']
-                    j.linkedin = cd['linkedin']
-                    j.description = cd['description']
-                    j.save()
+                else:
+                    form = JournalistProfileForm(request.POST)
 
-                    message = 'Informations modifiées avec succès'
+                    if form.is_valid():
+                        cd = form.cleaned_data
+                        user.username = cd['username']
+                        user.save()
+
+                        j.first_name = cd['first_name']
+                        j.last_name = cd['last_name']
+                        j.tel = cd['telephone']
+                        j.link = cd['website']
+                        j.facebook = cd['facebook']
+                        j.twitter = cd['twitter']
+                        j.instagram = cd['instagram']
+                        j.youtube = cd['youtube']
+                        j.google = cd['google_plus']
+                        j.linkedin = cd['linkedin']
+                        j.description = cd['description']
+                        j.save()
+
+                        message = 'Informations modifiées avec succès'
 
             # INFO
             number_comment = 0
@@ -666,7 +680,9 @@ def journalist_profile(request):
                 'form': form,
                 'sum_views': sum_views,
                 'number_comment': number_comment,
-                'message': message
+                'message': message,
+                'form_image': JournalistImageUploadForm,
+                'message_image': message_image
             }
             return render(request, 'journal/journalist/journalist-profile.html', context)
 

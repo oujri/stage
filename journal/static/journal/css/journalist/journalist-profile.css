@@ -16,7 +16,7 @@
 .card .image {
     width: 100%;
     overflow: hidden;
-    height: 260px;
+    height: 100%;
     border-radius: 6px 6px 0 0;
     position: relative;
     -webkit-transform-style: preserve-3d;
@@ -26,6 +26,8 @@
 
 .card .image img {
     width: 100%;
+    margin-top: -12%;
+    margin-bottom: -13%;
 }
 
 .card .content {
