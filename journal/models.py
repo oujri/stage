@@ -32,7 +32,7 @@ class PathAndRename(object):
 
 
 class Image(models.Model):
-    description = models.CharField(max_length=255, blank=True)
+    description = models.CharField(max_length=255, blank=True, null=True)
     image_path = time.strftime('images/%Y/%m/%d')
     image = models.ImageField(upload_to=PathAndRename(image_path))
     date_publication = models.DateTimeField(auto_now_add=True)
@@ -104,6 +104,7 @@ class News(models.Model):
     view_number = models.IntegerField(default=0)
     resume = models.TextField(blank=True, null=True)
     comment_enable = models.BooleanField(default=True, verbose_name='Activer les commentaires')
+    share_enable = models.BooleanField(default=True)
     journalist = models.ForeignKey(Journalist, on_delete=models.CASCADE)
     category = models.ForeignKey(Category, blank=True, null=True, on_delete=models.CASCADE)
     primary_image = models.ForeignKey(Image, on_delete=models.CASCADE)
@@ -128,6 +129,16 @@ class Video(News):
     video_url = models.URLField()
     data_merge = models.IntegerField(default=2)
     team_selection = models.BooleanField(default=False)
+
+
+class ImageNews(Image):
+    article = models.ForeignKey(News, on_delete=models.CASCADE, null=True, blank=True)
+
+
+class Photo(models.Model):
+    title = models.CharField(max_length=255, blank=True)
+    image = models.ImageField(upload_to='photos/')
+    uploaded_at = models.DateTimeField(auto_now_add=True)
 
 
 class AbstractComment(models.Model):

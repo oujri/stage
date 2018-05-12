@@ -307,7 +307,9 @@
         <script src="{% static 'journal/js/setDate.js' %}"></script>
 
 		<!-- jQuery Plugins -->
-		<script src="{% static 'journal/js/jquery.min.js' %}"></script>
+        {% block javascript %}
+            <script src="{% static 'journal/js/jquery.min.js' %}"></script>
+        {% endblock %}
 		<script src="{% static 'journal/js/bootstrap.min.js' %}"></script>
 		<script src="{% static 'journal/js/owl.carousel.min.js' %}"></script>
 		<script src="{% static 'journal/js/main.js' %}"></script>
@@ -317,6 +319,5 @@
             {% block script %}
             {% endblock %}
         </script>
-
 	</body>
 </html>

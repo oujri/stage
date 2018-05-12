@@ -1,5 +1,5 @@
 from django import forms
-from .models import Image
+from .models import Image, ImageNews, Photo
 
 
 class ImageUploadForm(forms.ModelForm):
@@ -181,4 +181,70 @@ class JournalistProfileForm(forms.Form):
                 'placeholder': 'Ici vous pouvez écrire votre description'
             }
         )
+    )
+
+
+class JournalistImageImport(forms.ModelForm):
+    class Meta:
+        model = ImageNews
+        fields = ('image', )
+
+
+class JournalistImagePrimaryImport(forms.ModelForm):
+    class Meta:
+        model = Image
+        fields = ('image', )
+
+
+class JournalistCreateArticle(forms.Form):
+    title = forms.CharField(
+        max_length=255,
+        widget=forms.Textarea(
+            attrs={
+                'rows': '2',
+                'class': 'form-control',
+                'placeholder': 'Titre'
+            }
+        )
+    )
+
+    small_title = forms.CharField(
+        max_length=155,
+        widget=forms.TextInput(
+            attrs={
+                'class': 'form-control',
+                'placeholder': 'Titre réduit'
+            }
+        )
+    )
+
+    content = forms.CharField(
+        widget=forms.Textarea(
+            attrs={
+                'rows': '10',
+                'class': 'form-control',
+                'placeholder': 'Contenu de l\'article, vous pouvez utiliser les balises HTML'
+            }
+        )
+    )
+    resume = forms.CharField(
+        widget=forms.Textarea(
+            attrs={
+                'rows': '5',
+                'class': 'form-control',
+                'placeholder': 'Résumé de l\'article'
+            }
+        )
+    )
+
+    category = forms.CharField(
+        widget=forms.HiddenInput()
+    )
+
+    comment_enable = forms.CharField(
+        widget=forms.HiddenInput()
+    )
+
+    share_enable = forms.CharField(
+        widget=forms.HiddenInput()
     )

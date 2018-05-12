@@ -19,8 +19,16 @@ urlpatterns = [
     path('video/<int:selected_video_id>/', views.video_show, name='video_show'),
     path('search/', views.search, name='search'),
     path('tag/<slug:tag_name>/', views.tag, name='tag'),
+
+    # JOURNALIST URL
     path('journalist/', views.journalist, name='journalist'),
     path('journalist/journalist-profile/', views.journalist_profile, name='journalist_profile'),
+    path('journalist/journalist_articles/', views.journalist_articles, name='journalist_articles'),
+    path('journalist/create_article/', views.journalist_create_article, name='journalist_create_article'),
+    path('journalist/upload_primary_image/', views.journalist_upload_primary_image,
+         name='journalist_upload_primary_image'),
+    path('journalist/upload_image/', views.journalist_upload_image, name='journalist_upload_image'),
+
     path('<slug:category_name>/<int:post>/', views.article_show, name='post'),
     path('<slug:category_name>/', views.category, name='category'),
 

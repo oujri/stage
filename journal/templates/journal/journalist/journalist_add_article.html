@@ -1,0 +1,198 @@
+{% extends 'base.html' %}
+
+{% load static %}
+
+{% block style %}
+    <link rel="stylesheet" href="{% static 'journal/css/journalist/nav-journalist.css' %}">
+    <link rel="stylesheet" href="{% static 'journal/css/journalist/journalist_create_article.css' %}">
+    <link rel="stylesheet" href="{% static 'journal/css/journalist/bootstrap-select.min.css' %}">
+{% endblock %}
+
+{% block javascript %}
+
+    {# JQUERY FILE UPLOAD SCRIPTS #}
+    <script src="{% static 'journal/js/journalist/jquery.min.js' %}"></script>
+    <script src="{% static 'journal/js/journalist/jquery.ui.widget.js' %}"></script>
+    <script src="{% static 'journal/js/journalist/jquery.iframe-transport.js' %}"></script>
+    <script src="{% static 'journal/js/journalist/jquery.fileupload.js' %}"></script>
+
+    <script src="{% static 'journal/js/journalist/bootstrap-select.min.js' %}"></script>
+
+    {# PHOTOS PAGE SCRIPTS #}
+    <script src="{% static 'journal/js/journalist/basic-upload.js' %}"></script>
+{% endblock %}
+
+{% block content %}
+
+    <!-- SECTION HEADER -->
+    <div class="section header-info">
+        <div class="container">
+            <h2>Ajouter Article</h2>
+            <!-- breadcrumb -->
+            <ul class="article-breadcrumb pull-right">
+                <li><a href="{% url 'index' %}">Accueil</a></li>
+                <li><a href="{% url 'journalist' %}">Espace Journalistes</a></li>
+                <li><a href="{% url 'journalist_create_article' %}">Ajouter Article</a></li>
+            </ul>
+            <!-- /breadcrumb -->
+        </div>
+    </div>
+    <!-- /SECTION HEADER -->
+    <!-- NAV JOURNALIST -->
+    <div class="container">
+        <nav class="nav-journalist">
+            <ul class="list-inline">
+                <li><a href="{% url 'journalist_profile' %}">Profil</a></li>
+                <li><a href="{% url 'journalist_articles' %}">Articles</a></li>
+                <li><a href="#">Videos</a></li>
+                <li><a href="#">Signals</a></li>
+                <li><a href="#">Ajouter Video</a></li>
+            </ul>
+        </nav>
+    </div>
+    <!-- /NAV JOURNALIST -->
+    <!-- DIV CREATE ARTICLE -->
+    <div class="container create-article">
+        <div class="row">
+             <!-- DIV IMPORT PRIMARY IMAGE -->
+             <div class="col-md-4 card">
+                 <div class="form-group">
+                     <label>Image Pricipale</label>
+                     {# 1. BUTTON TO TRIGGER THE ACTION #}
+                     <button type="button" class="btn btn-primary js-upload-primary_image">
+                         <span class="glyphicon glyphicon-cloud-upload"></span> Ajouter image principale
+                     </button>
+
+                     {# 2. FILE INPUT TO BE USED BY THE PLUG-IN #}
+                     <input id="file_upload_primary" type="file" name="image" multiple
+                           style="display: none;"
+                           data-url="{% url 'journalist_upload_primary_image' %}"
+                           data-form-data='{"csrfmiddlewaretoken": "{{ csrf_token }}"}'>
+
+                     {# 3. DIV TO DISPLAY THE UPLOADED PHOTO #}
+                     <div id="primary_image_url"></div>
+                 </div>
+
+                 <div class="form-group">
+                     <label>Categorie</label>
+                     <select name="category" id="article_category" class="selectpicker form-control" title="Sélectionner ...">
+                         <option value="1">actualités</option>
+                         {% for cat in categories %}
+                             <option value="{{ cat.id }}">{{ cat }}</option>
+                         {% endfor %}
+                     </select>
+                 </div>
+
+                <div class="form-group">
+                    <label for="">Commentaires activés</label>
+                    <input type="radio" name="comment" value="yes" id="c_yes" checked>
+                    <input type="radio" name="comment" value="no" id="c_no">
+                    <div class="switch">
+                        <label for="c_yes">Oui</label>
+                        <label for="c_no">Non</label>
+                        <span></span>
+                    </div>
+                </div>
+
+                <div class="form-group form-share">
+                    <label for="">Partage activé</label>
+                    <input type="radio" name="share" value="yes" id="p_yes" checked>
+                    <input type="radio" name="share" value="no" id="p_no">
+                    <div class="switch-share">
+                        <label for="p_yes">Oui</label>
+                        <label for="p_no">Non</label>
+                        <span></span>
+                    </div>
+                </div>
+
+             </div>
+             <!-- DIV IMPORT MULTIPLE IMAGE -->
+             <div class="col-md-8">
+                 <div class="well text-muted text-center" style="padding-top: 4rem; padding-bottom: 4rem;">
+                    <span class="glyphicon glyphicon-arrow-down" style="font-size: 4rem;"></span>
+                    <h3>Glisser vos photos secondaire ici pour les importer</h3>
+                 </div>
+
+                 {# 1. BUTTON TO TRIGGER THE ACTION #}
+                 <button type="button" class="btn btn-dark js-upload-photos">
+                     <span class="glyphicon glyphicon-cloud-upload"></span> Importer images
+                 </button>
+
+                 {# 2. FILE INPUT TO BE USED BY THE PLUG-IN #}
+                 <input id="fileupload" type="file" name="image" multiple
+                       style="display: none;"
+                       data-url="{% url 'journalist_upload_image' %}"
+                       data-form-data='{"csrfmiddlewaretoken": "{{ csrf_token }}"}'>
+
+                 {# 3. TABLE TO DISPLAY THE UPLOADED PHOTOS #}
+                 <table id="gallery" class="table table-bordered">
+                     <thead>
+                        <tr><th>Images</th></tr>
+                    </thead>
+                    <tbody>
+                        {% for photo in photos %}
+                            <tr>
+                                <td><a href="{{ photo.image.url }}">{{ photo.image.name }}</a></td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+
+                <div class="modal fade" id="modal-progress" data-backdrop="static" data-keyboard="false">
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h4 class="modal-title">Uploading...</h4>
+                            </div>
+                            <div class="modal-body">
+                                <div class="progress">
+                                    <div class="progress-bar" role="progressbar" style="width: 0%;">0%</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+             </div>
+         </div>
+        <div class="card info">
+            <form action="" method="post">
+                <div class="form-group">
+                    <label for="">Titre principale</label>
+                    {{ form.title }}
+                </div>
+                <div class="row">
+                    <div class="col-md-9" style="padding: 0">
+                        <div class="form-group">
+                            <label for="">Titre réduit</label>
+                            {{ form.small_title }}
+                        </div>
+                    </div>
+                    <div class="col-md-3" style="padding: 0">
+                        <div class="form-group">
+                            <label for="">Tags</label>
+                            <select class="selectpicker form-control" multiple title="Sélectionnez des Tags...">
+                                {% for tag in tags %}
+                                    <option value="{{ tag.id }}">{{ tag }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="">Résumé de l'article</label>
+                    {{ form.resume }}
+                </div>
+                <div class="form-group">
+                    <label for="">Contenu de l'article</label>
+                    {{ form.content }}
+                </div>
+                <!-- SUBMIT BOUTON -->
+                <div class="form-group">
+                    <button class="btn btn-danger" type="submit">Créer l'article</button>
+                </div>
+                <!-- /SUBMIT BOUTON -->
+            </form>
+        </div>
+    </div>
+    <!-- /DIV CREATE ARTICLE -->
+{% endblock %}

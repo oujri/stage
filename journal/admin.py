@@ -1,7 +1,7 @@
 from django.contrib import admin
 
 from .models import Journalist, Category, News, Image, Tag, Newsletter, Video, Comment, Answer, \
-    SignalComment, SignalAnswer, CommentFilter
+    SignalComment, SignalAnswer, CommentFilter, ImageNews
 
 
 admin.site.register(Journalist)
@@ -16,3 +16,4 @@ admin.site.register(Answer)
 admin.site.register(SignalComment)
 admin.site.register(SignalAnswer)
 admin.site.register(CommentFilter)
+admin.site.register(ImageNews)

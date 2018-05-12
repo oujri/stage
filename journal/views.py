@@ -6,8 +6,10 @@ from django.db.models import Count
 from datetime import timedelta, datetime
 from itertools import chain
 
-from .models import Category, Image, News, Video, Comment, Tag, Answer, Newsletter, CommentFilter, Journalist
-from .forms import ImageUploadForm, ReplyForm, SignalForm, JournalistProfileForm, JournalistImageUploadForm
+from .models import Category, Image, News, Video, Comment, Tag, Answer, Newsletter, \
+    CommentFilter, Journalist, ImageNews, Photo
+from .forms import ImageUploadForm, ReplyForm, SignalForm, JournalistProfileForm, \
+    JournalistImageUploadForm, JournalistImageImport, JournalistImagePrimaryImport, JournalistCreateArticle
 
 from django.contrib.postgres.search import SearchQuery, SearchRank, SearchVector
 
@@ -687,3 +689,92 @@ def journalist_profile(request):
             return render(request, 'journal/journalist/journalist-profile.html', context)
 
     return redirect('index')
+
+
+def journalist_articles(request):
+
+    if request.user.is_authenticated:
+        user = request.user
+        if user.email in Journalist.email_list():
+            # JOURNALIST
+            j = get_object_or_404(Journalist, email=user.email)
+
+            if request.method == 'POST':
+                article_id = request.POST['article']
+                article = get_object_or_404(News, id=article_id)
+                if article.journalist == j:
+                    article.active = False
+                    article.save()
+
+            # JOURNALIST ARTICLES
+            video_id = Video.objects.all().values_list('id', flat=True)
+            j_articles = j.news_set.filter(active=True).exclude(id__in=video_id).order_by('-date_publication')
+
+            # SEARCH
+            search_get = False
+            keywords = request.GET.get('q')
+            if keywords:
+                search_get = True
+                query = SearchQuery(keywords)
+                title_vector = SearchVector('title', weight='A')
+                resume_vector = SearchVector('resume', weight='B')
+                content_vector = SearchVector('content', weight='C')
+                vectors = title_vector + content_vector + resume_vector
+                j_articles = j_articles.annotate(search=vectors).filter(search=query)
+                j_articles = j_articles.annotate(rank=SearchRank(vectors, query)).order_by('-rank', '-view_number')
+
+            count = j_articles.count()
+
+            # PAGINATOR
+            page = request.GET.get('page', 1)
+            paginator = Paginator(j_articles, 20)
+            try:
+                j_articles = paginator.page(page)
+            except PageNotAnInteger:
+                j_articles = paginator.page(1)
+            except EmptyPage:
+                j_articles = paginator.page(paginator.num_pages)
+
+        context = {
+            'journalist': j,
+            'count': count,
+            'articles': j_articles,
+            'search': search_get,
+            'keywords': keywords
+        }
+
+        return render(request, 'journal/journalist/journalist_articles.html', context)
+
+    return redirect('index')
+
+
+def journalist_upload_primary_image(request):
+    if request.method == 'POST':
+        form = JournalistImagePrimaryImport(request.POST, request.FILES)
+        if form.is_valid():
+            photo = form.save()
+            data = {'is_valid': True, 'name': photo.image.name, 'url': photo.image.url}
+        else:
+            data = {'is_valid': False}
+        return JsonResponse(data)
+
+
+def journalist_upload_image(request):
+    if request.method == 'POST':
+        form = JournalistImageImport(request.POST, request.FILES)
+        if form.is_valid():
+            photo = form.save()
+            data = {'is_valid': True, 'name': photo.image.name, 'url': photo.image.url}
+        else:
+            data = {'is_valid': False}
+        return JsonResponse(data)
+
+
+def journalist_create_article(request):
+    photos_list = ImageNews.objects.all()
+    context = {
+        'tags': Tag.objects.all().order_by('name'),
+        'photos': photos_list,
+        'form': JournalistCreateArticle
+    }
+    return render(request, 'journal/journalist/journalist_add_article.html', context)

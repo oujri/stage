@@ -104,7 +104,7 @@ function hideMessage(){
 	$(".messageNewslatter").text("");
 	$("[name='email']").val('');
 }
-$( ".formSubscribe" ).submit(function( event ) {
+$(".formSubscribe").submit(function( event ) {
 	event.preventDefault();
 	var form = $(this);
     $.ajax({
@@ -116,7 +116,7 @@ $( ".formSubscribe" ).submit(function( event ) {
             setTimeout(hideMessage, 5000);
 		}
     });
-})
+});
 
 
 
