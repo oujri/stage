@@ -6,6 +6,7 @@ $(function () {
 
     $("#fileupload").fileupload({
         dataType: 'json',
+        dropZone: $('#drop-zone-multiple'),
         sequentialUploads: true,  /* 1. SEND THE FILES ONE BY ONE */
         start: function (e) {  /* 2. WHEN THE UPLOADING PROCESS STARTS, SHOW THE MODAL */
             $("#modal-progress").modal("show");
@@ -22,7 +23,12 @@ $(function () {
         done: function (e, data) {
             if (data.result.is_valid) {
                 $("#gallery tbody").prepend(
-                    "<tr><td><a href='" + data.result.url + "'>" + data.result.name + "</a></td></tr>"
+                    "<tr id='tr" + data.result.id + "'><td><a href='" + data.result.url + "'>" + data.result.name + "</a>" +
+                    "<form class=\"pull-right form-delete-image\" " +
+                    "data-submit-url=\"/journal/journalist/delete_image/" + data.result.id + "/\"> " +
+                    "<button class=\"btn btn-danger\" type=\"submit\"> " +
+                    "<i class=\"fa fa-trash-o\"></i> </button> </form>" +
+                    "</td></tr>"
                 )
             }
         }
@@ -39,11 +45,14 @@ $(function () {
     /* 2. INITIALIZE THE FILE UPLOAD COMPONENT */
     $("#file_upload_primary").fileupload({
         dataType: 'json',
+        dropZone: $('#drop-zone'),
         done: function (e, data) {  /* 3. PROCESS THE RESPONSE FROM THE SERVER */
             if (data.result.is_valid) {
+                $("#drop-zone").html("<span class=\"glyphicon glyphicon-cloud-upload\"></span> Modifier image principale");
                 $("#primary_image_url").prepend(
                     "<a href='" + data.result.url + "'>" + data.result.name + "</a>"
-                )
+                );
+                $("#has-image").val("1");
             }
         }
     });

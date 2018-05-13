@@ -15,8 +15,8 @@ def global_var(request):
     }
 
     # TOP_READ
-    video_id = Video.objects.all().values_list('id', flat=True)
-    top_read = News.objects.all().exclude(id__in=video_id).order_by('-view_number', 'id')[:7]
+    video_id = Video.objects.filter(active=True).values_list('id', flat=True)
+    top_read = News.objects.filter(active=True).exclude(id__in=video_id).order_by('-view_number', 'id')[:7]
 
     # TOP COMMENTS
     top_comment = Comment.objects.all().order_by('-number_like', '-date_publication')[:4]

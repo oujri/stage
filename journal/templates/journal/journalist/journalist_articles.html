@@ -13,14 +13,18 @@
 {% endblock %}
 
 {% block script %}
-$(".formDelete").submit(function( event ) {
-	event.preventDefault();
-	var form = $(this);
-	var id = form.attr('data-id');
-	if (confirm("Voullez vous vraiment supprimer l'article " + id)){
-	    form.off('submit').submit();
-    }
-});
+    $(".formDelete").submit(function( event ) {
+        event.preventDefault();
+        var form = $(this);
+        var id = form.attr('data-id');
+        if (confirm("Voullez vous vraiment supprimer l'article " + id)){
+            form.off('submit').submit();
+        }
+    });
+    {% if created == '1' %}
+        $("tbody tr:first-child").css("background-color", "#AED581");
+    {% endif %}
+
 {% endblock %}
 
 {% block content %}
@@ -47,7 +51,7 @@ $(".formDelete").submit(function( event ) {
                 <li><a href="{% url 'journalist_profile' %}">Profil</a></li>
                 <li><a href="#">Videos</a></li>
                 <li><a href="#">Signals</a></li>
-                <li><a href="#">Ajouter Article</a></li>
+                <li><a href="{% url 'journalist_create_article' %}">Ajouter Article</a></li>
                 <li><a href="#">Ajouter Video</a></li>
             </ul>
         </nav>
@@ -82,6 +86,13 @@ $(".formDelete").submit(function( event ) {
                     <h1 style="text-align: center; margin-bottom: 20px">Aucun résultat trouvé pour votre recherche</h1>
                 {% else %}
                 <table class="table table-striped">
+                    {% if created == '1' %}
+                        <div class="alert alert-success alert-dismissible" role="alert" style="margin: 15px">
+                             <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                 <span aria-hidden="true">&times;</span></button>
+                                Article Créé avec succès
+                         </div>
+                    {% endif %}
                     <thead>
                     <tr>
                         <th>ID</th>

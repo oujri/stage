@@ -37,6 +37,9 @@
 
 .js-upload-primary_image {
     margin-top: 10px;
+    background-color: #ef233c;
+    border-color: #ef233c;
+    transition: .3s all;
 }
 
 #primary_image_url {
@@ -45,7 +48,7 @@
 }
 
 #primary_image_url a {
-    color: #337ab7;
+    color: #ef233c;
 }
 
 .form-group {
@@ -61,15 +64,84 @@
     padding-left: 2px;
 }
 
-.info .btn-danger {
-    background-color: #ef233c;
-    border-color: #ef233c;
-    width: 100%;
+.ending-button .btn {
+    width: 20%;
     margin-bottom: 20px;
     text-transform: uppercase;
     font-weight: 700;
     letter-spacing: 6px;
+    transition: .3s all;
 }
+
+.ending-button .btn:first-child {
+    background-color: #e57373;
+    border-color: #e57373;
+}
+
+.ending-button .btn:first-child:hover {
+    color: #e57373;
+    background: #FFF;
+}
+
+.ending-button .btn:last-child:hover, .js-upload-primary_image:hover {
+    color: #ef233c;
+    background: #FFF;
+}
+
+.ending-button .btn:last-child {
+    width: 79.7%;
+    background-color: #ef233c;
+    border-color: #ef233c;
+    color: #FFF;
+}
+
+.form-delete-image {
+    display: inline-block;
+}
+
+.form-delete-image .btn-danger {
+    padding: 0 10px;
+}
+
+.modal-body {
+    padding: 15px 0;
+}
+
+#btn-modal {
+    margin-left: 4px;
+    margin-top: -3px;
+    padding: 0;
+    background: transparent;
+    color: #ef233c;
+    border: 0;
+    transition: .3s all;
+}
+
+#btn-modal:hover {
+    color: #333;
+    margin-left: 10px;
+}
+
+#modal-submit {
+    background: #ef233c;
+    color: #FFF;
+}
+
+.modal .alert {
+    border-radius: 0;
+}
+
+.modal-footer button {
+    transition: .3s all;
+}
+
+.modal-footer button:hover {
+    padding-right: 30px;
+    padding-left: 30px;
+}
+
+
+
 
 /*  START RADIO INPUT */
 .switch {
@@ -81,12 +153,12 @@
     text-align: center;
     margin: -30px 0 0 -75px;
     background: #424242;
-  -webkit-transition: all 0.2s ease;
-  -moz-transition: all 0.2s ease;
-  -o-transition: all 0.2s ease;
-  -ms-transition: all 0.2s ease;
-  transition: all 0.2s ease;
-  border-radius: 6px;
+    -webkit-transition: all 0.2s ease;
+    -moz-transition: all 0.2s ease;
+    -o-transition: all 0.2s ease;
+    -ms-transition: all 0.2s ease;
+    transition: all 0.2s ease;
+    border-radius: 6px;
 }
 .switch span {
   position: absolute;
@@ -94,7 +166,7 @@
   height: 4px;
   top: 50%;
   left: 50%;
-  margin: -2px 0px 0px -4px;
+  margin: -2px 0 0 -4px;
   background: #fff;
   display: block;
   -webkit-transform: rotate(-45deg);
@@ -140,12 +212,12 @@ input[type=radio] {
 }
 label[for=c_yes] {
   position: absolute;
-  left: 0px;
+  left: 0;
   height: 20px;
 }
 label[for=c_no] {
   position: absolute;
-  right: 0px;
+  right: 0;
 }
 #c_no:checked ~ .switch {
   background: #9E9E9E;
@@ -179,12 +251,12 @@ label[for=c_no] {
     text-align: center;
     margin: -30px 0 0 -75px;
     background: #424242;
-  -webkit-transition: all 0.2s ease;
-  -moz-transition: all 0.2s ease;
-  -o-transition: all 0.2s ease;
-  -ms-transition: all 0.2s ease;
-  transition: all 0.2s ease;
-  border-radius: 6px;
+    -webkit-transition: all 0.2s ease;
+    -moz-transition: all 0.2s ease;
+    -o-transition: all 0.2s ease;
+    -ms-transition: all 0.2s ease;
+    transition: all 0.2s ease;
+    border-radius: 6px;
 }
 .switch-share span {
   position: absolute;
@@ -192,7 +264,7 @@ label[for=c_no] {
   height: 4px;
   top: 50%;
   left: 50%;
-  margin: -2px 0px 0px -4px;
+  margin: -2px 0 0 -4px;
   background: #fff;
   display: block;
   -webkit-transform: rotate(-45deg);
@@ -236,12 +308,12 @@ label[for=c_no] {
 }
 label[for=p_yes] {
   position: absolute;
-  left: 0px;
+  left: 0;
   height: 20px;
 }
 label[for=p_no] {
   position: absolute;
-  right: 0px;
+  right: 0;
 }
 #p_no:checked ~ .switch-share {
   background: #9E9E9E;

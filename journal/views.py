@@ -1,4 +1,4 @@
-from django.http import JsonResponse, HttpResponse
+from django.http import JsonResponse
 from django.shortcuts import render, redirect, get_object_or_404
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.db.models import Count
@@ -6,9 +6,11 @@ from django.db.models import Count
 from datetime import timedelta, datetime
 from itertools import chain
 
+from django.views.decorators.http import require_POST
+
 from .models import Category, Image, News, Video, Comment, Tag, Answer, Newsletter, \
-    CommentFilter, Journalist, ImageNews, Photo
-from .forms import ImageUploadForm, ReplyForm, SignalForm, JournalistProfileForm, \
+    CommentFilter, Journalist, ImageNews
+from .forms import ImageUploadForm, ReplyForm, SignalForm, JournalistProfileForm, JournalistAddTagForm, \
     JournalistImageUploadForm, JournalistImageImport, JournalistImagePrimaryImport, JournalistCreateArticle
 
 from django.contrib.postgres.search import SearchQuery, SearchRank, SearchVector
@@ -25,52 +27,52 @@ def index(request):
     video_id = Video.objects.all().values_list('id', flat=True)
 
     # CAROUSEL
-    new_car = News.objects.all().exclude(id__in=video_id).order_by('-id')[:3]
+    new_car = News.objects.all().exclude(id__in=video_id).filter(active=True).order_by('-id')[:3]
 
     # TRENDING : Get last week post ordering by view number and id
     # one_week_ago = datetime.today() - timedelta(days=7)
-    one_week_ago = datetime.today() - timedelta(days=21)
+    one_week_ago = datetime.today() - timedelta(days=90)
     #   T All
-    trending = News.objects.filter(date_publication__gte=one_week_ago).exclude(
+    trending = News.objects.filter(date_publication__gte=one_week_ago).filter(active=True).exclude(
         id__in=video_id).order_by('-view_number', '-id')[:10]
     #   T Style de vie
     t_category = Category.objects.get(name='styleDeVie')
-    t_style_de_vie = News.objects.filter(category=t_category, date_publication__gte=one_week_ago).exclude(
-        id__in=video_id).order_by('-view_number')[:8]
+    t_style_de_vie = News.objects.filter(category=t_category, date_publication__gte=one_week_ago).filter(
+        active=True).exclude(id__in=video_id).order_by('-view_number')[:8]
     #   T Sport
     t_category = Category.objects.get(name='sports')
-    t_sports = News.objects.filter(category=t_category, date_publication__gte=one_week_ago).exclude(
+    t_sports = News.objects.filter(category=t_category, date_publication__gte=one_week_ago, active=True).exclude(
         id__in=video_id).order_by('-view_number')[:8]
     #   T Sport
     t_category = Category.objects.get(name='technologie')
-    t_tec = News.objects.filter(category=t_category, date_publication__gte=one_week_ago).exclude(
+    t_tec = News.objects.filter(category=t_category, date_publication__gte=one_week_ago, active=True).exclude(
         id__in=video_id).order_by('-view_number')[:8]
     #   T ECONOMIE
     t_category = Category.objects.get(name='economie')
-    t_eco = News.objects.filter(category=t_category, date_publication__gte=one_week_ago).exclude(
+    t_eco = News.objects.filter(category=t_category, date_publication__gte=one_week_ago, active=True).exclude(
         id__in=video_id).order_by('-view_number')[:8]
     #   T Internationnal
     t_category = Category.objects.get(name='internationnal')
-    t_inter = News.objects.filter(category=t_category, date_publication__gte=one_week_ago).exclude(
+    t_inter = News.objects.filter(category=t_category, date_publication__gte=one_week_ago, active=True).exclude(
         id__in=video_id).order_by('-view_number')[:8]
 
     # LAST ADD
     #   Internationnal
     l_category = Category.objects.get(name='internationnal')
-    last_inter = News.objects.filter(category=l_category).exclude(id__in=video_id).order_by('-id')[:3]
+    last_inter = News.objects.filter(category=l_category, active=True).exclude(id__in=video_id).order_by('-id')[:3]
     #   Economie
     l_category = Category.objects.get(name='economie')
-    last_eco = News.objects.filter(category=l_category).exclude(id__in=video_id).order_by('-id')[:3]
+    last_eco = News.objects.filter(category=l_category, active=True).exclude(id__in=video_id).order_by('-id')[:3]
     #   News
     l_category = Category.objects.get(name='actualites')
-    last_news = News.objects.filter(category=l_category).exclude(id__in=video_id).order_by('-id')[:5]
+    last_news = News.objects.filter(category=l_category, active=True).exclude(id__in=video_id).order_by('-id')[:5]
 
     # TOP VIDEO
-    top_video = Video.objects.all().order_by('-view_number', '-id')[:5]
+    top_video = Video.objects.filter(active=True).order_by('-view_number', '-id')[:5]
 
     # LAST ADD
     #   LAST ADD NEWS
-    last_add = News.objects.all().exclude(id__in=video_id).order_by('-date_publication')
+    last_add = News.objects.all().exclude(id__in=video_id).filter(active=True).order_by('-date_publication')
     page = request.GET.get('page', 1)
     paginator = Paginator(last_add, 4)
     try:
@@ -80,7 +82,7 @@ def index(request):
     except EmptyPage:
         articles = paginator.page(paginator.num_pages)
     #   LAST ADD VIDEO
-    last_add_video = Video.objects.all().order_by('-date_publication')[:4]
+    last_add_video = Video.objects.filter(active=True).order_by('-date_publication')[:4]
     #   LAST ADD COMMENT
     last_add_comment = Comment.objects.all().order_by('-date_publication')[:3]
     #   LAST ADD IMAGE
@@ -139,19 +141,21 @@ def upload(request):
 # ## SELECTED ARTICLE SHOW PAGE ## #
 def article_show(request, category_name, post):
     # GET INFORMATION
-    article = News.objects.get(id=post)
+    article = get_object_or_404(News, id=post)
+    if article.active is False:
+        return redirect('index')
     article.add_view()
 
     # ARTICLE TAGS
     tags = Tag.objects.filter(news=article)
 
     # MORE FROM AUTHOR
-    more_article = News.objects.filter(journalist=article.journalist, category=article.category).exclude(
+    more_article = News.objects.filter(journalist=article.journalist, category=article.category, active=True).exclude(
         id=article.id).order_by('-date_publication')[:4]
     if more_article.count() < 4:
         article_id = more_article.values_list('id', flat=True)
         number = 4 - more_article.count()
-        added_article = News.objects.filter(journalist=article.journalist).exclude(id__in=article_id)
+        added_article = News.objects.filter(journalist=article.journalist, active=True).exclude(id__in=article_id)
         added_article = added_article.order_by('-date_publication')[:number]
         more_article = list(chain(more_article, added_article))
 
@@ -182,11 +186,12 @@ def category(request, category_name):
     # VIDEO ID
     video_id = Video.objects.all().values_list('id', flat=True)
 
-    cat = Category.objects.get(name=category_name)
+    cat = get_object_or_404(Category, name=category_name)
 
     news_filter = request.GET.get('filter', '-date_publication')
 
-    news = News.objects.filter(category=cat).annotate(comment_number=Count('comment')).exclude(id__in=video_id)
+    news = News.objects.filter(category=cat, active=True).annotate(comment_number=Count('comment')).exclude(
+        id__in=video_id)
 
     # LAST FIVE
     last_five = news.order_by(news_filter, '-id')[:5]
@@ -195,7 +200,7 @@ def category(request, category_name):
     last_five_id = last_five.values_list('id', flat=True)
     # other = news.exclude(id__in=lastFiveId).order_by(news_filter)
     # for test
-    other = News.objects.all().exclude(id__in=last_five_id).order_by('-id')
+    other = News.objects.filter(active=True).exclude(id__in=last_five_id).order_by('-id')
     page = request.GET.get('page', 1)
     paginator = Paginator(other, 8)
     try:
@@ -224,7 +229,8 @@ def tag(request, tag_name):
 
     news_filter = request.GET.get('filter', '-date_publication')
 
-    news = News.objects.filter(tag=selected_tag).annotate(comment_number=Count('comment')).exclude(id__in=video_id)
+    news = News.objects.filter(tag=selected_tag, active=True).annotate(comment_number=Count('comment')).exclude(
+        id__in=video_id)
 
     count = news.count()
 
@@ -235,7 +241,7 @@ def tag(request, tag_name):
     last_five_id = last_five.values_list('id', flat=True)
     # other = news.exclude(id__in=lastFiveId).order_by(news_filter)
     # for test
-    other = News.objects.all().exclude(id__in=last_five_id).order_by('-id')
+    other = News.objects.filter(active=True).exclude(id__in=last_five_id).order_by('-id')
     page = request.GET.get('page', 1)
     paginator = Paginator(other, 8)
     try:
@@ -263,7 +269,7 @@ def last_articles(request):
 
     # FILTER
     news_filter = request.GET.get('filter', '-date_publication')
-    news = News.objects.annotate(comment_number=Count('comment')).exclude(id__in=video_id)
+    news = News.objects.filter(active=True).annotate(comment_number=Count('comment')).exclude(id__in=video_id)
 
     # ARTICLES
     articles = news.order_by(news_filter)
@@ -292,7 +298,7 @@ def author(request, selected_author_id):
     number = Comment.objects.filter(email=aut.email).count()
 
     # ARTICLES
-    articles = aut.news_set.all().order_by('-date_publication')
+    articles = aut.news_set.filter(active=True).order_by('-date_publication')
 
     for a in articles:
         if isinstance(a, Video):
@@ -323,10 +329,10 @@ def author(request, selected_author_id):
 # ## ALL VIDEO PAGE ## #
 def video(request):
     # VIDEO SELECTION
-    video_selection = Video.objects.filter(team_selection=True).order_by('-date_publication')[:5]
+    video_selection = Video.objects.filter(active=True, team_selection=True).order_by('-date_publication')[:5]
 
     # OTHER VIDEO
-    other_video = Video.objects.all().order_by('-date_publication')
+    other_video = Video.objects.filter(active=True).order_by('-date_publication')
     page = request.GET.get('page', 1)
     paginator = Paginator(other_video, 10)
     try:
@@ -354,17 +360,18 @@ def video_show(request, selected_video_id):
     tags = Tag.objects.filter(news=selected_video)
 
     # MORE FROM AUTHOR
-    more_video = Video.objects.filter(journalist=selected_video.journalist, category=selected_video.category).exclude(
-        id=selected_video.id).order_by('-date_publication')[:4]
+    more_video = Video.objects.filter(active=True, journalist=selected_video.journalist,
+                                      category=selected_video.category).exclude(
+                                      id=selected_video.id).order_by('-date_publication')[:4]
     if more_video.count() < 4:
         video_id = more_video.values_list('id', flat=True)
         number = 4 - more_video.count()
-        added_video = Video.objects.filter(journalist=selected_video.journalist).exclude(id__in=video_id).order_by(
-            '-date_publication')[:number]
+        added_video = Video.objects.filter(active=True, journalist=selected_video.journalist).exclude(
+            id__in=video_id).order_by('-date_publication')[:number]
         more_video = list(chain(more_video, added_video))
 
     # LAST ADD VIDEO
-    last_add_video = Video.objects.all().order_by('-date_publication')[:4]
+    last_add_video = Video.objects.filter(active=True).order_by('-date_publication')[:4]
 
     # DYNAMIC COMMENT FORM
     reply_form = ReplyForm()
@@ -592,10 +599,11 @@ def journalist(request):
             }
 
             # TOP ARTICLE
-            top_article = News.objects.exclude(id__in=video_id).filter(journalist=j).order_by('-view_number').first()
+            top_article = News.objects.exclude(id__in=video_id).filter(journalist=j, active=True).order_by(
+                '-view_number').first()
 
             # TOP VIDEO
-            top_video = Video.objects.filter(journalist=j).order_by('-view_number').first()
+            top_video = Video.objects.filter(journalist=j, active=True).order_by('-view_number').first()
 
             context = {
                 'journalist': j,
@@ -735,12 +743,18 @@ def journalist_articles(request):
             except EmptyPage:
                 j_articles = paginator.page(paginator.num_pages)
 
+            # CHECK IF REDIRECT FROM CREATE ARTICLE
+            created = request.session.get('created', '0')
+            if created == '1':
+                del request.session['created']
+
         context = {
             'journalist': j,
             'count': count,
             'articles': j_articles,
             'search': search_get,
-            'keywords': keywords
+            'keywords': keywords,
+            'created': created
         }
 
         return render(request, 'journal/journalist/journalist_articles.html', context)
@@ -748,33 +762,218 @@ def journalist_articles(request):
     return redirect('index')
 
 
+@require_POST
 def journalist_upload_primary_image(request):
-    if request.method == 'POST':
-        form = JournalistImagePrimaryImport(request.POST, request.FILES)
-        if form.is_valid():
-            photo = form.save()
-            data = {'is_valid': True, 'name': photo.image.name, 'url': photo.image.url}
+
+    # CHECK IF JOURNALIST
+    if request.user.is_authenticated:
+        user = request.user
+        if user.email in Journalist.email_list():
+            # JOURNALIST
+            j = get_object_or_404(Journalist, email=user.email)
         else:
-            data = {'is_valid': False}
-        return JsonResponse(data)
+            return redirect('journalist')
+    else:
+        return redirect('index')
+
+    # GET TEMPORARY ARTICLE OR CREATE NEW ONE
+    article_id = request.session.get('article', None)
+    if article_id is None:
+        article = News.objects.create(title='Session Article', journalist=j, active=False)
+        request.session['article'] = article.id
+    else:
+        article = News.objects.get(id=article_id)
+
+    # GET PRIMARY IMAGE FROM POST
+    form = JournalistImagePrimaryImport(request.POST, request.FILES)
+    if form.is_valid():
+        image = form.save()
+        image.description = 'Article primary image'
+        image.save()
+        article.primary_image = image
+        article.save()
+        data = {'is_valid': True, 'name': image.image.name, 'url': image.image.url}
+    else:
+        data = {'is_valid': False}
+    return JsonResponse(data)
 
 
+@require_POST
 def journalist_upload_image(request):
-    if request.method == 'POST':
-        form = JournalistImageImport(request.POST, request.FILES)
-        if form.is_valid():
-            photo = form.save()
-            data = {'is_valid': True, 'name': photo.image.name, 'url': photo.image.url}
+
+    # CHECK IF JOURNALIST
+    if request.user.is_authenticated:
+        user = request.user
+        if user.email in Journalist.email_list():
+            # JOURNALIST
+            j = get_object_or_404(Journalist, email=user.email)
         else:
-            data = {'is_valid': False}
-        return JsonResponse(data)
+            return redirect('journalist')
+    else:
+        return redirect('index')
+
+    # GET TEMPORARY ARTICLE OR CREATE NEW ONE
+    article_id = request.session.get('article', None)
+    if article_id is None:
+        article = News.objects.create(title='Session Article', journalist=j, active=False)
+        request.session['article'] = article.id
+    else:
+        article = News.objects.get(id=article_id)
+
+    # GET ARTICLE IMAGES FROM POST
+    form = JournalistImageImport(request.POST, request.FILES)
+    if form.is_valid():
+        image = form.save()
+        image.article = article
+        image.description = 'Article image'
+        image.save()
+        data = {
+            'is_valid': True,
+            'name': image.image.name,
+            'url': image.image.url,
+            'id': image.id
+        }
+    else:
+        data = {'is_valid': False}
+    return JsonResponse(data)
+
+
+def journalist_create_tag(request):
+
+    name = request.GET.get('name', None)
+    color = request.GET.get('color', None)
+    description = request.GET.get('description', None)
+    valid = True
+    if (name is None) or (name == ''):
+        valid = False
+    if (color is None) or (color == ''):
+        valid = False
+
+    if valid is False:
+        data = {'valid': False}
+    else:
+        t = Tag.objects.create(name=name, color=color, description=description)
+        data = {
+            'valid': True,
+            'name': name,
+            'id': t.id
+        }
+    return JsonResponse(data)
 
 
 def journalist_create_article(request):
-    photos_list = ImageNews.objects.all()
+
+    # CHECK IF JOURNALIST
+    if request.user.is_authenticated:
+        user = request.user
+        if user.email in Journalist.email_list():
+            # JOURNALIST
+            j = get_object_or_404(Journalist, email=user.email)
+        else:
+            return redirect('journalist')
+    else:
+        return redirect('index')
+
+    # GET TEMPORARY ARTICLE OR CREATE NEW ONE
+    article_id = request.session.get('article', None)
+    has_image = 0
+    if article_id is None:
+        article = News.objects.create(title='Session Article', journalist=j, active=False)
+        request.session['article'] = article.id
+    else:
+        article = News.objects.get(id=article_id)
+        if article.primary_image is not None:
+            has_image = 1
+
+    form = JournalistCreateArticle()
+
+    # CREATING ARTICLE
+    if request.method == 'POST':
+        if article.primary_image is None:
+            has_image = 0
+        else:
+            form = JournalistCreateArticle(request.POST)
+            if form.is_valid():
+                cd = form.cleaned_data
+                article.title = cd['title']
+                article.small_title = cd['small_title']
+                article.category = get_object_or_404(Category, id=cd['category'])
+                article.resume = cd['resume']
+                article.content = cd['content']
+                if cd['comment_enable'] == 'no':
+                    article.comment_enable = False
+                if cd['share_enable'] == 'no':
+                    article.share_enable = False
+                tags = request.POST.getlist('tags')
+                for t in tags:
+                    article.tag.add(get_object_or_404(Tag, id=t))
+                article.active = True
+                article.save()
+
+                del request.session['article']
+                request.session['created'] = '1'
+
+                return redirect('journalist_articles')
+
+    photos_list = ImageNews.objects.filter(article=article)
     context = {
         'tags': Tag.objects.all().order_by('name'),
         'photos': photos_list,
-        'form': JournalistCreateArticle
+        'form': form,
+        'has_image': has_image,
+        'form_tag': JournalistAddTagForm,
+        'image': article.primary_image
     }
     return render(request, 'journal/journalist/journalist_add_article.html', context)
+
+
+def journalist_delete_image(request, image_id):
+    # CHECK IF JOURNALIST
+    if request.user.is_authenticated:
+        user = request.user
+        if user.email in Journalist.email_list():
+            # JOURNALIST
+            j = get_object_or_404(Journalist, email=user.email)
+        else:
+            return redirect('journalist')
+    else:
+        return redirect('index')
+
+    # DELETE IMAGE
+    article_id = request.session.get('article', None)
+    if article_id is not None:
+        article = News.objects.get(id=article_id)
+        if article.journalist == j:
+            image = get_object_or_404(ImageNews, id=image_id)
+            image.delete()
+            data = {
+                'message': 'success',
+                'tr': '#tr'+str(image_id)
+            }
+            return JsonResponse(data)
+        else:
+            return redirect('journalist')
+
+
+def journalist_cancel_article(request):
+    # CHECK IF JOURNALIST
+    if request.user.is_authenticated:
+        user = request.user
+        if user.email in Journalist.email_list():
+            # JOURNALIST
+            j = get_object_or_404(Journalist, email=user.email)
+        else:
+            return redirect('journalist')
+    else:
+        return redirect('index')
+
+    # GET TEMPORARY ARTICLE AND DELETE IT
+    article_id = request.session.get('article', None)
+    if article_id is not None:
+        article = News.objects.get(id=article_id)
+        if article.journalist == j:
+            ImageNews.objects.filter(article=article).delete()
+            article.delete()
+            del request.session['article']
+
+    return redirect('journalist_articles')

@@ -1,5 +1,5 @@
 from django import forms
-from .models import Image, ImageNews, Photo
+from .models import Image, ImageNews
 
 
 class ImageUploadForm(forms.ModelForm):
@@ -247,4 +247,38 @@ class JournalistCreateArticle(forms.Form):
 
     share_enable = forms.CharField(
         widget=forms.HiddenInput()
+    )
+
+
+class JournalistAddTagForm(forms.Form):
+    name = forms.CharField(
+        max_length=20,
+        widget=forms.TextInput(
+            attrs={
+                'class': 'form-control',
+                'placeholder': 'Nom du Tag'
+            }
+        )
+    )
+
+    color = forms.CharField(
+        max_length=30,
+        widget=forms.TextInput(
+            attrs={
+                'class': 'form-control',
+                'placeholder': 'Couleur du Tag'
+            }
+        )
+    )
+
+    description = forms.CharField(
+        required=False,
+        max_length=255,
+        widget=forms.Textarea(
+            attrs={
+                'rows': '3',
+                'class': 'form-control',
+                'placeholder': 'Description du Tag (non requis)'
+            }
+        )
     )

@@ -28,6 +28,9 @@ urlpatterns = [
     path('journalist/upload_primary_image/', views.journalist_upload_primary_image,
          name='journalist_upload_primary_image'),
     path('journalist/upload_image/', views.journalist_upload_image, name='journalist_upload_image'),
+    path('journalist/create_tag/', views.journalist_create_tag, name='journalist_create_tag'),
+    path('journalist/delete_image/<int:image_id>/', views.journalist_delete_image, name="journalist_delete_image"),
+    path('journalist/cancel_article/', views.journalist_cancel_article, name="journalist_cancel_article"),
 
     path('<slug:category_name>/<int:post>/', views.article_show, name='post'),
     path('<slug:category_name>/', views.category, name='category'),

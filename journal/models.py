@@ -107,7 +107,7 @@ class News(models.Model):
     share_enable = models.BooleanField(default=True)
     journalist = models.ForeignKey(Journalist, on_delete=models.CASCADE)
     category = models.ForeignKey(Category, blank=True, null=True, on_delete=models.CASCADE)
-    primary_image = models.ForeignKey(Image, on_delete=models.CASCADE)
+    primary_image = models.ForeignKey(Image, on_delete=models.CASCADE, null=True)
     tag = models.ManyToManyField(Tag)
     active = models.BooleanField(default=True)
 
@@ -133,12 +133,6 @@ class Video(News):
 
 class ImageNews(Image):
     article = models.ForeignKey(News, on_delete=models.CASCADE, null=True, blank=True)
-
-
-class Photo(models.Model):
-    title = models.CharField(max_length=255, blank=True)
-    image = models.ImageField(upload_to='photos/')
-    uploaded_at = models.DateTimeField(auto_now_add=True)
 
 
 class AbstractComment(models.Model):
