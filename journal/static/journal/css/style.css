@@ -716,6 +716,28 @@ textarea.input {
 	margin-left:10px;
 }
 
+#update_article a {
+    background: #333;
+    color: #FFF;
+    padding: 0 15px;
+    height: 30px;
+    line-height: 30px;
+    display: block;
+    text-transform: uppercase;
+    font-size: 12.5px;
+    margin-left: 15px;
+}
+
+#update_article a:hover {
+	opacity: 0.8;
+}
+
+#content_article img {
+	max-width: 80%;
+    display: block;
+    margin: auto;
+}
+
 /*------------------------------------*\
 	Thumb Article
 \*------------------------------------*/

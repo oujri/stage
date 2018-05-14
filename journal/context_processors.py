@@ -30,7 +30,7 @@ def global_var(request):
             check = True
 
     context = {
-        'categories': Category.objects.all().exclude(name='actualites'),
+        'categories': Category.objects.all().order_by('name'),
         'weather': weather,
         'topRead': top_read,
         'topComment': top_comment,

@@ -170,13 +170,23 @@ def article_show(request, category_name, post):
         signal_form.fields['email'].widget.attrs['hidden'] = 'true'
         signal_form.fields['email'].widget.attrs['value'] = request.user.email
 
+    # CHECK IF USER CONNECTED AND IF HE IS THE JOURNALIST OF THIS ARTICLE
+    self_article = False
+    if request.user.is_authenticated:
+        user = request.user
+        if user.email in Journalist.email_list():
+            j = get_object_or_404(Journalist, email=user.email)
+            if article.journalist == j:
+                self_article = True
+
     context = {
         'article': article,
         'signal_form': signal_form,
         'tags': tags,
         'reply_form': reply_form,
         'more_article': more_article,
-        'navActive': '#nav' + article.category.name
+        'navActive': '#nav' + article.category.name,
+        'self_article': self_article
     }
     return render(request, 'journal/post.html', context)
 
@@ -554,6 +564,7 @@ def reply(request, selected_comment):
 #            JOURNALIST MANAGEMENT VIEW             #
 #####################################################
 
+# ## JOURNALIST HOME PAGE ## #
 def journalist(request):
     if request.user.is_authenticated:
         user = request.user
@@ -616,6 +627,7 @@ def journalist(request):
     return redirect('index')
 
 
+# ## JOURNALIST PROFILE PAGE ## #
 def journalist_profile(request):
 
     if request.user.is_authenticated:
@@ -699,6 +711,7 @@ def journalist_profile(request):
     return redirect('index')
 
 
+# ## JOURNALIST ARTICLES PAGE ## #
 def journalist_articles(request):
 
     if request.user.is_authenticated:
@@ -748,13 +761,19 @@ def journalist_articles(request):
             if created == '1':
                 del request.session['created']
 
+            # CHECK IF REDIRECT FROM CREATE UPDATE
+            updated = request.session.get('updated', '0')
+            if updated == '1':
+                del request.session['updated']
+
         context = {
             'journalist': j,
             'count': count,
             'articles': j_articles,
             'search': search_get,
             'keywords': keywords,
-            'created': created
+            'created': created,
+            'updated': updated
         }
 
         return render(request, 'journal/journalist/journalist_articles.html', context)
@@ -762,105 +781,7 @@ def journalist_articles(request):
     return redirect('index')
 
 
-@require_POST
-def journalist_upload_primary_image(request):
-
-    # CHECK IF JOURNALIST
-    if request.user.is_authenticated:
-        user = request.user
-        if user.email in Journalist.email_list():
-            # JOURNALIST
-            j = get_object_or_404(Journalist, email=user.email)
-        else:
-            return redirect('journalist')
-    else:
-        return redirect('index')
-
-    # GET TEMPORARY ARTICLE OR CREATE NEW ONE
-    article_id = request.session.get('article', None)
-    if article_id is None:
-        article = News.objects.create(title='Session Article', journalist=j, active=False)
-        request.session['article'] = article.id
-    else:
-        article = News.objects.get(id=article_id)
-
-    # GET PRIMARY IMAGE FROM POST
-    form = JournalistImagePrimaryImport(request.POST, request.FILES)
-    if form.is_valid():
-        image = form.save()
-        image.description = 'Article primary image'
-        image.save()
-        article.primary_image = image
-        article.save()
-        data = {'is_valid': True, 'name': image.image.name, 'url': image.image.url}
-    else:
-        data = {'is_valid': False}
-    return JsonResponse(data)
-
-
-@require_POST
-def journalist_upload_image(request):
-
-    # CHECK IF JOURNALIST
-    if request.user.is_authenticated:
-        user = request.user
-        if user.email in Journalist.email_list():
-            # JOURNALIST
-            j = get_object_or_404(Journalist, email=user.email)
-        else:
-            return redirect('journalist')
-    else:
-        return redirect('index')
-
-    # GET TEMPORARY ARTICLE OR CREATE NEW ONE
-    article_id = request.session.get('article', None)
-    if article_id is None:
-        article = News.objects.create(title='Session Article', journalist=j, active=False)
-        request.session['article'] = article.id
-    else:
-        article = News.objects.get(id=article_id)
-
-    # GET ARTICLE IMAGES FROM POST
-    form = JournalistImageImport(request.POST, request.FILES)
-    if form.is_valid():
-        image = form.save()
-        image.article = article
-        image.description = 'Article image'
-        image.save()
-        data = {
-            'is_valid': True,
-            'name': image.image.name,
-            'url': image.image.url,
-            'id': image.id
-        }
-    else:
-        data = {'is_valid': False}
-    return JsonResponse(data)
-
-
-def journalist_create_tag(request):
-
-    name = request.GET.get('name', None)
-    color = request.GET.get('color', None)
-    description = request.GET.get('description', None)
-    valid = True
-    if (name is None) or (name == ''):
-        valid = False
-    if (color is None) or (color == ''):
-        valid = False
-
-    if valid is False:
-        data = {'valid': False}
-    else:
-        t = Tag.objects.create(name=name, color=color, description=description)
-        data = {
-            'valid': True,
-            'name': name,
-            'id': t.id
-        }
-    return JsonResponse(data)
-
-
+# ## JOURNALIST CREATE ARTICLE PAGE ## #
 def journalist_create_article(request):
 
     # CHECK IF JOURNALIST
@@ -927,6 +848,243 @@ def journalist_create_article(request):
     return render(request, 'journal/journalist/journalist_add_article.html', context)
 
 
+# ## JOURNALIST CANCEL CREATE ARTICLE REDIRECT ## #
+def journalist_cancel_article(request):
+    # CHECK IF JOURNALIST
+    if request.user.is_authenticated:
+        user = request.user
+        if user.email in Journalist.email_list():
+            # JOURNALIST
+            j = get_object_or_404(Journalist, email=user.email)
+        else:
+            return redirect('journalist')
+    else:
+        return redirect('index')
+
+    # GET TEMPORARY ARTICLE AND DELETE IT
+    article_id = request.session.get('article', None)
+    if article_id is not None:
+        article = News.objects.get(id=article_id)
+        if article.journalist == j:
+            ImageNews.objects.filter(article=article).delete()
+            article.delete()
+            del request.session['article']
+
+    return redirect('journalist_articles')
+
+
+# ## JOURNALIST UPDATE ARTICLE PAGE ## #
+def journalist_update_article(request, article_id):
+    # CHECK IF JOURNALIST
+    if request.user.is_authenticated:
+        user = request.user
+        if user.email in Journalist.email_list():
+            # JOURNALIST
+            j = get_object_or_404(Journalist, email=user.email)
+        else:
+            return redirect('journalist')
+    else:
+        return redirect('index')
+
+    # GET ARTICLE
+    article = get_object_or_404(News, id=article_id, active=True)
+    if article.journalist != j:
+        return redirect('journalist_articles')
+
+    # CREATING ARTICLE
+    if request.method == 'POST':
+        form = JournalistCreateArticle(request.POST)
+        if form.is_valid():
+            cd = form.cleaned_data
+            article.title = cd['title']
+            article.small_title = cd['small_title']
+            article.category = get_object_or_404(Category, id=cd['category'])
+            article.resume = cd['resume']
+            article.content = cd['content']
+            if cd['comment_enable'] == 'no':
+                article.comment_enable = False
+            if cd['share_enable'] == 'no':
+                article.share_enable = False
+            tags = request.POST.getlist('tags')
+            for t in tags:
+                article.tag.add(get_object_or_404(Tag, id=t))
+            article.active = True
+            article.save()
+
+            request.session['updated'] = '1'
+
+            return redirect('journalist_articles')
+
+    else:
+        form = JournalistCreateArticle(initial={
+            'title': article.title,
+            'small_title': article.small_title,
+            'resume': article.resume,
+            'content': article.content
+        })
+
+    context = {
+        'article': article,
+        'tags': Tag.objects.all().order_by('name'),
+        'selected_tags': Tag.objects.filter(news=article),
+        'form': form,
+        'form_tag': JournalistAddTagForm
+    }
+
+    return render(request, 'journal/journalist/journalist_update_article.html', context)
+
+
+#####################################################
+#          JOURNALIST AJAX REQUEST VIEW             #
+#####################################################
+
+# ## JOURNALIST UPLOAD PRIMARY IMAGE ON CREATE FUNCTION ## #
+@require_POST
+def journalist_upload_primary_image(request):
+
+    # CHECK IF JOURNALIST
+    if request.user.is_authenticated:
+        user = request.user
+        if user.email in Journalist.email_list():
+            # JOURNALIST
+            j = get_object_or_404(Journalist, email=user.email)
+        else:
+            return redirect('journalist')
+    else:
+        return redirect('index')
+
+    # GET TEMPORARY ARTICLE OR CREATE NEW ONE
+    article_id = request.session.get('article', None)
+    if article_id is None:
+        article = News.objects.create(title='Session Article', journalist=j, active=False)
+        request.session['article'] = article.id
+    else:
+        article = News.objects.get(id=article_id)
+
+    # GET PRIMARY IMAGE FROM POST
+    form = JournalistImagePrimaryImport(request.POST, request.FILES)
+    if form.is_valid():
+        image = form.save()
+        image.description = 'Article primary image'
+        image.save()
+        article.primary_image = image
+        article.save()
+        data = {'is_valid': True, 'name': image.image.name, 'url': image.image.url}
+    else:
+        data = {'is_valid': False}
+    return JsonResponse(data)
+
+
+# ## JOURNALIST UPLOAD SECONDARY IMAGES ON CREATE FUNCTION ## #
+@require_POST
+def journalist_upload_image(request):
+
+    # CHECK IF JOURNALIST
+    if request.user.is_authenticated:
+        user = request.user
+        if user.email in Journalist.email_list():
+            # JOURNALIST
+            j = get_object_or_404(Journalist, email=user.email)
+        else:
+            return redirect('journalist')
+    else:
+        return redirect('index')
+
+    # GET TEMPORARY ARTICLE OR CREATE NEW ONE
+    article_id = request.session.get('article', None)
+    if article_id is None:
+        article = News.objects.create(title='Session Article', journalist=j, active=False)
+        request.session['article'] = article.id
+    else:
+        article = News.objects.get(id=article_id)
+
+    # GET ARTICLE IMAGES FROM POST
+    form = JournalistImageImport(request.POST, request.FILES)
+    if form.is_valid():
+        image = form.save()
+        image.article = article
+        image.description = 'Article image'
+        image.save()
+        data = {
+            'is_valid': True,
+            'name': image.image.name,
+            'url': image.image.url,
+            'id': image.id
+        }
+    else:
+        data = {'is_valid': False}
+    return JsonResponse(data)
+
+
+# ## JOURNALIST UPLOAD PRIMARY IMAGE ON UPDATE FUNCTION ## #
+@require_POST
+def journalist_update_primary_image(request, article_id):
+
+    # CHECK IF JOURNALIST
+    if request.user.is_authenticated:
+        user = request.user
+        if user.email in Journalist.email_list():
+            # JOURNALIST
+            j = get_object_or_404(Journalist, email=user.email)
+        else:
+            return redirect('journalist')
+    else:
+        return redirect('index')
+
+    # GET TEMPORARY ARTICLE OR CREATE NEW ONE
+    article = get_object_or_404(News, id=article_id, active=True, journalist=j)
+
+    # GET PRIMARY IMAGE FROM POST
+    form = JournalistImagePrimaryImport(request.POST, request.FILES)
+    if form.is_valid():
+        image = form.save()
+        image.description = 'Article primary image'
+        image.save()
+        article.primary_image = image
+        article.save()
+        data = {'is_valid': True, 'name': image.image.name, 'url': image.image.url}
+    else:
+        data = {'is_valid': False}
+    return JsonResponse(data)
+
+
+# ## JOURNALIST UPLOAD SECONDARY IMAGES ON UPDATE FUNCTION ## #
+@require_POST
+def journalist_update_image(request, article_id):
+
+    # CHECK IF JOURNALIST
+    if request.user.is_authenticated:
+        user = request.user
+        if user.email in Journalist.email_list():
+            # JOURNALIST
+            j = get_object_or_404(Journalist, email=user.email)
+        else:
+            return redirect('journalist')
+    else:
+        return redirect('index')
+
+    # GET TEMPORARY ARTICLE OR CREATE NEW ONE
+    article = get_object_or_404(News, id=article_id, active=True, journalist=j)
+
+    # GET ARTICLE IMAGES FROM POST
+    form = JournalistImageImport(request.POST, request.FILES)
+    if form.is_valid():
+        image = form.save()
+        image.article = article
+        image.description = 'Article image'
+        image.save()
+        data = {
+            'is_valid': True,
+            'name': image.image.name,
+            'url': image.image.url,
+            'id': image.id
+        }
+    else:
+        data = {'is_valid': False}
+    return JsonResponse(data)
+
+
+# ## JOURNALIST DELETE IMAGE ON CREATE FUNCTION ## #
 def journalist_delete_image(request, image_id):
     # CHECK IF JOURNALIST
     if request.user.is_authenticated:
@@ -955,7 +1113,8 @@ def journalist_delete_image(request, image_id):
             return redirect('journalist')
 
 
-def journalist_cancel_article(request):
+# ## JOURNALIST DELETE IMAGE ON UPDATE FUNCTION ## #
+def journalist_delete_image_update(request, article_id, image_id):
     # CHECK IF JOURNALIST
     if request.user.is_authenticated:
         user = request.user
@@ -967,13 +1126,38 @@ def journalist_cancel_article(request):
     else:
         return redirect('index')
 
-    # GET TEMPORARY ARTICLE AND DELETE IT
-    article_id = request.session.get('article', None)
-    if article_id is not None:
-        article = News.objects.get(id=article_id)
-        if article.journalist == j:
-            ImageNews.objects.filter(article=article).delete()
-            article.delete()
-            del request.session['article']
+    # TEST IF IMAGE AND ARTICLE BELONG TO JOURNALIST
+    get_object_or_404(News, id=article_id, active=True, journalist=j)
 
-    return redirect('journalist_articles')
+    # DELETE IMAGE
+    image = get_object_or_404(ImageNews, id=image_id)
+    image.delete()
+    data = {
+        'message': 'success',
+        'tr': '#tr'+str(image_id)
+    }
+    return JsonResponse(data)
+
+
+# ## JOURNALIST CREATE TAG FUNCTION ## #
+def journalist_create_tag(request):
+
+    name = request.GET.get('name', None)
+    color = request.GET.get('color', None)
+    description = request.GET.get('description', None)
+    valid = True
+    if (name is None) or (name == ''):
+        valid = False
+    if (color is None) or (color == ''):
+        valid = False
+
+    if valid is False:
+        data = {'valid': False}
+    else:
+        t = Tag.objects.create(name=name, color=color, description=description)
+        data = {
+            'valid': True,
+            'name': name,
+            'id': t.id
+        }
+    return JsonResponse(data)

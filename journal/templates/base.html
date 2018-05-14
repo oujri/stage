@@ -109,7 +109,6 @@
 				<div class="container">
 					<nav id="main-nav">
 						<ul class="main-nav nav navbar-nav">
-							<li id="navactualites"><a href="{% url 'category' 'actualites' %}">actualités</a></li>
                             {% for cat in categories %}
 							    <li id="nav{{ cat.name }}"><a href="{% url 'category' cat.name %}">{{ cat.name }}</a></li>
                             {% endfor %}

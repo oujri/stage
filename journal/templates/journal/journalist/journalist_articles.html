@@ -93,6 +93,13 @@
                                 Article Créé avec succès
                          </div>
                     {% endif %}
+                    {% if updated == '1' %}
+                        <div class="alert alert-success alert-dismissible" role="alert" style="margin: 15px">
+                             <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                 <span aria-hidden="true">&times;</span></button>
+                                Article Modifié avec succès
+                         </div>
+                    {% endif %}
                     <thead>
                     <tr>
                         <th>ID</th>
@@ -133,10 +140,8 @@
                                         <button type="submit" class="btn btn-danger">
                                             <i class="fa fa-trash-o"></i></button>
                                     </form>
-                                    <form action="" method="post" id="form{{ article.id }}">
-                                        {% csrf_token %}
-                                        <button type="submit" class="btn btn-warning"><i class="fa fa-edit"></i></button>
-                                    </form>
+                                    <a href="{% url 'journalist_update_article' article.id %}" class="btn btn-warning">
+                                        <i class="fa fa-edit"></i></a>
                                     <a href="{% url 'post' article.category article.id %}" class="btn btn-info">
                                         <i class="fa fa-eye"></i></a>
                                 </td>

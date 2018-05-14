@@ -49,7 +49,7 @@ $(function () {
         done: function (e, data) {  /* 3. PROCESS THE RESPONSE FROM THE SERVER */
             if (data.result.is_valid) {
                 $("#drop-zone").html("<span class=\"glyphicon glyphicon-cloud-upload\"></span> Modifier image principale");
-                $("#primary_image_url").prepend(
+                $("#primary_image_url").html(
                     "<a href='" + data.result.url + "'>" + data.result.name + "</a>"
                 );
                 $("#has-image").val("1");

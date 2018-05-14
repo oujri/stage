@@ -30,17 +30,21 @@
 
 {% endblock %}
 
+{% block script %}
+{% endblock %}
+
 {% block content %}
 
     <!-- SECTION HEADER -->
     <div class="section header-info">
         <div class="container">
-            <h2>Ajouter Article</h2>
+            <h2>Modifier Article</h2>
             <!-- breadcrumb -->
             <ul class="article-breadcrumb pull-right">
                 <li><a href="{% url 'index' %}">Accueil</a></li>
                 <li><a href="{% url 'journalist' %}">Espace Journalistes</a></li>
-                <li><a href="{% url 'journalist_create_article' %}">Ajouter Article</a></li>
+                <li><a href="{% url 'journalist_articles' %}">Articles</a></li>
+                <li><a href="{% url 'journalist_create_article' %}">Modifier Article</a></li>
             </ul>
             <!-- /breadcrumb -->
         </div>
@@ -66,53 +70,44 @@
              <div class="col-md-4 card">
                  <div class="form-group">
                      <label>Image Pricipale</label>
-                     <div class="alert alert-danger alert-dismissible hidden" role="alert" id="image-alert"
-                          style="margin-bottom: -7px;">
-                         <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                             <span aria-hidden="true">&times;</span></button>
-                            Veuillez ajouter une image
-                     </div>
                      {# 1. BUTTON TO TRIGGER THE ACTION #}
                      <button type="button" class="btn btn-danger js-upload-primary_image" id="drop-zone">
-                         {% if has_image == 1 %}
-                            <span class="glyphicon glyphicon-cloud-upload"></span> Modifier image principale
-                         {% else %}
-                            <span class="glyphicon glyphicon-cloud-upload"></span> Ajouter image principale
-                         {% endif %}
+                         <span class="glyphicon glyphicon-cloud-upload"></span> Modifier image principale
                      </button>
                      {# 2. FILE INPUT TO BE USED BY THE PLUG-IN #}
                      <input id="file_upload_primary" type="file" name="image"
                            style="display: none;" accept="image/*"
-                           data-url="{% url 'journalist_upload_primary_image' %}"
+                           data-url="{% url 'journalist_update_primary_image' article.id %}"
                            data-form-data='{"csrfmiddlewaretoken": "{{ csrf_token }}"}'>
 
                      {# 3. DIV TO DISPLAY THE UPLOADED PHOTO #}
                      <div id="primary_image_url">
-                         {% if has_image %}
-                             <a href="{{ image.image.url }}">{{ image.image.name }}</a>
-                         {% endif %}
+                         <a href="{{ article.primary_image.image.url }}">{{ article.primary_image.image.name }}</a>
                      </div>
                  </div>
 
                  <div class="form-group">
                      <label>Categorie</label>
-                     <div class="alert alert-danger alert-dismissible hidden" role="alert" id="comment-alert"
-                          style="margin-bottom: 3px;">
-                         <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                             <span aria-hidden="true">&times;</span></button>
-                            Veuillez choisir une catégorie
-                     </div>
                      <select name="category" id="article_category" class="selectpicker form-control" title="Sélectionner ...">
                          {% for cat in categories %}
-                             <option value="{{ cat.id }}">{{ cat }}</option>
+                             {% if cat == article.category %}
+                                 <option value="{{ cat.id }}" selected>{{ cat }}</option>
+                             {% else %}
+                                 <option value="{{ cat.id }}">{{ cat }}</option>
+                             {% endif %}
                          {% endfor %}
                      </select>
                  </div>
 
                 <div class="form-group">
                     <label for="">Commentaires activés</label>
-                    <input type="radio" name="comment" value="yes" id="c_yes" checked>
-                    <input type="radio" name="comment" value="no" id="c_no">
+                    {% if article.comment_enable %}
+                        <input type="radio" name="comment" value="yes" id="c_yes" checked>
+                        <input type="radio" name="comment" value="no" id="c_no">
+                    {% else %}
+                        <input type="radio" name="comment" value="yes" id="c_yes">
+                        <input type="radio" name="comment" value="no" id="c_no" checked>
+                    {% endif %}
                     <div class="switch">
                         <label for="c_yes">Oui</label>
                         <label for="c_no">Non</label>
@@ -122,8 +117,13 @@
 
                 <div class="form-group form-share">
                     <label for="">Partage activé</label>
-                    <input type="radio" name="share" value="yes" id="p_yes" checked>
-                    <input type="radio" name="share" value="no" id="p_no">
+                    {% if article.share_enable %}
+                        <input type="radio" name="share" value="yes" id="p_yes" checked>
+                        <input type="radio" name="share" value="no" id="p_no">
+                    {% else %}
+                        <input type="radio" name="share" value="yes" id="p_yes">
+                        <input type="radio" name="share" value="no" id="p_no" checked>
+                    {% endif %}
                     <div class="switch-share">
                         <label for="p_yes">Oui</label>
                         <label for="p_no">Non</label>
@@ -147,7 +147,7 @@
                  {# 2. FILE INPUT TO BE USED BY THE PLUG-IN #}
                  <input id="fileupload" type="file" name="image" multiple
                        style="display: none;" accept="image/*"
-                       data-url="{% url 'journalist_upload_image' %}"
+                       data-url="{% url 'journalist_update_image' article.id %}"
                        data-form-data='{"csrfmiddlewaretoken": "{{ csrf_token }}"}'>
 
                  {# 3. TABLE TO DISPLAY THE UPLOADED PHOTOS #}
@@ -156,12 +156,12 @@
                         <tr><th>Images</th></tr>
                     </thead>
                     <tbody>
-                        {% for photo in photos %}
+                        {% for photo in article.imagenews_set.all %}
                             <tr id="tr{{ photo.id }}">
                                 <td>
                                     <a href="{{ photo.image.url }}">{{ photo.image.name }}</a>
                                     <form class="pull-right form-delete-image"
-                                          data-submit-url="{% url 'journalist_delete_image' photo.id %}">
+                                          data-submit-url="{% url 'journalist_delete_image_update' article.id photo.id %}">
                                         <button class="btn btn-danger" type="submit">
                                             <i class="fa fa-trash-o"></i>
                                         </button>
@@ -228,7 +228,11 @@
                             <select class="selectpicker form-control" name="tags" multiple
                                     title="Sélectionnez des Tags..." id="tags">
                                 {% for tag in tags %}
-                                    <option value="{{ tag.id }}">{{ tag }}</option>
+                                    {% if tag in selected_tags %}
+                                        <option value="{{ tag.id }}" selected>{{ tag }}</option>
+                                    {% else %}
+                                        <option value="{{ tag.id }}">{{ tag }}</option>
+                                    {% endif %}
                                 {% endfor %}
                             </select>
                         </div>
@@ -249,8 +253,8 @@
                 <!-- /HIDDEN INPUT -->
                 <!-- SUBMIT BOUTON -->
                 <div class="form-group ending-button">
-                    <a href="{% url 'journalist_cancel_article' %}" class="btn btn-danger">Annuler</a>
-                    <button class="btn btn-default" type="submit">Créer l'article</button>
+                    <a href="{% url 'journalist_articles' %}" class="btn btn-danger">Annuler</a>
+                    <button class="btn btn-default" type="submit">Modifier l'article</button>
                 </div>
                 <!-- /SUBMIT BOUTON -->
             </form>
