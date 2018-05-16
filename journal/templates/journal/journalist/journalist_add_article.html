@@ -52,9 +52,9 @@
             <ul class="list-inline">
                 <li><a href="{% url 'journalist_profile' %}">Profil</a></li>
                 <li><a href="{% url 'journalist_articles' %}">Articles</a></li>
-                <li><a href="#">Videos</a></li>
+                <li><a href="{% url 'journalist_videos' %}">Videos</a></li>
                 <li><a href="#">Signals</a></li>
-                <li><a href="#">Ajouter Video</a></li>
+                <li><a href="{% url 'journalist_create_video' %}">Ajouter Video</a></li>
             </ul>
         </nav>
     </div>

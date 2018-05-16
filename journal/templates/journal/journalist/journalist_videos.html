@@ -3,7 +3,7 @@
 {% load static %}
 
 {% block title %}
-    {{ journalist }} - Articles
+    {{ user.username }} - Videos
 {% endblock %}
 
 {% block style %}
@@ -17,7 +17,7 @@
         event.preventDefault();
         var form = $(this);
         var id = form.attr('data-id');
-        if (confirm("Voulez vous vraiment supprimer l'article " + id)){
+        if (confirm("Voulez vous vraiment supprimer la vidéo " + id)){
             form.off('submit').submit();
         }
     });
@@ -32,12 +32,12 @@
     <!-- SECTION HEADER -->
     <div class="section header-info">
         <div class="container">
-            <h2>Articles</h2>
+            <h2>Vidéos</h2>
             <!-- breadcrumb -->
             <ul class="article-breadcrumb pull-right">
                 <li><a href="{% url 'index' %}">Accueil</a></li>
                 <li><a href="{% url 'journalist' %}">Espace Journalistes</a></li>
-                <li><a href="{% url 'journalist_articles' %}">Articles</a></li>
+                <li><a href="{% url 'journalist_videos' %}">Vidéos</a></li>
             </ul>
             <!-- /breadcrumb -->
         </div>
@@ -49,10 +49,10 @@
         <nav class="nav-journalist">
             <ul class="list-inline">
                 <li><a href="{% url 'journalist_profile' %}">Profil</a></li>
-                <li><a href="{% url 'journalist_videos' %}">Videos</a></li>
+                <li><a href="{% url 'journalist_articles' %}">Articles</a></li>
                 <li><a href="#">Signals</a></li>
                 <li><a href="{% url 'journalist_create_article' %}">Ajouter Article</a></li>
-                <li><a href="{% url 'journalist_create_video' %}">Ajouter Video</a></li>
+                <li><a href="{% url 'journalist_create_video' %}">Ajouter Vidéo</a></li>
             </ul>
         </nav>
     </div>
@@ -64,18 +64,18 @@
                 <div class="col-md-3">
                     {% if search %}
                         <h4 class="title">Résultat de recherche</h4>
-                        <p class="category">Total des articles : {{ count }}</p>
+                        <p class="category">Total des vidéos : {{ count }}</p>
                     {% else %}
-                        <h4 class="title">Liste de vos Articles</h4>
-                        <p class="category">Total des articles : {{ count }}</p>
+                        <h4 class="title">Liste de vos vidéos</h4>
+                        <p class="category">Total des vidéos : {{ count }}</p>
                     {% endif %}
                 </div>
                 <div class="col-md-9">
-                    <form action="{% url 'journalist_articles' %}" method="get">
+                    <form action="{% url 'journalist_videos' %}" method="get">
                         {% if search %}
-                            <input type="text" name="q" maxlength="50" placeholder="Rechercher un article" value="{{ keywords }}">
+                            <input type="text" name="q" maxlength="50" placeholder="Rechercher une vidéo" value="{{ keywords }}">
                         {% else %}
-                            <input type="text" name="q" maxlength="50" placeholder="Rechercher un article">
+                            <input type="text" name="q" maxlength="50" placeholder="Rechercher une vidéo">
                         {% endif %}
                         <input type="submit" value="Rechercher">
                     </form>
@@ -90,14 +90,14 @@
                         <div class="alert alert-success alert-dismissible" role="alert" style="margin: 15px">
                              <button type="button" class="close" data-dismiss="alert" aria-label="Close">
                                  <span aria-hidden="true">&times;</span></button>
-                                Article Créé avec succès
+                                Vidéo Créé avec succès
                          </div>
                     {% endif %}
                     {% if updated == '1' %}
                         <div class="alert alert-success alert-dismissible" role="alert" style="margin: 15px">
                              <button type="button" class="close" data-dismiss="alert" aria-label="Close">
                                  <span aria-hidden="true">&times;</span></button>
-                                Article Modifié avec succès
+                                Vidéo Modifié avec succès
                          </div>
                     {% endif %}
                     <thead>
@@ -105,45 +105,35 @@
                         <th>ID</th>
                         <th>Titre réduit</th>
                         <th>Catégorie</th>
-                        <th>Commentaires</th>
-                        <th>Partage</th>
+                        <th>Lien</th>
                         <th>Tags</th>
                     </tr>
                     </thead>
                     <tbody>
-                        {% for article in articles %}
+                        {% for video in videos %}
                             <tr>
-                                <td>{{ article.id }}</td>
-                                <td>{{ article.small_title }}<span class="vue">{{ article.view_number }} <i class="fa fa-eye"></i></span></td>
-                                <td>{{ article.category }}</td>
-                                {% if article.comment_enable %}
-                                    <td>Activés
-                                        <span class="vue">Total : {{ article.comment_set.count }} <i class="fa fa-comments-o"></i></span></td>
-                                {% else %}
-                                    <td>Désactivés</td>
-                                {% endif %}
-                                {% if article.share_enable %}
-                                    <td>Activé</td>
-                                {% else %}
-                                    <td>Désactivé</td>
-                                {% endif %}
+                                <td>{{ video.id }}</td>
+                                <td>{{ video.small_title }}<span class="vue">{{ video.view_number }}
+                                    <i class="fa fa-eye"></i></span></td>
+                                <td>{{ video.category }}</td>
+                                <td class="video-url"><a href="{{ video.video_url }}" target="_blank">{{ video.video_url }}</a></td>
                                 <td>
-                                    {% for tag in article.tag.all %}
+                                    {% for tag in video.tag.all %}
                                         <span style="background: {{ tag.color }}">{{ tag }}</span>
                                     {% endfor %}
                                 </td>
                                 <td>
-                                    <form action="{% url 'journalist_articles' %}" method="post" class="formDelete"
+                                    <form action="{% url 'journalist_videos' %}" method="post" class="formDelete"
                                           data-id="{{ article.id }}">
                                         {% csrf_token %}
-                                        <input type="hidden" name="article" value="{{ article.id }}">
+                                        <input type="hidden" name="video" value="{{ video.id }}">
                                         <button type="submit" class="btn btn-danger">
                                             <i class="fa fa-trash-o"></i></button>
                                     </form>
-                                    <a href="{% url 'journalist_update_article' article.id %}" class="btn btn-warning">
+                                    <a href="{% url 'journalist_update_video' video.id %}" class="btn btn-warning">
                                         <i class="fa fa-edit"></i></a>
-                                    <a href="{% url 'post' article.category article.id %}" class="btn btn-info">
-                                        <i class="fa fa-eye"></i></a>
+                                    <a href="{% url 'video_show' video.id %}" class="btn btn-info">
+                                        <i class="fa fa-play"></i></a>
                                 </td>
                             </tr>
                         {% endfor %}
@@ -152,27 +142,27 @@
                 {% endif %}
             </div>
             <div>
-                {% if articles.has_other_pages %}
+                {% if videos.has_other_pages %}
                     <ul class="pagination">
-                        {% if articles.has_previous %}
-                            <li><a href="?page={{ articles.previous_page_number }}">&laquo;</a></li>
+                        {% if videos.has_previous %}
+                            <li><a href="?page={{ videos.previous_page_number }}">&laquo;</a></li>
                         {% else %}
                             <li class="disabled"><span>&laquo;</span></li>
                         {% endif %}
-                        {% for i in articles.paginator.page_range %}
+                        {% for i in videos.paginator.page_range %}
                             {% if articles.number == i %}
                                 <li class="active"><span>{{ i }} <span class="sr-only">(current)</span></span></li>
                             {% else %}
                                 <li><a href="?page={{ i }}">{{ i }}</a></li>
                             {% endif %}
                         {% endfor %}
-                        {% if articles.has_next %}
-                            <li><a href="?page={{ articles.next_page_number }}">&raquo;</a></li>
+                        {% if videos.has_next %}
+                            <li><a href="?page={{ videos.next_page_number }}">&raquo;</a></li>
                         {% else %}
                             <li class="disabled"><span>&raquo;</span></li>
                         {% endif %}
                     </ul>
-                    <p class="paginatorIndex">page {{ articles.number }} sur {{ articles.paginator.num_pages }}</p>
+                    <p class="paginatorIndex">page {{ videos.number }} sur {{ videos.paginator.num_pages }}</p>
                 {% endif %}
             </div>
         </div>

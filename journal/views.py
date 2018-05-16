@@ -8,6 +8,7 @@ from itertools import chain
 
 from django.views.decorators.http import require_POST
 
+from journal.forms import JournalistCreateVideo
 from .models import Category, Image, News, Video, Comment, Tag, Answer, Newsletter, \
     CommentFilter, Journalist, ImageNews
 from .forms import ImageUploadForm, ReplyForm, SignalForm, JournalistProfileForm, JournalistAddTagForm, \
@@ -337,7 +338,7 @@ def author(request, selected_author_id):
 
 
 # ## ALL VIDEO PAGE ## #
-def video(request):
+def videos(request):
     # VIDEO SELECTION
     video_selection = Video.objects.filter(active=True, team_selection=True).order_by('-date_publication')[:5]
 
@@ -394,6 +395,15 @@ def video_show(request, selected_video_id):
         signal_form.fields['email'].widget.attrs['hidden'] = 'true'
         signal_form.fields['email'].widget.attrs['value'] = request.user.email
 
+    # CHECK IF USER CONNECTED AND IF HE IS THE JOURNALIST OF THIS ARTICLE
+    self_video = False
+    if request.user.is_authenticated:
+        user = request.user
+        if user.email in Journalist.email_list():
+            j = get_object_or_404(Journalist, email=user.email)
+            if selected_video.journalist == j:
+                    self_video = True
+
     context = {
         'video': selected_video,
         'tags': tags,
@@ -401,6 +411,7 @@ def video_show(request, selected_video_id):
         'lastAddVideo': last_add_video,
         'signalForm': signal_form,
         'replyForm': reply_form,
+        'self_video': self_video
     }
 
     return render(request, 'journal/video_view.html', context)
@@ -891,7 +902,7 @@ def journalist_update_article(request, article_id):
     if article.journalist != j:
         return redirect('journalist_articles')
 
-    # CREATING ARTICLE
+    # UPDATING ARTICLE
     if request.method == 'POST':
         form = JournalistCreateArticle(request.POST)
         if form.is_valid():
@@ -903,8 +914,12 @@ def journalist_update_article(request, article_id):
             article.content = cd['content']
             if cd['comment_enable'] == 'no':
                 article.comment_enable = False
+            else:
+                article.comment_enable = True
             if cd['share_enable'] == 'no':
                 article.share_enable = False
+            else:
+                article.share_enable = True
             tags = request.POST.getlist('tags')
             for t in tags:
                 article.tag.add(get_object_or_404(Tag, id=t))
@@ -934,9 +949,238 @@ def journalist_update_article(request, article_id):
     return render(request, 'journal/journalist/journalist_update_article.html', context)
 
 
+def journalist_video(request):
+    if request.user.is_authenticated:
+        user = request.user
+        if user.email in Journalist.email_list():
+            # JOURNALIST
+            j = get_object_or_404(Journalist, email=user.email)
+
+            if request.method == 'POST':
+                video_id = request.POST['video']
+                video = get_object_or_404(Video, id=video_id)
+                if video.journalist == j:
+                    video.active = False
+                    video.save()
+
+            # JOURNALIST VIDEOS
+            j_videos = Video.objects.filter(active=True, journalist=j).order_by('-date_publication')
+
+            # SEARCH
+            search_get = False
+            keywords = request.GET.get('q')
+            if keywords:
+                search_get = True
+                query = SearchQuery(keywords)
+                title_vector = SearchVector('title', weight='A')
+                resume_vector = SearchVector('resume', weight='B')
+                content_vector = SearchVector('content', weight='C')
+                vectors = title_vector + content_vector + resume_vector
+                j_videos = j_videos.annotate(search=vectors).filter(search=query)
+                j_videos = j_videos.annotate(rank=SearchRank(vectors, query)).order_by('-rank', '-view_number')
+
+            count = j_videos.count()
+
+            # PAGINATOR
+            page = request.GET.get('page', 1)
+            paginator = Paginator(j_videos, 20)
+            try:
+                j_videos = paginator.page(page)
+            except PageNotAnInteger:
+                j_videos = paginator.page(1)
+            except EmptyPage:
+                j_videos = paginator.page(paginator.num_pages)
+
+            # CHECK IF REDIRECT FROM CREATE VIDEO
+            created = request.session.get('created', '0')
+            if created == '1':
+                del request.session['created']
+
+            # CHECK IF REDIRECT FROM UPDATE VIDEO
+            updated = request.session.get('updated', '0')
+            if updated == '1':
+                del request.session['updated']
+
+        context = {
+            'journalist': j,
+            'count': count,
+            'videos': j_videos,
+            'search': search_get,
+            'keywords': keywords,
+            'created': created,
+            'updated': updated
+        }
+
+        return render(request, 'journal/journalist/journalist_videos.html', context)
+
+    return redirect('index')
+
+
+# ## JOURNALIST CREATE VIDEO PAGE ## #
+def journalist_create_video(request):
+
+    # CHECK IF JOURNALIST
+    if request.user.is_authenticated:
+        user = request.user
+        if user.email in Journalist.email_list():
+            # JOURNALIST
+            j = get_object_or_404(Journalist, email=user.email)
+        else:
+            return redirect('journalist')
+    else:
+        return redirect('index')
+
+    # GET TEMPORARY VIDEO OR CREATE NEW ONE
+    video_id = request.session.get('video', None)
+    has_image = 0
+    if video_id is None:
+        video = Video.objects.create(title='Session Video', journalist=j, active=False)
+        request.session['video'] = video.id
+    else:
+        video = Video.objects.get(id=video_id)
+        if video.primary_image is not None:
+            has_image = 1
+
+    form = JournalistCreateVideo()
+
+    # CREATING VIDEO
+    if request.method == 'POST':
+        if video.primary_image is None:
+            has_image = 0
+        else:
+            form = JournalistCreateVideo(request.POST)
+            if form.is_valid():
+                cd = form.cleaned_data
+                video.title = cd['title']
+                video.small_title = cd['small_title']
+                video.category = get_object_or_404(Category, id=cd['category'])
+                video.resume = cd['resume']
+                video.content = cd['content']
+                video.video_url = cd['url']
+                if cd['comment_enable'] == 'no':
+                    video.comment_enable = False
+                if cd['share_enable'] == 'no':
+                    video.share_enable = False
+                tags = request.POST.getlist('tags')
+                for t in tags:
+                    video.tag.add(get_object_or_404(Tag, id=t))
+                video.active = True
+                video.save()
+
+                del request.session['video']
+                request.session['created'] = '1'
+
+                return redirect('journalist_videos')
+
+            else:
+                print(form.errors)
+
+    context = {
+        'tags': Tag.objects.all().order_by('name'),
+        'form': form,
+        'has_image': has_image,
+        'form_tag': JournalistAddTagForm,
+        'image': video.primary_image
+    }
+    return render(request, 'journal/journalist/journalist_add_video.html', context)
+
+
+# ## JOURNALIST CANCEL CREATE VIDEO REDIRECT ## #
+def journalist_cancel_video(request):
+    # CHECK IF JOURNALIST
+    if request.user.is_authenticated:
+        user = request.user
+        if user.email in Journalist.email_list():
+            # JOURNALIST
+            j = get_object_or_404(Journalist, email=user.email)
+        else:
+            return redirect('journalist')
+    else:
+        return redirect('index')
+
+    # GET TEMPORARY VIDEO AND DELETE IT
+    video_id = request.session.get('video', None)
+    if video_id is not None:
+        video = Video.objects.get(id=video_id)
+        if video.journalist == j:
+            ImageNews.objects.filter(article=video).delete()
+            video.delete()
+            del request.session['video']
+
+    return redirect('journalist_videos')
+
+
+# ## JOURNALIST UPDATE VIDEO PAGE ## #
+def journalist_update_video(request, video_id):
+    # CHECK IF JOURNALIST
+    if request.user.is_authenticated:
+        user = request.user
+        if user.email in Journalist.email_list():
+            # JOURNALIST
+            j = get_object_or_404(Journalist, email=user.email)
+        else:
+            return redirect('journalist')
+    else:
+        return redirect('index')
+
+    # GET VIDEO
+    video = get_object_or_404(Video, id=video_id, active=True)
+    if video.journalist != j:
+        return redirect('journalist_videos')
+
+    # UPDATING VIDEO
+    if request.method == 'POST':
+        form = JournalistCreateVideo(request.POST)
+        if form.is_valid():
+            cd = form.cleaned_data
+            video.title = cd['title']
+            video.small_title = cd['small_title']
+            video.category = get_object_or_404(Category, id=cd['category'])
+            video.resume = cd['resume']
+            video.content = cd['content']
+            video.video_url = cd['url']
+            if cd['comment_enable'] == 'no':
+                video.comment_enable = False
+            else:
+                video.comment_enable = True
+            if cd['share_enable'] == 'no':
+                video.share_enable = False
+            else:
+                video.share_enable = True
+            tags = request.POST.getlist('tags')
+            for t in tags:
+                video.tag.add(get_object_or_404(Tag, id=t))
+            video.active = True
+            video.save()
+
+            request.session['updated'] = '1'
+
+            return redirect('journalist_videos')
+
+    else:
+        form = JournalistCreateVideo(initial={
+            'title': video.title,
+            'small_title': video.small_title,
+            'resume': video.resume,
+            'content': video.content,
+            'url': video.video_url
+        })
+
+    context = {
+        'video': video,
+        'tags': Tag.objects.all().order_by('name'),
+        'selected_tags': Tag.objects.filter(news=video),
+        'form': form,
+        'form_tag': JournalistAddTagForm
+    }
+
+    return render(request, 'journal/journalist/journalist_update_video.html', context)
+
+
 #####################################################
 #          JOURNALIST AJAX REQUEST VIEW             #
 #####################################################
+
 
 # ## JOURNALIST UPLOAD PRIMARY IMAGE ON CREATE FUNCTION ## #
 @require_POST
@@ -1160,4 +1404,73 @@ def journalist_create_tag(request):
             'name': name,
             'id': t.id
         }
+    return JsonResponse(data)
+
+
+# ## JOURNALIST UPLOAD PRIMARY IMAGE ON CREATE VIDEO FUNCTION ## #
+@require_POST
+def journalist_upload_primary_image_video(request):
+
+    # CHECK IF JOURNALIST
+    if request.user.is_authenticated:
+        user = request.user
+        if user.email in Journalist.email_list():
+            # JOURNALIST
+            j = get_object_or_404(Journalist, email=user.email)
+        else:
+            return redirect('journalist')
+    else:
+        return redirect('index')
+
+    # GET TEMPORARY VIDEO OR CREATE NEW ONE
+    video_id = request.session.get('video', None)
+    if video_id is None:
+        video = Video.objects.create(title='Session Video', journalist=j, active=False)
+        request.session['video'] = video.id
+    else:
+        video = Video.objects.get(id=video_id)
+
+    # GET PRIMARY IMAGE FROM POST
+    form = JournalistImagePrimaryImport(request.POST, request.FILES)
+    if form.is_valid():
+        image = form.save()
+        image.description = 'Video primary image'
+        image.save()
+        video.primary_image = image
+        video.save()
+        data = {'is_valid': True, 'name': image.image.name, 'url': image.image.url}
+    else:
+        data = {'is_valid': False}
+    return JsonResponse(data)
+
+
+# ## JOURNALIST UPLOAD PRIMARY IMAGE ON UPDATE VIDEO FUNCTION ## #
+@require_POST
+def journalist_update_primary_image_video(request, video_id):
+
+    # CHECK IF JOURNALIST
+    if request.user.is_authenticated:
+        user = request.user
+        if user.email in Journalist.email_list():
+            # JOURNALIST
+            j = get_object_or_404(Journalist, email=user.email)
+        else:
+            return redirect('journalist')
+    else:
+        return redirect('index')
+
+    # GET TEMPORARY VIDEO OR CREATE NEW ONE
+    video = get_object_or_404(Video, id=video_id, active=True, journalist=j)
+
+    # GET PRIMARY IMAGE FROM POST
+    form = JournalistImagePrimaryImport(request.POST, request.FILES)
+    if form.is_valid():
+        image = form.save()
+        image.description = 'Article primary image'
+        image.save()
+        video.primary_image = image
+        video.save()
+        data = {'is_valid': True, 'name': image.image.name, 'url': image.image.url}
+    else:
+        data = {'is_valid': False}
     return JsonResponse(data)

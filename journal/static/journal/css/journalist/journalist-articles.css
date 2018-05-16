@@ -62,6 +62,11 @@ h4 {
     max-width: 200px;
 }
 
+.table tbody tr td:last-child {
+    min-width: 136px;
+}
+
+
 .table-striped > thead > tr > th, .table-striped > tbody > tr > td{
     padding: 15px 8px;
 }

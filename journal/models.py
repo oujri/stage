@@ -103,7 +103,7 @@ class News(models.Model):
     date_publication = models.DateTimeField(auto_now_add=True)
     view_number = models.IntegerField(default=0)
     resume = models.TextField(blank=True, null=True)
-    comment_enable = models.BooleanField(default=True, verbose_name='Activer les commentaires')
+    comment_enable = models.BooleanField(default=True)
     share_enable = models.BooleanField(default=True)
     journalist = models.ForeignKey(Journalist, on_delete=models.CASCADE)
     category = models.ForeignKey(Category, blank=True, null=True, on_delete=models.CASCADE)
